@@ -1,0 +1,21 @@
+{
+  "name": "physics-task-portal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "scripts": {
+    "content": "node scripts/build-activities.mjs",
+    "validate": "node scripts/validate-public.mjs",
+    "build": "node scripts/build-public.mjs",
+    "sync": "node scripts/sync-supabase.mjs",
+    "teacher": "node scripts/bootstrap-teacher.mjs",
+    "export": "node scripts/export-journal.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.57.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}

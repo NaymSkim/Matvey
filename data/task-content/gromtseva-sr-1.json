@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "activityId": "gromtseva-sr-1",
+  "variants": [
+    {
+      "id": "v1",
+      "title": "Вариант 1",
+      "maxPoints": 0,
+      "questions": [
+        {
+          "id": "v1-q1",
+          "title": "Имеет ли материальная точка размеры?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v1-q2",
+          "title": "Можно ли применять модель материальной точки для туриста или пешехода?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v1-q3",
+          "title": "Поезд движется из Москвы во Владивосток. Могут ли пассажиры считать его материальной точкой?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v1-q4",
+          "title": "Для чего в физике вводят систему отсчёта?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v1-q5",
+          "title": "При каком движении тел системой координат может служить координатная ось?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        }
+      ]
+    },
+    {
+      "id": "v2",
+      "title": "Вариант 2",
+      "maxPoints": 0,
+      "questions": [
+        {
+          "id": "v2-q1",
+          "title": "Обладает ли материальная точка массой?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v2-q2",
+          "title": "Всегда ли орбитальную станцию, летающую вокруг Земли, можно считать материальной точкой?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v2-q3",
+          "title": "Почему движущийся поступательно автобус можно считать материальной точкой?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v2-q4",
+          "title": "Что входит в систему отсчёта?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v2-q5",
+          "title": "При каком движении тел система координат должна быть трёхмерной?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        }
+      ]
+    }
+  ]
+}

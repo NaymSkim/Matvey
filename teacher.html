@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Статистика учебных работ по физике." />
+    <meta name="theme-color" content="#12231a" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2312231a'/%3E%3Cpath d='M18 17v19c0 18 28 18 28 0V17H35v19c0 7-6 7-6 0V17z' fill='%23f2f7f0'/%3E%3Cpath d='M18 17h11v9H18zm17 0h11v9H35z' fill='%23ff6846'/%3E%3C/svg%3E" />
+    <title>Кабинет преподавателя · Физика</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">φ</span><span><b>Физика</b><small>Кабинет</small></span></a>
+      <div class="student-controls">
+        <a class="quiet-link" href="./">К заданиям</a>
+        <button class="quiet-button" id="teacher-signout" type="button" hidden>Выйти</button>
+      </div>
+    </header>
+
+    <main class="teacher-main">
+      <section class="teacher-login" id="teacher-login">
+        <p class="eyebrow">Для преподавателя</p>
+        <h1>Статистика и доступ</h1>
+        <p class="lead">Введите разрешённую почту — Supabase пришлёт одноразовую ссылку для входа.</p>
+        <form id="teacher-login-form" class="inline-form">
+          <label class="field"><span>Электронная почта</span><input id="teacher-email" type="email" required autocomplete="email" placeholder="teacher@example.com" /></label>
+          <button class="primary-button" type="submit">Получить ссылку</button>
+        </form>
+        <p class="notice" id="teacher-login-message" hidden></p>
+      </section>
+
+      <section id="teacher-dashboard" hidden>
+        <div class="teacher-head">
+          <div><p class="eyebrow">Для преподавателя</p><h1>Прогресс ученика</h1></div>
+          <button class="secondary-button" id="refresh-dashboard" type="button">Обновить</button>
+        </div>
+        <p class="dashboard-meta" id="dashboard-meta"></p>
+        <div class="summary-cards" id="summary-cards"></div>
+
+        <section class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Доступ</p><h2>Ученик</h2></div><button class="secondary-button" id="new-student" type="button">Создать ученика</button></div>
+          <div id="student-admin"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Журнал</p><h2>Результаты работ</h2></div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Работа</th><th>Посещения</th><th>Попытка 1</th><th>Пересдача</th><th>Лучшая</th><th>Решения</th></tr></thead>
+              <tbody id="results-body"></tbody>
+            </table>
+          </div>
+          <p class="empty-row" id="no-results" hidden>Результатов пока нет.</p>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Последние действия</p><h2>Попытки ответов</h2></div></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Время</th><th>Работа</th><th>Вопрос</th><th>Ответ</th><th>Результат</th></tr></thead>
+              <tbody id="attempts-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <dialog class="login-dialog" id="student-admin-dialog">
+      <form id="student-admin-form">
+        <button class="dialog-close" type="button" data-close-admin aria-label="Закрыть">×</button>
+        <p class="eyebrow">Новый ученик</p>
+        <h2>Создать доступ</h2>
+        <label class="field"><span>Имя ученика</span><input id="new-student-name" required maxlength="80" /></label>
+        <p class="form-error" id="student-admin-error" hidden></p>
+        <button class="primary-button" type="submit">Создать и показать код</button>
+      </form>
+    </dialog>
+
+    <dialog class="login-dialog" id="code-dialog">
+      <div class="code-result">
+        <button class="dialog-close" type="button" data-close-code aria-label="Закрыть">×</button>
+        <p class="eyebrow">Код ученика</p>
+        <h2 id="code-student-name"></h2>
+        <output class="student-code-output" id="student-code-output"></output>
+        <p>Сохраните и передайте этот код ученику. После закрытия он больше не показывается.</p>
+        <button class="primary-button" type="button" data-close-code>Готово</button>
+      </div>
+    </dialog>
+
+    <script src="config.js?v=2"></script>
+    <script type="module" src="teacher.js"></script>
+  </body>
+</html>

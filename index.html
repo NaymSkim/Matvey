@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Задания по физике, результаты и прогресс ученика." />
+    <meta name="theme-color" content="#12231a" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2312231a'/%3E%3Cpath d='M18 17v19c0 18 28 18 28 0V17H35v19c0 7-6 7-6 0V17z' fill='%23f2f7f0'/%3E%3Cpath d='M18 17h11v9H18zm17 0h11v9H35z' fill='%23ff6846'/%3E%3C/svg%3E" />
+    <title>Физика · Задания</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Физика — главная">
+        <span class="brand-mark" aria-hidden="true">φ</span>
+        <span><b>Физика</b><small>9 класс</small></span>
+      </a>
+      <div class="student-controls">
+        <span class="student-pill" id="student-pill" hidden></span>
+        <button class="quiet-button" id="change-student" type="button" hidden>Сменить ученика</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="portal-head" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Учебный портал</p>
+          <h1 id="page-title">Задания по физике</h1>
+          <p class="lead">Открой нужную работу, реши задания и следи за своим результатом.</p>
+        </div>
+        <article class="progress-summary" aria-label="Общий прогресс">
+          <div class="summary-line"><span>Завершено</span><strong id="completed-count">0 из 0</strong></div>
+          <div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div>
+          <p id="progress-note">Войди, чтобы увидеть свой прогресс.</p>
+        </article>
+      </section>
+
+      <section class="catalog" aria-labelledby="catalog-title">
+        <div class="catalog-head">
+          <div>
+            <p class="eyebrow">Материалы</p>
+            <h2 id="catalog-title">Доступные работы</h2>
+          </div>
+          <label class="search-box">
+            <span class="visually-hidden">Найти работу</span>
+            <input id="search" type="search" placeholder="Найти тему…" autocomplete="off" />
+          </label>
+        </div>
+        <div class="filter-row" id="topic-filters" aria-label="Фильтр по теме"></div>
+        <div class="activity-grid" id="activity-grid" aria-live="polite"></div>
+        <div class="empty-panel" id="empty-panel" hidden>По этому запросу работ пока нет.</div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Результат сохраняется после серверной проверки.</p>
+      <a href="teacher.html">Кабинет преподавателя</a>
+    </footer>
+
+    <dialog class="login-dialog" id="student-dialog">
+      <form id="student-form">
+        <button class="dialog-close" type="button" data-close aria-label="Закрыть">×</button>
+        <p class="eyebrow">Вход ученика</p>
+        <h2>Продолжим работу</h2>
+        <p class="dialog-copy">Введи имя и код, который выдал преподаватель.</p>
+        <label class="field">
+          <span>Имя</span>
+          <input id="student-name" name="name" required maxlength="80" autocomplete="name" placeholder="Например, Маша" />
+        </label>
+        <label class="field">
+          <span>Код ученика</span>
+          <input id="student-code" name="code" required minlength="8" maxlength="8" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="A7K3P9Q2" />
+        </label>
+        <p class="form-error" id="student-error" role="alert" hidden></p>
+        <button class="primary-button" type="submit">Войти</button>
+        <p class="form-note">Код состоит из восьми латинских букв и цифр.</p>
+      </form>
+    </dialog>
+
+    <template id="activity-template">
+      <article class="activity-card">
+        <div class="card-topline">
+          <span class="subject-label"></span>
+          <span class="activity-state"></span>
+        </div>
+        <h3></h3>
+        <p class="activity-description"></p>
+        <div class="activity-meta"></div>
+        <div class="card-progress" hidden>
+          <div class="summary-line"><span>Лучший результат</span><b></b></div>
+          <div class="progress-track"><span></span></div>
+        </div>
+        <a class="activity-link">Открыть работу <span aria-hidden="true">↗</span></a>
+      </article>
+    </template>
+
+    <script src="config.js?v=2"></script>
+    <script type="module" src="portal.js"></script>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#12231a" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2312231a'/%3E%3Cpath d='M18 17v19c0 18 28 18 28 0V17H35v19c0 7-6 7-6 0V17z' fill='%23f2f7f0'/%3E%3Cpath d='M18 17h11v9H18zm17 0h11v9H35z' fill='%23ff6846'/%3E%3C/svg%3E" />
+    <title>Работа · Физика</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="task-page">
+    <header class="topbar">
+      <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">φ</span><span><b>Физика</b><small>Задание</small></span></a>
+      <a class="quiet-link" href="./">← Ко всем работам</a>
+    </header>
+    <main class="task-main">
+      <section class="task-intro">
+        <p class="eyebrow" id="task-subject">Загрузка</p>
+        <h1 id="task-title">Открываем работу…</h1>
+        <p class="lead" id="task-description"></p>
+        <div class="variant-picker" id="variant-picker" hidden></div>
+        <div class="run-banner" id="run-banner" hidden></div>
+      </section>
+      <section class="question-list" id="question-list" aria-live="polite"></section>
+      <section class="submit-panel" id="submit-panel" hidden>
+        <div><p class="eyebrow">Сдача</p><h2>Ответы больше нельзя будет изменить</h2><p id="submit-note">Незаполненные задания принесут 0 баллов.</p></div>
+        <button class="primary-button compact" id="submit-run" type="button">Сдать работу</button>
+      </section>
+      <section class="result-panel" id="result-panel" hidden></section>
+      <section class="solutions-panel" id="solutions-panel" hidden></section>
+    </main>
+
+    <template id="question-template">
+      <article class="question-card">
+        <div class="question-head"><span class="question-number"></span><span class="question-points"></span></div>
+        <h2></h2>
+        <div class="question-control"></div>
+        <div class="question-actions"><button class="secondary-button check-answer" type="button">Проверить ответ</button></div>
+        <p class="question-feedback" aria-live="polite"></p>
+      </article>
+    </template>
+
+    <script src="config.js?v=2"></script>
+    <script type="module" src="task-page.js"></script>
+  </body>
+</html>

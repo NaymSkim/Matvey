@@ -1,0 +1,20 @@
+project_id = "physics-task-portal"
+
+[functions.claim-student]
+verify_jwt = false
+[functions.student-progress]
+verify_jwt = false
+[functions.open-activity]
+verify_jwt = false
+[functions.start-run]
+verify_jwt = false
+[functions.submit-answer]
+verify_jwt = false
+[functions.submit-run]
+verify_jwt = false
+[functions.released-solutions]
+verify_jwt = false
+[functions.teacher-summary]
+verify_jwt = false
+[functions.teacher-admin]
+verify_jwt = false
