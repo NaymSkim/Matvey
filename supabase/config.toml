@@ -1,5 +1,10 @@
 project_id = "physics-task-portal"
 
+[auth]
+site_url = "https://naymskim.github.io/Matvey/"
+additional_redirect_urls = ["https://naymskim.github.io/Matvey/teacher.html"]
+enable_anonymous_sign_ins = true
+
 [functions.claim-student]
 verify_jwt = false
 [functions.student-progress]
