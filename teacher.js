@@ -5,6 +5,7 @@ const ui = {
   loginForm: document.querySelector("#teacher-login-form"), loginMessage: document.querySelector("#teacher-login-message"),
   signout: document.querySelector("#teacher-signout"), refresh: document.querySelector("#refresh-dashboard"),
   meta: document.querySelector("#dashboard-meta"), summaries: document.querySelector("#summary-cards"),
+  activityAccess: document.querySelector("#activity-access-list"),
   studentAdmin: document.querySelector("#student-admin"), results: document.querySelector("#results-body"),
   attempts: document.querySelector("#attempts-body"), noResults: document.querySelector("#no-results"),
   adminDialog: document.querySelector("#student-admin-dialog"), adminForm: document.querySelector("#student-admin-form"),
@@ -18,6 +19,12 @@ async function invoke(name, body = {}) {
 }
 
 const date = (value) => value ? new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(new Date(value)) : "—";
+const localDateTimeValue = (value) => {
+  if (!value) return "";
+  const parsed = new Date(value);
+  const local = new Date(parsed.getTime() - parsed.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
+};
 const activityName = (id) => catalog.find((item) => item.id === id)?.title || id;
 const runLabel = (run) => run ? (run.grade == null ? "Ответы сохранены · без оценки" : `${run.score}/${run.maxPoints} · ${run.percent}% · ${run.grade}`) : "—";
 const runsLabel = (runs, runNo) => {
@@ -77,6 +84,59 @@ function renderStudent(student) {
   row.append(details, actions); ui.studentAdmin.append(row);
 }
 
+function renderActivityAccess(settings) {
+  ui.activityAccess.replaceChildren();
+  settings.forEach((item) => {
+    const row = document.createElement("article");
+    row.className = "activity-access-row";
+    const heading = document.createElement("div");
+    heading.className = "activity-access-heading";
+    const title = document.createElement("strong");
+    title.textContent = activityName(item.activityId);
+    const status = document.createElement("span");
+    status.className = `access-status ${item.isOpen ? "open" : "closed"}`;
+    status.textContent = item.manuallyClosed ? "Закрыта" : item.deadlineExpired ? "Срок истёк" : "Открыта";
+    heading.append(title, status);
+
+    const controls = document.createElement("div");
+    controls.className = "activity-access-controls";
+    const toggle = document.createElement("label");
+    toggle.className = "access-toggle";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = !item.manuallyClosed;
+    const toggleText = document.createElement("span");
+    toggleText.textContent = "Открыта ученику";
+    toggle.append(checkbox, toggleText);
+
+    const deadlineLabel = document.createElement("label");
+    deadlineLabel.className = "deadline-field";
+    const deadlineText = document.createElement("span");
+    deadlineText.textContent = "Выполнить до";
+    const deadline = document.createElement("input");
+    deadline.type = "datetime-local";
+    deadline.value = localDateTimeValue(item.deadlineAt);
+    deadlineLabel.append(deadlineText, deadline);
+
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    const save = button("Сохранить", "primary-button compact", async () => {
+      const deadlineAt = deadline.value ? new Date(deadline.value).toISOString() : null;
+      await teacherAction("set_activity_access", { activityId: item.activityId, isOpen: checkbox.checked, deadlineAt });
+      await loadDashboard();
+    });
+    const clear = button("Убрать срок", "secondary-button", async () => {
+      await teacherAction("set_activity_access", { activityId: item.activityId, isOpen: checkbox.checked, deadlineAt: null });
+      await loadDashboard();
+    });
+    clear.disabled = !item.deadlineAt;
+    actions.append(save, clear);
+    controls.append(toggle, deadlineLabel, actions);
+    row.append(heading, controls);
+    ui.activityAccess.append(row);
+  });
+}
+
 function renderResults(rows, student) {
   ui.results.replaceChildren();
   rows.forEach((item) => {
@@ -117,7 +177,7 @@ async function loadDashboard() {
       summaryCard("Сдано работ", String(data.submittedRuns || 0)),
       summaryCard("Средняя оценка", data.averageGrade ? String(data.averageGrade) : "—"),
     );
-    renderStudent(data.student); renderResults(data.activities || [], data.student); renderAttempts(data.attempts || []);
+    renderActivityAccess(data.activitySettings || []); renderStudent(data.student); renderResults(data.activities || [], data.student); renderAttempts(data.attempts || []);
   } finally { ui.refresh.disabled = false; }
 }
 

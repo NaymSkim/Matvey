@@ -29,7 +29,7 @@ body {
   font-size: 16px;
   line-height: 1.5;
 }
-button, input, select { font: inherit; }
+button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
 :focus-visible { outline: 3px solid rgba(35, 88, 167, .25); outline-offset: 3px; }
@@ -69,6 +69,9 @@ h1 { margin-bottom: 19px; font: 400 clamp(3.3rem, 7.4vw, 6.5rem)/.92 Georgia, "T
 .activity-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .activity-card { display: flex; min-height: 330px; flex-direction: column; padding: 25px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); box-shadow: 0 9px 26px rgba(18,35,26,.05); }
 .activity-card[data-mode="visit-only"] { background: linear-gradient(145deg, var(--surface), #f8faf7); }
+.activity-card.is-closed { background: #edf1ed; box-shadow: none; }
+.activity-card.is-closed .activity-state { color: var(--danger); }
+.activity-card.is-closed .activity-link { color: var(--muted); cursor: not-allowed; }
 .card-topline { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 40px; font-size: .75rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
 .subject-label { color: var(--blue); }
 .activity-state { color: var(--muted); }
@@ -76,6 +79,7 @@ h1 { margin-bottom: 19px; font: 400 clamp(3.3rem, 7.4vw, 6.5rem)/.92 Georgia, "T
 .activity-card h3 { margin-bottom: 11px; font: 400 1.9rem/1.08 Georgia, serif; letter-spacing: -.03em; }
 .activity-description { color: var(--muted); line-height: 1.6; }
 .activity-meta { margin-top: auto; color: var(--muted); font-size: .82rem; }
+.activity-deadline { margin: 13px 0 0; padding: 9px 11px; border-left: 3px solid var(--accent); background: #fff4ef; color: #7e2a19; font-size: .8rem; font-weight: 720; }
 .card-progress { margin-top: 18px; }
 .card-progress b { font-size: .85rem; }
 .card-progress .progress-track { height: 5px; margin-top: 8px; }
@@ -123,6 +127,19 @@ footer a { color: var(--blue); }
 .panel-head { margin-bottom: 18px; }
 .panel-head .eyebrow { margin-bottom: 5px; }
 .panel h2 { margin: 0; font: 400 1.9rem Georgia, serif; }
+.panel-copy { max-width: 760px; margin: -6px 0 20px; color: var(--muted); }
+.activity-access-list { display: grid; gap: 10px; }
+.activity-access-row { padding: 17px; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
+.activity-access-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.access-status { padding: 5px 9px; border-radius: 999px; font-size: .72rem; font-weight: 800; }
+.access-status.open { background: var(--green-soft); color: var(--green); }
+.access-status.closed { background: #fbe5e2; color: var(--danger); }
+.activity-access-controls { display: grid; grid-template-columns: minmax(160px, .6fr) minmax(230px, 1fr) auto; align-items: end; gap: 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.access-toggle { min-height: 48px; display: flex; align-items: center; gap: 9px; font-size: .86rem; font-weight: 730; cursor: pointer; }
+.access-toggle input { width: 19px; height: 19px; accent-color: var(--green); }
+.deadline-field { color: var(--muted); font-size: .77rem; font-weight: 730; }
+.deadline-field span { display: block; margin-bottom: 6px; }
+.deadline-field input { width: 100%; min-height: 48px; padding: 0 11px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); color: var(--ink); }
 .student-admin-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 17px; border-top: 1px solid var(--line); }
 .student-admin-row strong, .student-admin-row span { display: block; }
 .student-admin-row span { margin-top: 4px; color: var(--muted); font-size: .82rem; }
@@ -142,6 +159,8 @@ td { font-size: .88rem; }
 
 .task-main { width: min(920px, calc(100% - 40px)); padding: 60px 0 100px; }
 .task-intro h1 { margin-bottom: 18px; font-size: clamp(3rem, 7vw, 5.8rem); }
+.task-deadline { margin-top: 24px; padding: 14px 17px; border-left: 4px solid var(--accent); background: #fff4ef; color: #7e2a19; font-weight: 780; }
+.task-deadline.closed { border-left-color: var(--danger); background: #fbe5e2; }
 .variant-picker { margin-top: 30px; padding: 18px; border: 1px solid var(--line); background: rgba(255,255,255,.72); }
 .variant-picker p { margin-bottom: 12px; color: var(--muted); }
 .variant-button { min-height: 40px; margin: 4px; padding: 0 14px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); cursor: pointer; }
@@ -203,6 +222,8 @@ td { font-size: .88rem; }
   .activity-card { min-height: 300px; }
   .inline-form, .summary-cards { grid-template-columns: 1fr; }
   .teacher-head, .panel-head, .student-admin-row { align-items: stretch; flex-direction: column; }
+  .activity-access-controls { grid-template-columns: 1fr; align-items: stretch; }
+  .activity-access-heading { align-items: flex-start; }
   .row-actions { flex-wrap: wrap; }
   .task-main { width: min(100% - 28px, 620px); padding-top: 48px; }
   .run-banner, .submit-panel { align-items: stretch; flex-direction: column; }

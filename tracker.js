@@ -32,6 +32,11 @@ function clearFailed(runId, questionId) {
   writeFailed(readFailed().filter((item) => item.entry?.runId !== runId || item.entry?.questionId !== questionId));
 }
 
+function discardPending(runId) {
+  writeQueue(readQueue().filter((item) => item.runId !== runId));
+  writeFailed(readFailed().filter((item) => item.entry?.runId !== runId));
+}
+
 async function flushPending(runId = null) {
   const queue = readQueue();
   const remaining = [];
@@ -80,6 +85,7 @@ export const PhysicsTracker = {
   loadProgress: (activityId) => invoke("student-progress", activityId ? { activityId } : {}),
   loadReleasedSolutions: (activityId, variantId = "default") => invoke("released-solutions", { activityId, variantId }),
   flushPending,
+  discardPending,
 };
 
 window.addEventListener("online", () => void flushPending());

@@ -1,7 +1,7 @@
 import { PhysicsTracker } from "./tracker.js";
 import { getSupabaseClient, invokeFunction } from "./supabase-client.js";
 
-const state = { activities: [], progress: new Map(), topic: "Все", student: null, client: null };
+const state = { activities: [], progress: new Map(), topic: "Все", student: null, client: null, serverOffsetMs: 0 };
 const portalEntryId = crypto.randomUUID();
 const fingerprintKey = "physics-portal-device-v1";
 const ui = {
@@ -29,6 +29,26 @@ async function loadCatalog() {
   if (!response.ok) throw new Error("Не удалось загрузить каталог работ.");
   const payload = await response.json();
   state.activities = payload.activities.filter((item) => item.published).sort((a, b) => a.order - b.order);
+}
+
+const portalNow = () => Date.now() + state.serverOffsetMs;
+const formatDate = (value) => new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
+
+function accessFor(activityId) {
+  const saved = state.progress.get(activityId);
+  if (!state.student || !saved) return { known: false, isOpen: true, deadlineAt: null, manuallyClosed: false, deadlineExpired: false };
+  const deadlineExpired = Boolean(saved.deadlineAt && Date.parse(saved.deadlineAt) <= portalNow());
+  return { ...saved, known: true, deadlineExpired, isOpen: !saved.manuallyClosed && !deadlineExpired };
+}
+
+function remainingTime(value) {
+  const seconds = Math.max(0, Math.ceil((Date.parse(value) - portalNow()) / 1000));
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor(seconds % 86400 / 3600);
+  const minutes = Math.floor(seconds % 3600 / 60);
+  const rest = seconds % 60;
+  const clock = [hours, minutes, rest].map((part) => String(part).padStart(2, "0")).join(":");
+  return days ? `${days} дн. ${clock}` : clock;
 }
 
 function registerWebMcpTools() {
@@ -75,6 +95,7 @@ function registerWebMcpTools() {
         const activity = state.activities.find((item) => item.id === value.activityId);
         if (!activity) throw new Error("Работа не найдена.");
         if (!state.student) throw new Error("Сначала войдите как ученик.");
+        if (!accessFor(activity.id).isOpen) throw new Error("Эта работа сейчас закрыта.");
         const entryId = crypto.randomUUID();
         sessionStorage.setItem(`physics-entry:${activity.id}`, entryId);
         await PhysicsTracker.openActivity(activity.id, entryId);
@@ -121,11 +142,13 @@ function plural(number, one, few, many) {
 function activityCard(activity) {
   const card = ui.template.content.firstElementChild.cloneNode(true);
   const progress = state.progress.get(activity.id);
+  const access = accessFor(activity.id);
   const best = progress?.bestRun;
   card.dataset.mode = activity.verificationMode;
   card.classList.toggle("is-complete", Boolean(best));
+  card.classList.toggle("is-closed", access.known && !access.isOpen);
   card.querySelector(".subject-label").textContent = activity.subject;
-  card.querySelector(".activity-state").textContent = activity.verificationMode === "visit-only" ? "Без оценки" : best ? (best.grade == null ? "Сдано" : `Оценка ${best.grade}`) : "Не сдано";
+  card.querySelector(".activity-state").textContent = access.known && !access.isOpen ? (access.manuallyClosed ? "Закрыта" : "Время истекло") : activity.verificationMode === "visit-only" ? "Без оценки" : best ? (best.grade == null ? "Сдано" : `Оценка ${best.grade}`) : "Не сдано";
   card.querySelector("h3").textContent = activity.title;
   card.querySelector(".activity-description").textContent = activity.description;
   const count = activity.verificationMode === "visit-only"
@@ -134,6 +157,13 @@ function activityCard(activity) {
       ? `${activity.questionCount} ${plural(activity.questionCount, "вопрос", "вопроса", "вопросов")} · без оценки`
       : `${activity.questionCount} ${plural(activity.questionCount, "вопрос", "вопроса", "вопросов")} · ${activity.maxPoints} ${plural(activity.maxPoints, "балл", "балла", "баллов")}`;
   card.querySelector(".activity-meta").textContent = `${count} · ${activity.difficulty}`;
+  const deadline = card.querySelector(".activity-deadline");
+  if (access.deadlineAt) {
+    deadline.hidden = false;
+    deadline.textContent = access.deadlineExpired
+      ? `Срок завершён: ${formatDate(access.deadlineAt)}`
+      : `До ${formatDate(access.deadlineAt)} · осталось ${remainingTime(access.deadlineAt)}`;
+  }
   const bar = card.querySelector(".card-progress");
   if (best) {
     bar.hidden = false;
@@ -142,11 +172,19 @@ function activityCard(activity) {
     if (best.percent != null) bar.querySelector(".progress-track span").style.width = `${best.percent}%`;
   }
   const link = card.querySelector(".activity-link");
-  link.href = activity.url;
+  if (access.known && !access.isOpen) {
+    link.removeAttribute("href");
+    link.setAttribute("aria-disabled", "true");
+    link.textContent = "Работа закрыта";
+  } else link.href = activity.url;
   link.addEventListener("click", async (event) => {
     if (!state.student) {
       event.preventDefault();
       openStudentDialog();
+      return;
+    }
+    if (!accessFor(activity.id).isOpen) {
+      event.preventDefault();
       return;
     }
     event.preventDefault();
@@ -201,6 +239,7 @@ async function signInStudent(name, code) {
 async function loadProgress() {
   if (!state.client || !state.student) return;
   const data = await invoke("student-progress");
+  if (data.serverTime) state.serverOffsetMs = Date.parse(data.serverTime) - Date.now();
   state.progress = new Map((data.activities || []).map((item) => [item.activityId, item]));
   renderActivities();
 }
@@ -218,6 +257,7 @@ async function restoreStudent() {
     const result = await invoke("student-progress");
     if (result.student) {
       showStudent(result.student);
+      if (result.serverTime) state.serverOffsetMs = Date.parse(result.serverTime) - Date.now();
       state.progress = new Map((result.activities || []).map((item) => [item.activityId, item]));
       await recordPortalVisit();
     }
@@ -265,6 +305,9 @@ async function init() {
     await restoreStudent();
     renderFilters();
     renderActivities();
+    window.setInterval(() => {
+      if (state.student && [...state.progress.values()].some((item) => item.deadlineAt && !item.deadlineExpired)) renderActivities();
+    }, 1000);
     if (!state.student) openStudentDialog();
   } catch (error) {
     const panel = document.createElement("div");

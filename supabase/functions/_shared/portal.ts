@@ -140,6 +140,22 @@ function publicRun(run: Record<string, unknown>) {
   };
 }
 
+type ActivityAccessSource = { is_open?: boolean | null; available_until?: string | null };
+
+function activityAccess(activity: ActivityAccessSource) {
+  const deadlineAt = activity.available_until || null;
+  const deadlineExpired = Boolean(deadlineAt && Date.parse(deadlineAt) <= Date.now());
+  const manuallyClosed = activity.is_open === false;
+  return { isOpen: !manuallyClosed && !deadlineExpired, manuallyClosed, deadlineExpired, deadlineAt };
+}
+
+function requireActivityOpen(activity: ActivityAccessSource) {
+  const access = activityAccess(activity);
+  if (access.manuallyClosed) throw new PortalError("Работа закрыта преподавателем.", 403);
+  if (access.deadlineExpired) throw new PortalError("Время выполнения этой работы истекло.", 403);
+  return access;
+}
+
 function bestRun(runs: Array<Record<string, unknown>>) {
   const submitted = runs.filter((run) => run.status === "submitted");
   const graded = submitted.filter((run) => run.grade != null).sort((a, b) => Number(b.percent) - Number(a.percent) || Number(b.score) - Number(a.score));
@@ -230,49 +246,58 @@ async function claimStudent(req: Request, userId: string, input: Record<string, 
 async function studentProgress(userId: string, input: Record<string, unknown>) {
   const student = await studentFor(userId);
   let runsQuery = admin.from("activity_runs").select("*").eq("student_id", student.id);
-  if (input.activityId) runsQuery = runsQuery.eq("activity_id", assertId(input.activityId, "activityId"));
-  const [{ data: runs, error: runsError }, { data: visits, error: visitsError }, { data: access, error: accessError }] = await Promise.all([
+  let activitiesQuery = admin.from("activities").select("id, is_open, available_until").eq("active", true);
+  if (input.activityId) {
+    const activityId = assertId(input.activityId, "activityId");
+    runsQuery = runsQuery.eq("activity_id", activityId);
+    activitiesQuery = activitiesQuery.eq("id", activityId);
+  }
+  const [{ data: runs, error: runsError }, { data: visits, error: visitsError }, { data: solutionAccess, error: accessError }, { data: activities, error: activitiesError }] = await Promise.all([
     runsQuery.order("started_at"),
     admin.from("visits").select("activity_id, visited_at").eq("student_id", student.id),
     admin.from("activity_access").select("activity_id, solutions_released_at").eq("student_id", student.id),
+    activitiesQuery.order("id"),
   ]);
-  if (runsError || visitsError || accessError) throw runsError || visitsError || accessError;
-  const activityIds = new Set([...(runs || []).map((run) => run.activity_id), ...(visits || []).map((visit) => visit.activity_id)].filter(Boolean));
-  const activities = [...activityIds].map((activityId) => {
+  if (runsError || visitsError || accessError || activitiesError) throw runsError || visitsError || accessError || activitiesError;
+  const activityRows = (activities || []).map((activity) => {
+    const activityId = activity.id;
     const activityRuns = (runs || []).filter((run) => run.activity_id === activityId).map(publicRun);
     const activityVisits = (visits || []).filter((visit) => visit.activity_id === activityId);
-    const release = (access || []).find((item) => item.activity_id === activityId);
-    return { activityId, runs: activityRuns, bestRun: bestRun(activityRuns as unknown as Array<Record<string, unknown>>), visitCount: activityVisits.length, lastVisitAt: activityVisits.sort((a, b) => String(b.visited_at).localeCompare(String(a.visited_at)))[0]?.visited_at || null, solutionsReleasedAt: release?.solutions_released_at || null };
+    const release = (solutionAccess || []).find((item) => item.activity_id === activityId);
+    return { activityId, ...activityAccess(activity), runs: activityRuns, bestRun: bestRun(activityRuns as unknown as Array<Record<string, unknown>>), visitCount: activityVisits.length, lastVisitAt: activityVisits.sort((a, b) => String(b.visited_at).localeCompare(String(a.visited_at)))[0]?.visited_at || null, solutionsReleasedAt: release?.solutions_released_at || null };
   });
-  return { student: { id: student.id, name: student.display_name }, activities };
+  return { student: { id: student.id, name: student.display_name }, serverTime: new Date().toISOString(), activities: activityRows };
 }
 
 async function openActivity(userId: string, input: Record<string, unknown>) {
   const student = await studentFor(userId);
   const activityId = input.activityId == null ? null : assertId(input.activityId, "activityId");
   const entryId = assertUuid(input.entryId, "entryId");
+  let access = null;
   if (activityId) {
-    const { data: activity } = await admin.from("activities").select("id").eq("id", activityId).eq("active", true).maybeSingle();
+    const { data: activity } = await admin.from("activities").select("id, is_open, available_until").eq("id", activityId).eq("active", true).maybeSingle();
     if (!activity) throw new PortalError("Работа не опубликована.", 404);
+    access = activityAccess(activity);
   }
   const { error } = await admin.from("visits").upsert({ student_id: student.id, activity_id: activityId, entry_id: entryId, path: typeof input.path === "string" ? input.path.slice(0, 500) : null }, { onConflict: "entry_id", ignoreDuplicates: true });
   if (error) throw error;
-  return { recorded: true };
+  return { recorded: true, access };
 }
 
 async function startRun(userId: string, input: Record<string, unknown>) {
   const student = await studentFor(userId);
   const activityId = assertId(input.activityId, "activityId");
   const variantId = assertId(input.variantId || "default", "variantId");
-  const { data: activity } = await admin.from("activities").select("id, verification_mode").eq("id", activityId).eq("active", true).maybeSingle();
+  const { data: activity } = await admin.from("activities").select("id, verification_mode, is_open, available_until").eq("id", activityId).eq("active", true).maybeSingle();
   if (!activity || activity.verification_mode !== "server-graded") throw new PortalError("Для этой работы автоматическая сдача не включена.");
   const { data: existing, error: existingError } = await admin.from("activity_runs").select("*").eq("student_id", student.id).eq("activity_id", activityId).order("run_no");
   if (existingError) throw existingError;
   const active = (existing || []).find((run) => run.status === "in_progress");
   if (active) {
     const { data: attempts } = await admin.from("answer_attempts").select("question_id, graded, correct, points").eq("run_id", active.id);
-    return { ...publicRun(active), attempts: (attempts || []).map((item) => ({ questionId: item.question_id, graded: item.graded, correct: item.correct, points: Number(item.points) })) };
+    return { ...publicRun(active), access: activityAccess(activity), attempts: (attempts || []).map((item) => ({ questionId: item.question_id, graded: item.graded, correct: item.correct, points: Number(item.points) })) };
   }
+  const access = requireActivityOpen(activity);
   if ((existing || []).length >= 2) throw new PortalError("Обе доступные сдачи уже завершены.", 409);
   const { data: keys, error: keyError } = await admin.from("answer_keys").select("points").eq("activity_id", activityId).eq("variant_id", variantId);
   if (keyError) throw keyError;
@@ -281,11 +306,11 @@ async function startRun(userId: string, input: Record<string, unknown>) {
   const { data: created, error } = await admin.from("activity_runs").insert({ student_id: student.id, activity_id: activityId, variant_id: variantId, run_no: (existing || []).length + 1, max_points: maxPoints }).select("*").single();
   if (error?.code === "23505") {
     const { data: concurrent } = await admin.from("activity_runs").select("*").eq("student_id", student.id).eq("activity_id", activityId).eq("status", "in_progress").maybeSingle();
-    if (concurrent) return { ...publicRun(concurrent), attempts: [] };
+    if (concurrent) return { ...publicRun(concurrent), access, attempts: [] };
     throw new PortalError("Обе доступные сдачи уже завершены.", 409);
   }
   if (error) throw error;
-  return { ...publicRun(created), attempts: [] };
+  return { ...publicRun(created), access, attempts: [] };
 }
 
 async function submitAnswer(userId: string, input: Record<string, unknown>) {
@@ -302,6 +327,9 @@ async function submitAnswer(userId: string, input: Record<string, unknown>) {
   const { data: run, error: runError } = await admin.from("activity_runs").select("*").eq("id", runId).eq("student_id", student.id).maybeSingle();
   if (runError || !run) throw new PortalError("Сдача не найдена.", 404);
   if (run.status !== "in_progress") throw new PortalError("Эта сдача уже завершена.", 409);
+  const { data: activity, error: activityError } = await admin.from("activities").select("is_open, available_until").eq("id", run.activity_id).eq("active", true).maybeSingle();
+  if (activityError || !activity) throw new PortalError("Работа больше не опубликована.", 404);
+  requireActivityOpen(activity);
   const { data: key, error: keyError } = await admin.from("answer_keys").select("matcher_type, expected_json, tolerance, points").eq("activity_id", run.activity_id).eq("variant_id", run.variant_id).eq("question_id", questionId).maybeSingle();
   if (keyError || !key) throw new PortalError("Этот вопрос не участвует в автоматической проверке.", 404);
   validateAnswer(key.matcher_type, input.answer);
@@ -344,9 +372,10 @@ async function teacherSummary(userId: string, input: Record<string, unknown>) {
   if (studentsError) throw studentsError;
   const requested = typeof input.studentId === "string" ? input.studentId : null;
   const selected = requested ? (students || []).find((item) => item.id === requested) : (students || []).find((item) => item.active) || students?.[0];
-  const { data: activities, error: activitiesError } = await admin.from("activities").select("id").eq("active", true).order("id");
+  const { data: activities, error: activitiesError } = await admin.from("activities").select("id, is_open, available_until").eq("active", true).order("id");
   if (activitiesError) throw activitiesError;
-  if (!selected) return { student: null, studentCount: 0, totalVisits: 0, submittedRuns: 0, averageGrade: null, activities: [], attempts: [] };
+  const activitySettings = (activities || []).map((activity) => ({ activityId: activity.id, ...activityAccess(activity) }));
+  if (!selected) return { student: null, studentCount: students?.length || 0, totalVisits: 0, submittedRuns: 0, averageGrade: null, activitySettings, activities: [], attempts: [] };
   const [devicesResult, runsResult, accessResult] = await Promise.all([
     admin.from("student_devices").select("id").eq("student_id", selected.id),
     admin.from("activity_runs").select("*").eq("student_id", selected.id).order("started_at"),
@@ -387,6 +416,7 @@ async function teacherSummary(userId: string, input: Record<string, unknown>) {
     totalVisits: visits?.length || 0,
     submittedRuns: (runs || []).filter((run) => run.status === "submitted").length,
     averageGrade: official.length ? Math.round(official.reduce((sum, run) => sum + Number(run.grade), 0) / official.length * 10) / 10 : null,
+    activitySettings,
     activities: rows,
     attempts: (attempts || []).map((item) => ({ activityId: item.activity_id, questionId: item.question_id, answerPreview: JSON.stringify(item.answer_json).slice(0, 120), graded: item.graded, correct: item.correct, points: Number(item.points), createdAt: item.created_at })),
   };
@@ -408,6 +438,21 @@ async function teacherAdmin(userId: string, input: Record<string, unknown>) {
     const { data, error } = await admin.from("students").insert({ display_name: displayName, normalized_name: normalizeName(displayName), code_hash: await hashCode(code) }).select("id, display_name").single();
     if (error) throw error;
     return { student: { id: data.id, name: data.display_name }, code };
+  }
+  if (action === "set_activity_access") {
+    const activityId = assertId(input.activityId, "activityId");
+    if (typeof input.isOpen !== "boolean") throw new PortalError("Укажите состояние доступа к работе.");
+    let deadlineAt: string | null = null;
+    if (input.deadlineAt != null && input.deadlineAt !== "") {
+      if (typeof input.deadlineAt !== "string") throw new PortalError("Срок работы имеет неверный формат.");
+      const parsed = new Date(input.deadlineAt);
+      if (!Number.isFinite(parsed.getTime()) || parsed.getUTCFullYear() < 2020 || parsed.getUTCFullYear() > 2100) throw new PortalError("Укажите корректные дату и время окончания.");
+      deadlineAt = parsed.toISOString();
+    }
+    const { data, error } = await admin.from("activities").update({ is_open: input.isOpen, available_until: deadlineAt, updated_at: new Date().toISOString() }).eq("id", activityId).eq("active", true).select("id, is_open, available_until").maybeSingle();
+    if (error) throw error;
+    if (!data) throw new PortalError("Работа не найдена.", 404);
+    return { activityId: data.id, ...activityAccess(data) };
   }
   const studentId = assertUuid(input.studentId, "studentId");
   const { data: student } = await admin.from("students").select("id, display_name").eq("id", studentId).maybeSingle();
