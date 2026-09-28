@@ -1,0 +1,4176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Все формулы ОГЭ по физике</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Geologica:wght@300;400;500;600&display=swap');
+
+    :root {
+      --bg: #f4f6fb;
+      --surface: #ffffff;
+      --surface2: #eef1f8;
+      --border: #dde3f0;
+      --border2: #c8d0e8;
+      --accent: #3a6ef5;
+      --green: #1f9e62;
+      --yellow: #b88800;
+      --red: #cc3333;
+      --text: #18202e;
+      --muted: #657289;
+      --tag-bg: #eef2ff;
+      --shadow: 0 2px 10px rgba(58,110,245,0.07);
+      --shadow-lg: 0 6px 24px rgba(58,110,245,0.13);
+      --c0: #3a6ef5; /* движение */
+      --c1: #7c3aed; /* плотность */
+      --c2: #ea580c; /* силы */
+      --c3: #0891b2; /* давление */
+      --c4: #dc2626; /* работа/мощность */
+      --c5: #16a34a; /* теплота */
+      --c6: #ca8a04; /* постоянный ток */
+      --c7: #db2777; /* оптика */
+      --c8: #475569; /* квантовые явления */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Geologica', sans-serif; font-weight: 400; min-height: 100vh; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(255,255,255,0.96); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    }
+    .topbar-title { font-family: 'Unbounded', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.05em; white-space: nowrap; flex-shrink: 0; }
+    .sec-nav { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+    .sec-nav::-webkit-scrollbar { display: none; }
+    .sec-pill {
+      flex-shrink: 0; padding: 4px 11px; border-radius: 20px; border: none;
+      font-family: 'Unbounded', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.04em;
+      cursor: pointer; transition: all 0.15s; color: #fff; opacity: 0.75;
+    }
+    .sec-pill:hover { opacity: 1; transform: translateY(-1px); }
+    .sec-pill.active { opacity: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+    .topbar-score { font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700; color: var(--green); white-space: nowrap; flex-shrink: 0; }
+    .portal-link { flex-shrink: 0; border: 1px solid var(--border2); border-radius: 8px; padding: 6px 10px; color: var(--accent); background: var(--surface); font-size: 11px; font-weight: 700; text-decoration: none; }
+    .portal-link:hover { border-color: var(--accent); background: var(--tag-bg); }
+    .student-chip { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 11px; font-weight: 700; }
+
+    /* ── HERO ── */
+    .hero { padding: 90px 24px 48px; text-align: center; background: linear-gradient(155deg, #e8eeff 0%, #f4f6fb 55%); border-bottom: 1px solid var(--border); }
+    .hero-badge { display: inline-block; background: var(--tag-bg); color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 16px; border: 1px solid rgba(58,110,245,0.2); }
+    .hero h1 { font-family: 'Unbounded', sans-serif; font-size: clamp(22px,5vw,40px); font-weight: 900; line-height: 1.15; margin-bottom: 12px; color: var(--text); }
+    .hero h1 span { color: var(--accent); }
+    .hero-sub { color: var(--muted); font-size: 14.5px; line-height: 1.65; max-width: 560px; margin: 0 auto 28px; }
+    .progress-outer { max-width: 420px; margin: 0 auto 8px; height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; }
+    .progress-inner { height: 100%; background: linear-gradient(90deg, var(--green), #57cc99); border-radius: 10px; transition: width 0.5s ease; }
+    .progress-label { font-family: 'Unbounded', sans-serif; font-size: 22px; font-weight: 900; color: var(--green); margin-top: 8px; }
+    .progress-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .progress-bar-wrap { height: 3px; background: var(--border); }
+    .progress-bar { height: 100%; background: var(--accent); transition: width 0.4s ease; }
+
+    /* ── SECTION ── */
+    .formula-section { max-width: 900px; margin: 0 auto; padding: 44px 24px 28px; border-bottom: 1px solid var(--border); }
+    .fs-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding: 14px 20px; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); border-left: 5px solid var(--accent); }
+    .fs-icon { font-size: 26px; flex-shrink: 0; }
+    .fs-name { font-family: 'Unbounded', sans-serif; font-size: clamp(14px,2.5vw,17px); font-weight: 700; color: var(--text); }
+    .fs-meta { display: flex; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+    .fs-chip { font-size: 11px; padding: 2px 9px; border-radius: 12px; font-weight: 600; border: 1px solid; }
+    .fs-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+
+    .formula-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px,1fr)); gap: 18px; }
+
+    /* ── FORMULA CARD ── */
+    .formula-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.2s, border-color 0.2s; }
+    .formula-card:hover { box-shadow: var(--shadow-lg); }
+    .formula-card.fc-done { border-color: var(--green) !important; }
+    .fc-top-bar { height: 5px; flex-shrink: 0; }
+    .fc-body { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; gap: 9px; }
+    .fc-header-row { display: flex; align-items: flex-start; gap: 10px; }
+    .fc-num-badge { font-family: 'Unbounded', sans-serif; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px; color: #fff; flex-shrink: 0; margin-top: 2px; }
+    .fc-name { font-family: 'Unbounded', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--text); line-height: 1.35; }
+    .fc-desc { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+    /* Theory toggle */
+    .fc-theory-btn {
+      background: transparent; border: 1.5px solid #d4a820; color: #a07000;
+      border-radius: 7px; padding: 5px 12px; font-family: 'Unbounded', sans-serif;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.05em; cursor: pointer;
+      transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px; width: fit-content;
+    }
+    .fc-theory-btn:hover { background: #fffcee; }
+    .fc-theory-panel { display: none; background: #fffcee; border: 1px solid #edd870; border-left: 3px solid #d4a820; border-radius: 8px; padding: 12px 14px; }
+    .fc-theory-panel.open { display: block; }
+    .fc-vars-grid { display: grid; grid-template-columns: min-content 1fr auto; gap: 3px 10px; margin-bottom: 8px; align-items: baseline; }
+    .fc-var-sym { font-size: 15px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+    .fc-var-def { font-size: 12.5px; color: var(--text); }
+    .fc-var-unit { font-size: 11px; color: var(--muted); white-space: nowrap; text-align: right; }
+    .fc-theory-text { font-size: 12.5px; line-height: 1.7; color: #5c4a00; padding-top: 6px; border-top: 1px solid #edd870; margin-top: 6px; }
+    .fc-tip-box { font-size: 12px; background: rgba(255,255,255,0.6); border-radius: 5px; padding: 6px 10px; margin-top: 6px; color: #7a5c00; font-style: italic; }
+
+    /* Builder area */
+    .fc-builder-area { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px; }
+    .fc-build-label { font-family: 'Unbounded', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .fc-built { min-height: 42px; background: var(--surface2); border: 1.5px solid var(--border2); border-radius: 9px; padding: 7px 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 3px; transition: border-color 0.2s; }
+    .fc-built.shake { animation: shake 0.35s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
+    .fc-placeholder { font-size: 11.5px; color: var(--border2); font-style: italic; user-select: none; }
+    .built-tok { background: var(--tag-bg); border: 1px solid var(--border2); border-radius: 5px; padding: 2px 7px; font-size: 12.5px; font-weight: 700; color: var(--accent); line-height: 1.4; }
+    .built-tok.bt-op { background: #f5f5f5; color: var(--muted); font-size: 14px; padding: 0 4px; }
+
+    .fc-palette { display: flex; flex-wrap: wrap; gap: 5px; }
+    .tok-btn { background: var(--surface); border: 1.5px solid var(--border2); border-radius: 7px; padding: 5px 11px; font-size: 13px; font-weight: 700; color: var(--text); cursor: pointer; transition: all 0.12s; font-family: 'Geologica', sans-serif; line-height: 1; }
+    .tok-btn:hover { border-color: var(--accent); background: var(--tag-bg); color: var(--accent); transform: translateY(-1px); }
+    .tok-btn.tok-op { color: var(--muted); background: var(--surface2); padding: 5px 7px; font-size: 16px; }
+    .tok-btn.tok-op:hover { color: var(--accent); border-color: var(--accent); background: var(--tag-bg); }
+    .tok-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+    .fc-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .fc-btn-back { background: var(--surface2); border: 1.5px solid var(--border2); border-radius: 7px; padding: 6px 11px; font-size: 12px; cursor: pointer; color: var(--text); transition: all 0.12s; font-weight: 600; }
+    .fc-btn-back:hover { border-color: var(--red); color: var(--red); background: #ffeaea; }
+    .fc-btn-clear { background: var(--surface2); border: 1.5px solid var(--border2); border-radius: 7px; padding: 6px 11px; font-size: 12px; cursor: pointer; color: var(--text); transition: all 0.12s; font-weight: 600; }
+    .fc-btn-clear:hover { border-color: var(--muted); color: var(--muted); }
+    .fc-btn-peek { background: transparent; border: 1.5px solid var(--yellow); color: var(--yellow); border-radius: 7px; padding: 6px 11px; font-family: 'Unbounded', sans-serif; font-size: 9px; font-weight: 700; cursor: pointer; transition: all 0.15s; letter-spacing: 0.03em; }
+    .fc-btn-peek:hover { background: #fffcee; }
+    .fc-btn-check { background: var(--accent); color: #fff; border: none; border-radius: 7px; padding: 6px 16px; font-family: 'Unbounded', sans-serif; font-size: 9px; font-weight: 700; cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; margin-left: auto; box-shadow: 0 2px 8px rgba(58,110,245,0.22); }
+    .fc-btn-check:hover { background: #2a5ee0; transform: translateY(-1px); }
+
+    .fc-fb { font-size: 12.5px; line-height: 1.5; padding: 7px 11px; border-radius: 7px; display: none; }
+    .fc-fb.show { display: block; }
+    .fc-fb.ok { background: #eafaf2; border: 1px solid #aae4c8; color: #145c38; }
+    .fc-fb.err { background: #ffeaea; border: 1px solid #f5b0b0; color: #992020; }
+
+    /* Correct reveal */
+    .fc-correct-reveal { display: none; background: #eafaf2; border: 1px solid #aae4c8; border-radius: 10px; padding: 14px 16px; text-align: center; }
+    .fc-correct-reveal.show { display: block; }
+    .fc-correct-label { font-family: 'Unbounded', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--green); margin-bottom: 8px; }
+
+    /* Peek reveal */
+    .fc-peek-reveal { display: none; background: #fffcee; border: 1px solid #edd870; border-radius: 8px; padding: 12px 16px; text-align: center; margin-top: 4px; }
+    .fc-peek-reveal.show { display: block; }
+
+    /* ── SCORE ── */
+    footer { text-align: center; padding: 40px 24px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); background: var(--surface); }
+    .score-big { font-family: 'Unbounded', sans-serif; font-size: 36px; font-weight: 900; color: var(--green); margin-bottom: 6px; }
+
+    /* ── DRAWING BOARD ── */
+    #board-fab { position:fixed; bottom:28px; right:28px; z-index:600; width:52px; height:52px; border-radius:50%; background:var(--accent); border:none; cursor:pointer; box-shadow:0 4px 20px rgba(58,110,245,0.35); display:flex; align-items:center; justify-content:center; font-size:22px; transition:all 0.18s; color:#fff; }
+    #board-fab:hover { transform:scale(1.1); }
+    #board-fab.open { background:#444; }
+    #board-overlay { display:none; position:fixed; inset:0; z-index:598; background:rgba(0,0,0,0.18); backdrop-filter:blur(1px); }
+    #board-overlay.show { display:block; }
+    #board-panel { position:fixed; bottom:92px; right:28px; width:480px; height:380px; background:var(--surface); border:1.5px solid var(--border2); border-radius:16px; box-shadow:0 12px 48px rgba(0,0,0,0.15); z-index:599; display:none; flex-direction:column; overflow:hidden; min-width:320px; min-height:280px; }
+    #board-panel.show { display:flex; }
+    #board-panel.expanded { position:fixed; inset:16px; width:auto; height:auto; bottom:16px; right:16px; border-radius:20px; }
+    #board-panel-header { display:flex; align-items:center; justify-content:space-between; padding:9px 12px; background:var(--surface2); border-bottom:1px solid var(--border); cursor:grab; user-select:none; flex-shrink:0; }
+    #board-panel-header:active { cursor:grabbing; }
+    #board-panel-title { font-family:'Unbounded',sans-serif; font-size:10px; font-weight:700; color:var(--muted); letter-spacing:0.06em; text-transform:uppercase; display:flex; align-items:center; gap:6px; }
+    #board-panel-actions { display:flex; align-items:center; gap:4px; }
+    .board-toolbar { display:flex; align-items:center; gap:6px; padding:7px 10px; border-bottom:1px solid var(--border); background:var(--surface); flex-shrink:0; flex-wrap:wrap; }
+    .tb-group { display:flex; align-items:center; gap:4px; }
+    .tb-sep { width:1px; height:22px; background:var(--border); margin:0 2px; flex-shrink:0; }
+    .tb-btn { background:var(--surface2); border:1.5px solid var(--border); border-radius:7px; padding:4px 10px; font-family:'Geologica',sans-serif; font-size:12px; font-weight:500; cursor:pointer; color:var(--text); transition:all 0.12s; white-space:nowrap; }
+    .tb-btn:hover { border-color:var(--accent); background:var(--tag-bg); color:var(--accent); }
+    .tb-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .color-swatch { width:22px; height:22px; border-radius:50%; cursor:pointer; border:2.5px solid transparent; transition:all 0.12s; flex-shrink:0; }
+    .color-swatch:hover { transform:scale(1.15); }
+    .color-swatch.active { border-color:var(--accent); box-shadow:0 0 0 2px #fff,0 0 0 4px var(--accent); }
+    .size-btn { width:30px; height:30px; border-radius:7px; border:1.5px solid var(--border); background:var(--surface2); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.12s; }
+    .size-btn:hover, .size-btn.active { border-color:var(--accent); background:var(--tag-bg); }
+    .size-dot { border-radius:50%; background:var(--text); }
+    #board-expand-btn, #board-close-btn { width:28px; height:28px; border-radius:6px; border:1.5px solid var(--border); background:var(--surface2); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--muted); transition:all 0.12s; }
+    #board-expand-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--tag-bg); }
+    #board-close-btn:hover { border-color:var(--red); color:var(--red); background:#ffeaea; }
+    #draw-canvas { flex:1; width:100%; cursor:crosshair; background:#ffffff; display:block; touch-action:none; }
+    .rsz { position:absolute; z-index:10; }
+    .rsz-n{top:0;left:8px;right:8px;height:5px;cursor:n-resize} .rsz-s{bottom:0;left:8px;right:8px;height:5px;cursor:s-resize}
+    .rsz-e{right:0;top:8px;bottom:8px;width:5px;cursor:e-resize} .rsz-w{left:0;top:8px;bottom:8px;width:5px;cursor:w-resize}
+    .rsz-ne{top:0;right:0;width:12px;height:12px;cursor:ne-resize} .rsz-nw{top:0;left:0;width:12px;height:12px;cursor:nw-resize}
+    .rsz-se{bottom:0;right:0;width:12px;height:12px;cursor:se-resize} .rsz-sw{bottom:0;left:0;width:12px;height:12px;cursor:sw-resize}
+
+    .access-gate { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: linear-gradient(155deg, #e8eeff, #f4f6fb 55%); }
+    .access-card { width: min(520px, 100%); padding: 32px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow-lg); text-align: center; }
+    .access-card h1 { margin-bottom: 12px; font-family: 'Unbounded', sans-serif; font-size: clamp(20px, 5vw, 30px); }
+    .access-card p { color: var(--muted); line-height: 1.65; }
+    .access-card a { color: var(--accent); font-weight: 700; }
+
+    .preview-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; background: #f4f6fb; }
+    .preview-overlay[hidden] { display: none; }
+    .preview-head { position: sticky; top: 0; z-index: 2; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; padding: 16px max(20px, calc((100vw - 1100px) / 2)); background: rgba(255,255,255,.97); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
+    .preview-kicker { color: var(--accent); font-family: 'Unbounded', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .preview-head h2 { margin-top: 5px; font-family: 'Unbounded', sans-serif; font-size: clamp(16px, 3vw, 25px); line-height: 1.25; }
+    .preview-head p { margin-top: 5px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .preview-timer { min-width: 92px; border-radius: 16px; padding: 12px 14px; background: var(--accent); color: #fff; text-align: center; box-shadow: 0 7px 20px rgba(58,110,245,.25); }
+    .preview-timer strong { display: block; font-family: 'Unbounded', sans-serif; font-size: 26px; }
+    .preview-timer span { display: block; margin-top: 3px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+    .preview-scroll { flex: 1; overflow: auto; padding: 24px max(20px, calc((100vw - 1100px) / 2)) 42px; }
+    .preview-section { margin-bottom: 24px; }
+    .preview-section h3 { margin-bottom: 11px; padding-left: 10px; border-left: 4px solid var(--section-color); font-family: 'Unbounded', sans-serif; font-size: 13px; }
+    .preview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+    .preview-card { min-width: 0; padding: 11px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow); }
+    .preview-card-name { min-height: 30px; color: var(--muted); font-size: 11px; line-height: 1.35; }
+    .preview-card-formula { margin-top: 7px; overflow-x: auto; color: var(--text); font-size: 14px; font-weight: 700; white-space: nowrap; }
+    .preview-progress { height: 4px; background: var(--border); }
+    .preview-progress > div { height: 100%; width: 100%; transform-origin: left; background: linear-gradient(90deg, var(--accent), #8b5cf6); animation: memorize-countdown 60s linear forwards; }
+    @keyframes memorize-countdown { to { transform: scaleX(0); } }
+
+    @media(max-width:820px){ .preview-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .student-chip { display:none; } }
+    @media(max-width:640px){ .formula-grid, .preview-grid { grid-template-columns: 1fr; } .fs-header { flex-wrap: wrap; } .topbar { padding-inline: 9px; } .topbar-title { display:none; } .preview-head { grid-template-columns: 1fr auto; padding: 12px 14px; } .preview-head p { display:none; } .preview-scroll { padding: 16px 14px 30px; } }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+</head>
+<body>
+
+<section class="access-gate" id="accessGate">
+  <div class="access-card">
+    <h1 id="accessTitle">Открываем тренажёр</h1>
+    <p id="accessMessage">Проверяем вход ученика и доступ к работе…</p>
+  </div>
+</section>
+
+<div id="taskShell" hidden>
+
+<nav class="topbar">
+  <a class="portal-link" href="../">← Портал</a>
+  <div class="topbar-title">Формулы · ОГЭ</div>
+  <div class="sec-nav" id="secNav"></div>
+  <div class="student-chip" id="studentChip"></div>
+  <div class="topbar-score" id="topScore">0 / 72</div>
+</nav>
+
+<section class="preview-overlay" id="formulaPreview" hidden aria-labelledby="previewTitle">
+  <div class="preview-head">
+    <div>
+      <div class="preview-kicker">Минута на запоминание</div>
+      <h2 id="previewTitle">Посмотри все формулы перед тренировкой</h2>
+      <p>Через 60 секунд подсказка закроется, а карточки и кнопки перемешаются.</p>
+    </div>
+    <div class="preview-timer" aria-live="polite"><strong id="previewSeconds">60</strong><span>секунд</span></div>
+  </div>
+  <div class="preview-progress" aria-hidden="true"><div></div></div>
+  <div class="preview-scroll" id="previewContent"></div>
+</section>
+
+<div class="hero">
+  <div class="hero-badge">Физика · ОГЭ · 72 формулы</div>
+  <h1 id="heroTitle">Все <span>формулы</span><br>для ОГЭ по физике</h1>
+  <p class="hero-sub">Самостоятельная тренировка без оценки: собирай формулы и проверяй себя.</p>
+  <div class="progress-outer"><div class="progress-inner" id="progressInner" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">0 / 72</div>
+  <div class="progress-sub">формул собрано</div>
+</div>
+<div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+
+<!-- SECTION 0: КИНЕМАТИКА -->
+<section class="formula-section" id="sec0">
+  <div class="fs-header" style="border-left-color:var(--c0)">
+    <div class="fs-icon">🚀</div>
+    <div>
+      <div class="fs-name">Кинематика</div>
+      <div class="fs-sub">Прямолинейное движение, свободное падение и движение по окружности · Формулы 1-17</div>
+      <div class="fs-meta"></div>
+    </div>
+  </div>
+  <div class="formula-grid" id="grid-0"></div>
+</section>
+
+<!-- SECTION 1: ДИНАМИКА -->
+<section class="formula-section" id="sec1">
+  <div class="fs-header" style="border-left-color:var(--c1)">
+    <div class="fs-icon">💪</div>
+    <div>
+      <div class="fs-name">Динамика</div>
+      <div class="fs-sub">Законы Ньютона, силы и плотность · Формулы 18-24</div>
+      <div class="fs-meta"></div>
+    </div>
+  </div>
+  <div class="formula-grid" id="grid-1"></div>
+</section>
+
+<!-- SECTION 2: СТАТИКА И ГИДРОСТАТИКА -->
+<section class="formula-section" id="sec2">
+  <div class="fs-header" style="border-left-color:var(--c2)">
+    <div class="fs-icon">⚖️</div>
+    <div>
+      <div class="fs-name">Статика и гидростатика</div>
+      <div class="fs-sub">Давление, сила Архимеда, момент и равновесие · Формулы 25-31</div>
+      <div class="fs-meta"></div>
+    </div>
+  </div>
+  <div class="formula-grid" id="grid-2"></div>
+</section>
+
+<!-- SECTION 3: ЗАКОНЫ СОХРАНЕНИЯ -->
+<section class="formula-section" id="sec3">
+  <div class="fs-header" style="border-left-color:var(--c3)">
+    <div class="fs-icon">♻️</div>
+    <div>
+      <div class="fs-name">Законы сохранения</div>
+      <div class="fs-sub">Импульс, работа, мощность и механическая энергия · Формулы 32-40</div>
+      <div class="fs-meta"></div>
+    </div>
+  </div>
+  <div class="formula-grid" id="grid-3"></div>
+</section>
+
+<!-- SECTION 4: МЕХАНИЧЕСКИЕ КОЛЕБАНИЯ И ВОЛНЫ -->
+<section class="formula-section" id="sec4">
+  <div class="fs-header" style="border-left-color:var(--c4)">
+    <div class="fs-icon">〰️</div>
+    <div>
+      <div class="fs-name">Механические колебания и волны</div>
+      <div class="fs-sub">Период, частота, маятники и длина волны · Формулы 41-44</div>
+      <div class="fs-meta"></div>
+    </div>
+  </div>
+  <div class="formula-grid" id="grid-4"></div>
+</section>
+
+<!-- SECTION 5: ТЕПЛОВЫЕ ЯВЛЕНИЯ -->
+<section class="formula-section" id="sec5">
+  <div class="fs-header" style="border-left-color:var(--c5)">
+    <div class="fs-icon">🌡️</div>
+    <div>
+      <div class="fs-name">Тепловые явления</div>
+      <div class="fs-sub">Количество теплоты, тепловой баланс и КПД · Формулы 45-50</div>
+      <div class="fs-meta"></div>
+    </div>
+  </div>
+  <div class="formula-grid" id="grid-5"></div>
+</section>
+
+<!-- SECTION 6: ЗАКОНЫ ПОСТОЯННОГО ТОКА -->
+<section class="formula-section" id="sec6">
+  <div class="fs-header" style="border-left-color:var(--c6)">
+    <div class="fs-icon">⚡</div>
+    <div>
+      <div class="fs-name">Законы постоянного тока</div>
+      <div class="fs-sub">Ток, напряжение, сопротивление и соединения проводников · Формулы 51-63</div>
+      <div class="fs-meta"></div>
+    </div>
+  </div>
+  <div class="formula-grid" id="grid-6"></div>
+</section>
+
+<!-- SECTION 7: ОПТИКА -->
+<section class="formula-section" id="sec7">
+  <div class="fs-header" style="border-left-color:var(--c7)">
+    <div class="fs-icon">🔭</div>
+    <div>
+      <div class="fs-name">Оптика</div>
+      <div class="fs-sub">Преломление, полное отражение и тонкая линза · Формулы 64-69</div>
+      <div class="fs-meta"></div>
+    </div>
+  </div>
+  <div class="formula-grid" id="grid-7"></div>
+</section>
+
+<!-- SECTION 8: КВАНТОВЫЕ ЯВЛЕНИЯ -->
+<section class="formula-section" id="sec8">
+  <div class="fs-header" style="border-left-color:var(--c8)">
+    <div class="fs-icon">⚛️</div>
+    <div>
+      <div class="fs-name">Квантовые явления</div>
+      <div class="fs-sub">Альфа- и бета-распады атомных ядер · Формулы 70-72</div>
+      <div class="fs-meta"></div>
+    </div>
+  </div>
+  <div class="formula-grid" id="grid-8"></div>
+</section>
+
+<footer>
+  <div class="score-big" id="scoreDisplay">0 / 72</div>
+  <div style="margin-bottom:6px;">формул собрано</div>
+  <div style="font-size:12px;color:var(--border2);">Физика · ОГЭ · Все формулы</div>
+</footer>
+
+<!-- DRAWING BOARD -->
+<button id="board-fab" onclick="toggleBoard()" title="Открыть доску">✏️</button>
+<div id="board-overlay" onclick="closeBoard()"></div>
+<div id="board-panel">
+  <div id="board-panel-header">
+    <div id="board-panel-title"><span>✏️</span> Доска для черновика</div>
+    <div id="board-panel-actions">
+      <button class="tb-btn" onclick="undoBoard()">↩</button>
+      <button class="tb-btn" onclick="clearBoard()">🗑</button>
+      <button id="board-expand-btn" onclick="toggleExpandBoard()" title="Развернуть">⤢</button>
+      <button id="board-close-btn" onclick="closeBoard()">✕</button>
+    </div>
+  </div>
+  <div class="board-toolbar">
+    <div class="tb-group">
+      <div class="color-swatch active" style="background:#1e1e2e" data-color="#1e1e2e" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#3b82f6" data-color="#3b82f6" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#ef4444" data-color="#ef4444" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#22c55e" data-color="#22c55e" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#f97316" data-color="#f97316" onclick="setColor(this)"></div>
+      <div class="color-swatch" style="background:#8b5cf6" data-color="#8b5cf6" onclick="setColor(this)"></div>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="size-btn active" data-size="3" onclick="setSize(this)"><div class="size-dot" style="width:4px;height:4px"></div></button>
+      <button class="size-btn" data-size="7" onclick="setSize(this)"><div class="size-dot" style="width:8px;height:8px"></div></button>
+      <button class="size-btn" data-size="14" onclick="setSize(this)"><div class="size-dot" style="width:14px;height:14px"></div></button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="tb-btn active" id="tool-pen" onclick="setTool('pen')">✏️ Карандаш</button>
+      <button class="tb-btn" id="tool-marker" onclick="setTool('marker')">🖋 Ручка</button>
+      <button class="tb-btn" id="tool-eraser" onclick="setTool('eraser')">🧹 Ластик</button>
+    </div>
+  </div>
+  <canvas id="draw-canvas"></canvas>
+  <div class="rsz rsz-n" data-dir="n"></div><div class="rsz rsz-s" data-dir="s"></div>
+  <div class="rsz rsz-e" data-dir="e"></div><div class="rsz rsz-w" data-dir="w"></div>
+  <div class="rsz rsz-ne" data-dir="ne"></div><div class="rsz rsz-nw" data-dir="nw"></div>
+  <div class="rsz rsz-se" data-dir="se"></div><div class="rsz rsz-sw" data-dir="sw"></div>
+</div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  FORMULA DATA
+// ══════════════════════════════════════════════════════════
+const SECTION_COLORS = ["#3a6ef5","#7c3aed","#ea580c","#0891b2","#dc2626","#16a34a","#ca8a04","#db2777","#475569"];
+
+const FORMULAS = [
+  {
+    "id": "f01",
+    "n": 1,
+    "sIdx": 0,
+    "name": "Координата при равномерном движении",
+    "desc": "Координата меняется линейно со временем.",
+    "vars": [
+      {
+        "s": "x",
+        "d": "координата",
+        "u": "м"
+      },
+      {
+        "s": "x₀",
+        "d": "начальная координата",
+        "u": "м"
+      },
+      {
+        "s": "vₓ",
+        "d": "проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Координата меняется линейно со временем. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "x",
+      "=",
+      "x₀",
+      "+",
+      "vₓ",
+      "·",
+      "t",
+      "m",
+      "v",
+      "F"
+    ],
+    "correct": [
+      "x=x₀+vₓ·t"
+    ],
+    "katex": "x=x_0+v_x t",
+    "unit": "м"
+  },
+  {
+    "id": "f02",
+    "n": 2,
+    "sIdx": 0,
+    "name": "Перемещение при равномерном движении",
+    "desc": "Проекция перемещения равна произведению скорости на время.",
+    "vars": [
+      {
+        "s": "Sₓ",
+        "d": "проекция перемещения",
+        "u": "м"
+      },
+      {
+        "s": "vₓ",
+        "d": "проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Проекция перемещения равна произведению скорости на время. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Sₓ",
+      "=",
+      "vₓ",
+      "·",
+      "t",
+      "m",
+      "v",
+      "F",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "Sₓ=vₓ·t"
+    ],
+    "katex": "S_x=v_x t",
+    "unit": "м"
+  },
+  {
+    "id": "f03",
+    "n": 3,
+    "sIdx": 0,
+    "name": "Постоянная скорость",
+    "desc": "При равномерном прямолинейном движении проекция скорости постоянна.",
+    "vars": [
+      {
+        "s": "vₓ",
+        "d": "проекция скорости",
+        "u": "м/с"
+      }
+    ],
+    "theory": "При равномерном прямолинейном движении проекция скорости постоянна. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "vₓ",
+      "=",
+      "const",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "vₓ=const"
+    ],
+    "katex": "v_x=\\mathrm{const}",
+    "unit": "м/с"
+  },
+  {
+    "id": "f04",
+    "n": 4,
+    "sIdx": 0,
+    "name": "Ускорение при равномерном движении",
+    "desc": "Ускорение равномерно движущегося тела равно нулю.",
+    "vars": [
+      {
+        "s": "aₓ",
+        "d": "проекция ускорения",
+        "u": "м/с²"
+      }
+    ],
+    "theory": "Ускорение равномерно движущегося тела равно нулю. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "aₓ",
+      "=",
+      "0",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "aₓ=0"
+    ],
+    "katex": "a_x=0",
+    "unit": "м/с²"
+  },
+  {
+    "id": "f05",
+    "n": 5,
+    "sIdx": 0,
+    "name": "Ускорение равноускоренного движения",
+    "desc": "Ускорение равно изменению скорости за промежуток времени.",
+    "vars": [
+      {
+        "s": "aₓ",
+        "d": "проекция ускорения",
+        "u": "м/с²"
+      },
+      {
+        "s": "vₓ",
+        "d": "проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "v₀ₓ",
+        "d": "начальная проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "Δt",
+        "d": "промежуток времени",
+        "u": "с"
+      }
+    ],
+    "theory": "Ускорение равно изменению скорости за промежуток времени. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "aₓ",
+      "=",
+      "(",
+      "vₓ",
+      "−",
+      "v₀ₓ",
+      ")",
+      "/",
+      "Δt",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "aₓ=(vₓ−v₀ₓ)/Δt"
+    ],
+    "katex": "a_x=\\dfrac{v_x-v_{0x}}{\\Delta t}",
+    "unit": "м/с²"
+  },
+  {
+    "id": "f06",
+    "n": 6,
+    "sIdx": 0,
+    "name": "Координата при равноускоренном движении",
+    "desc": "Координата с учётом начальной скорости и постоянного ускорения.",
+    "vars": [
+      {
+        "s": "x",
+        "d": "координата",
+        "u": "м"
+      },
+      {
+        "s": "x₀",
+        "d": "начальная координата",
+        "u": "м"
+      },
+      {
+        "s": "v₀ₓ",
+        "d": "начальная проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "aₓ",
+        "d": "проекция ускорения",
+        "u": "м/с²"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Координата с учётом начальной скорости и постоянного ускорения. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "x",
+      "=",
+      "x₀",
+      "+",
+      "v₀ₓ",
+      "·",
+      "t",
+      "aₓ",
+      "t²",
+      "/",
+      "2",
+      "m",
+      "v"
+    ],
+    "correct": [
+      "x=x₀+v₀ₓ·t+aₓ·t²/2"
+    ],
+    "katex": "x=x_0+v_{0x}t+\\dfrac{a_x t^2}{2}",
+    "unit": "м"
+  },
+  {
+    "id": "f07",
+    "n": 7,
+    "sIdx": 0,
+    "name": "Скорость при равноускоренном движении",
+    "desc": "Скорость линейно меняется со временем.",
+    "vars": [
+      {
+        "s": "vₓ",
+        "d": "проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "v₀ₓ",
+        "d": "начальная проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "aₓ",
+        "d": "проекция ускорения",
+        "u": "м/с²"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Скорость линейно меняется со временем. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "vₓ",
+      "=",
+      "v₀ₓ",
+      "+",
+      "aₓ",
+      "·",
+      "t",
+      "m",
+      "v",
+      "F"
+    ],
+    "correct": [
+      "vₓ=v₀ₓ+aₓ·t"
+    ],
+    "katex": "v_x=v_{0x}+a_x t",
+    "unit": "м/с"
+  },
+  {
+    "id": "f08",
+    "n": 8,
+    "sIdx": 0,
+    "name": "Перемещение при равноускоренном движении",
+    "desc": "Проекция перемещения через время, начальную скорость и ускорение.",
+    "vars": [
+      {
+        "s": "Sₓ",
+        "d": "проекция перемещения",
+        "u": "м"
+      },
+      {
+        "s": "v₀ₓ",
+        "d": "начальная проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "aₓ",
+        "d": "проекция ускорения",
+        "u": "м/с²"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Проекция перемещения через время, начальную скорость и ускорение. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Sₓ",
+      "=",
+      "v₀ₓ",
+      "·",
+      "t",
+      "+",
+      "aₓ",
+      "t²",
+      "/",
+      "2",
+      "m",
+      "v"
+    ],
+    "correct": [
+      "Sₓ=v₀ₓ·t+aₓ·t²/2"
+    ],
+    "katex": "S_x=v_{0x}t+\\dfrac{a_x t^2}{2}",
+    "unit": "м"
+  },
+  {
+    "id": "f09",
+    "n": 9,
+    "sIdx": 0,
+    "name": "Перемещение без времени",
+    "desc": "Связывает перемещение с начальной и конечной скоростями.",
+    "vars": [
+      {
+        "s": "Sₓ",
+        "d": "проекция перемещения",
+        "u": "м"
+      },
+      {
+        "s": "vₓ",
+        "d": "проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "v₀ₓ",
+        "d": "начальная проекция скорости",
+        "u": "м/с"
+      },
+      {
+        "s": "aₓ",
+        "d": "проекция ускорения",
+        "u": "м/с²"
+      }
+    ],
+    "theory": "Связывает перемещение с начальной и конечной скоростями. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Sₓ",
+      "=",
+      "(",
+      "vₓ²",
+      "−",
+      "v₀ₓ²",
+      ")",
+      "/",
+      "2",
+      "·",
+      "aₓ",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "Sₓ=(vₓ²−v₀ₓ²)/(2·aₓ)"
+    ],
+    "katex": "S_x=\\dfrac{v_x^2-v_{0x}^2}{2a_x}",
+    "unit": "м"
+  },
+  {
+    "id": "f10",
+    "n": 10,
+    "sIdx": 0,
+    "name": "Координата при свободном падении",
+    "desc": "Вертикальная координата при постоянной проекции ускорения g.",
+    "vars": [
+      {
+        "s": "y",
+        "d": "координата по вертикали",
+        "u": "м"
+      },
+      {
+        "s": "y₀",
+        "d": "начальная координата по вертикали",
+        "u": "м"
+      },
+      {
+        "s": "v₀ᵧ",
+        "d": "начальная вертикальная скорость",
+        "u": "м/с"
+      },
+      {
+        "s": "gᵧ",
+        "d": "проекция ускорения свободного падения",
+        "u": "м/с²"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Вертикальная координата при постоянной проекции ускорения g. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "y",
+      "=",
+      "y₀",
+      "+",
+      "v₀ᵧ",
+      "·",
+      "t",
+      "gᵧ",
+      "t²",
+      "/",
+      "2",
+      "m",
+      "v"
+    ],
+    "correct": [
+      "y=y₀+v₀ᵧ·t+gᵧ·t²/2"
+    ],
+    "katex": "y=y_0+v_{0y}t+\\dfrac{g_y t^2}{2}",
+    "unit": "м"
+  },
+  {
+    "id": "f11",
+    "n": 11,
+    "sIdx": 0,
+    "name": "Скорость при свободном падении",
+    "desc": "Вертикальная скорость меняется под действием ускорения свободного падения.",
+    "vars": [
+      {
+        "s": "vᵧ",
+        "d": "проекция скорости по вертикали",
+        "u": "м/с"
+      },
+      {
+        "s": "v₀ᵧ",
+        "d": "начальная вертикальная скорость",
+        "u": "м/с"
+      },
+      {
+        "s": "gᵧ",
+        "d": "проекция ускорения свободного падения",
+        "u": "м/с²"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Вертикальная скорость меняется под действием ускорения свободного падения. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "vᵧ",
+      "=",
+      "v₀ᵧ",
+      "+",
+      "gᵧ",
+      "·",
+      "t",
+      "m",
+      "v",
+      "F"
+    ],
+    "correct": [
+      "vᵧ=v₀ᵧ+gᵧ·t"
+    ],
+    "katex": "v_y=v_{0y}+g_y t",
+    "unit": "м/с"
+  },
+  {
+    "id": "f12",
+    "n": 12,
+    "sIdx": 0,
+    "name": "Высота через время",
+    "desc": "Высота или вертикальное перемещение через начальную скорость и время.",
+    "vars": [
+      {
+        "s": "h",
+        "d": "высота или глубина",
+        "u": "м"
+      },
+      {
+        "s": "v₀ᵧ",
+        "d": "начальная вертикальная скорость",
+        "u": "м/с"
+      },
+      {
+        "s": "gᵧ",
+        "d": "проекция ускорения свободного падения",
+        "u": "м/с²"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Высота или вертикальное перемещение через начальную скорость и время. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "h",
+      "=",
+      "v₀ᵧ",
+      "·",
+      "t",
+      "+",
+      "gᵧ",
+      "t²",
+      "/",
+      "2",
+      "m",
+      "v"
+    ],
+    "correct": [
+      "h=v₀ᵧ·t+gᵧ·t²/2"
+    ],
+    "katex": "h=v_{0y}t+\\dfrac{g_y t^2}{2}",
+    "unit": "м"
+  },
+  {
+    "id": "f13",
+    "n": 13,
+    "sIdx": 0,
+    "name": "Высота без времени",
+    "desc": "Высота через начальную и конечную вертикальные скорости.",
+    "vars": [
+      {
+        "s": "h",
+        "d": "высота или глубина",
+        "u": "м"
+      },
+      {
+        "s": "vᵧ",
+        "d": "проекция скорости по вертикали",
+        "u": "м/с"
+      },
+      {
+        "s": "v₀ᵧ",
+        "d": "начальная вертикальная скорость",
+        "u": "м/с"
+      },
+      {
+        "s": "gᵧ",
+        "d": "проекция ускорения свободного падения",
+        "u": "м/с²"
+      }
+    ],
+    "theory": "Высота через начальную и конечную вертикальные скорости. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "h",
+      "=",
+      "(",
+      "vᵧ²",
+      "−",
+      "v₀ᵧ²",
+      ")",
+      "/",
+      "2",
+      "·",
+      "gᵧ",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "h=(vᵧ²−v₀ᵧ²)/(2·gᵧ)"
+    ],
+    "katex": "h=\\dfrac{v_y^2-v_{0y}^2}{2g_y}",
+    "unit": "м"
+  },
+  {
+    "id": "f14",
+    "n": 14,
+    "sIdx": 0,
+    "name": "Период и частота обращения",
+    "desc": "Период является величиной, обратной частоте.",
+    "vars": [
+      {
+        "s": "T",
+        "d": "период",
+        "u": "с"
+      },
+      {
+        "s": "ν",
+        "d": "частота",
+        "u": "Гц"
+      }
+    ],
+    "theory": "Период является величиной, обратной частоте. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "T",
+      "=",
+      "1",
+      "/",
+      "ν",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "T=1/ν"
+    ],
+    "katex": "T=\\dfrac{1}{\\nu}",
+    "unit": "с"
+  },
+  {
+    "id": "f15",
+    "n": 15,
+    "sIdx": 0,
+    "name": "Линейная скорость через период",
+    "desc": "За один период точка проходит длину окружности.",
+    "vars": [
+      {
+        "s": "v",
+        "d": "скорость",
+        "u": "м/с"
+      },
+      {
+        "s": "R",
+        "d": "радиус или сопротивление",
+        "u": "м / Ом"
+      },
+      {
+        "s": "T",
+        "d": "период",
+        "u": "с"
+      },
+      {
+        "s": "π",
+        "d": "число пи",
+        "u": "безразм."
+      }
+    ],
+    "theory": "За один период точка проходит длину окружности. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "v",
+      "=",
+      "2πR",
+      "/",
+      "T",
+      "m",
+      "t",
+      "F",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "v=2πR/T"
+    ],
+    "katex": "v=\\dfrac{2\\pi R}{T}",
+    "unit": "м/с"
+  },
+  {
+    "id": "f16",
+    "n": 16,
+    "sIdx": 0,
+    "name": "Линейная скорость через частоту",
+    "desc": "Скорость точки на окружности через радиус и частоту.",
+    "vars": [
+      {
+        "s": "v",
+        "d": "скорость",
+        "u": "м/с"
+      },
+      {
+        "s": "R",
+        "d": "радиус или сопротивление",
+        "u": "м / Ом"
+      },
+      {
+        "s": "ν",
+        "d": "частота",
+        "u": "Гц"
+      },
+      {
+        "s": "π",
+        "d": "число пи",
+        "u": "безразм."
+      }
+    ],
+    "theory": "Скорость точки на окружности через радиус и частоту. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "v",
+      "=",
+      "2πR",
+      "·",
+      "ν",
+      "m",
+      "t",
+      "F",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "v=2πR·ν"
+    ],
+    "katex": "v=2\\pi R\\nu",
+    "unit": "м/с"
+  },
+  {
+    "id": "f17",
+    "n": 17,
+    "sIdx": 0,
+    "name": "Центростремительное ускорение",
+    "desc": "Ускорение направлено к центру окружности.",
+    "vars": [
+      {
+        "s": "aцс",
+        "d": "центростремительное ускорение",
+        "u": "м/с²"
+      },
+      {
+        "s": "v",
+        "d": "скорость",
+        "u": "м/с"
+      },
+      {
+        "s": "R",
+        "d": "радиус или сопротивление",
+        "u": "м / Ом"
+      }
+    ],
+    "theory": "Ускорение направлено к центру окружности. Формула относится к разделу «Кинематика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "aцс",
+      "=",
+      "v²",
+      "/",
+      "R",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "aцс=v²/R"
+    ],
+    "katex": "a_{\\text{цс}}=\\dfrac{v^2}{R}",
+    "unit": "м/с²"
+  },
+  {
+    "id": "f18",
+    "n": 18,
+    "sIdx": 1,
+    "name": "Плотность тела",
+    "desc": "Плотность равна отношению массы к объёму.",
+    "vars": [
+      {
+        "s": "ρ",
+        "d": "плотность или удельное сопротивление",
+        "u": "по контексту"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      },
+      {
+        "s": "V",
+        "d": "объём",
+        "u": "м³"
+      }
+    ],
+    "theory": "Плотность равна отношению массы к объёму. Формула относится к разделу «Динамика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "ρ",
+      "=",
+      "m",
+      "/",
+      "V",
+      "t",
+      "v",
+      "F",
+      "g",
+      "+"
+    ],
+    "correct": [
+      "ρ=m/V"
+    ],
+    "katex": "\\rho=\\dfrac{m}{V}",
+    "unit": "кг/м³"
+  },
+  {
+    "id": "f19",
+    "n": 19,
+    "sIdx": 1,
+    "name": "Второй закон Ньютона",
+    "desc": "Равнодействующая сила равна произведению массы на ускорение.",
+    "vars": [
+      {
+        "s": "F",
+        "d": "сила или фокусное расстояние",
+        "u": "Н / м"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      },
+      {
+        "s": "a",
+        "d": "ускорение",
+        "u": "м/с²"
+      }
+    ],
+    "theory": "Равнодействующая сила равна произведению массы на ускорение. Формула относится к разделу «Динамика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "F",
+      "=",
+      "m",
+      "·",
+      "a",
+      "t",
+      "v",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "F=m·a"
+    ],
+    "katex": "\\vec F=m\\vec a",
+    "unit": "Н"
+  },
+  {
+    "id": "f20",
+    "n": 20,
+    "sIdx": 1,
+    "name": "Третий закон Ньютона",
+    "desc": "Силы взаимодействия двух тел равны по модулю и противоположны по направлению.",
+    "vars": [
+      {
+        "s": "F₁₂",
+        "d": "сила первого тела на второе",
+        "u": "Н"
+      },
+      {
+        "s": "F₂₁",
+        "d": "сила второго тела на первое",
+        "u": "Н"
+      }
+    ],
+    "theory": "Силы взаимодействия двух тел равны по модулю и противоположны по направлению. Формула относится к разделу «Динамика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "F₁₂",
+      "=",
+      "F₂₁",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "F₁₂=F₂₁"
+    ],
+    "katex": "\\lvert\\vec F_{1-2}\\rvert=\\lvert\\vec F_{2-1}\\rvert",
+    "unit": "Н"
+  },
+  {
+    "id": "f21",
+    "n": 21,
+    "sIdx": 1,
+    "name": "Сила трения",
+    "desc": "Сила трения равна произведению коэффициента трения на нормальную реакцию.",
+    "vars": [
+      {
+        "s": "Fтр",
+        "d": "сила трения",
+        "u": "Н"
+      },
+      {
+        "s": "μ",
+        "d": "коэффициент трения",
+        "u": "безразм."
+      },
+      {
+        "s": "N",
+        "d": "нормальная реакция или мощность",
+        "u": "Н / Вт"
+      }
+    ],
+    "theory": "Сила трения равна произведению коэффициента трения на нормальную реакцию. Формула относится к разделу «Динамика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Fтр",
+      "=",
+      "μ",
+      "·",
+      "N",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "Fтр=μ·N"
+    ],
+    "katex": "F_{\\text{тр}}=\\mu N",
+    "unit": "Н"
+  },
+  {
+    "id": "f22",
+    "n": 22,
+    "sIdx": 1,
+    "name": "Закон Гука",
+    "desc": "Проекция силы упругости пропорциональна деформации пружины.",
+    "vars": [
+      {
+        "s": "Fупрₓ",
+        "d": "проекция силы упругости",
+        "u": "Н"
+      },
+      {
+        "s": "k",
+        "d": "жёсткость пружины",
+        "u": "Н/м"
+      },
+      {
+        "s": "Δl",
+        "d": "деформация пружины",
+        "u": "м"
+      }
+    ],
+    "theory": "Проекция силы упругости пропорциональна деформации пружины. Формула относится к разделу «Динамика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Fупрₓ",
+      "=",
+      "k",
+      "·",
+      "Δl",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "Fупрₓ=k·Δl"
+    ],
+    "katex": "F_{\\text{упр},x}=k\\Delta l",
+    "unit": "Н"
+  },
+  {
+    "id": "f23",
+    "n": 23,
+    "sIdx": 1,
+    "name": "Закон всемирного тяготения",
+    "desc": "Сила притяжения двух точечных масс обратно пропорциональна квадрату расстояния.",
+    "vars": [
+      {
+        "s": "F",
+        "d": "сила или фокусное расстояние",
+        "u": "Н / м"
+      },
+      {
+        "s": "G",
+        "d": "гравитационная постоянная",
+        "u": "Н·м²/кг²"
+      },
+      {
+        "s": "m₁",
+        "d": "масса первого тела",
+        "u": "кг"
+      },
+      {
+        "s": "m₂",
+        "d": "масса второго тела",
+        "u": "кг"
+      },
+      {
+        "s": "R",
+        "d": "радиус или сопротивление",
+        "u": "м / Ом"
+      }
+    ],
+    "theory": "Сила притяжения двух точечных масс обратно пропорциональна квадрату расстояния. Формула относится к разделу «Динамика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "F",
+      "=",
+      "G",
+      "·",
+      "m₁",
+      "m₂",
+      "/",
+      "R²",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "F=G·m₁·m₂/R²"
+    ],
+    "katex": "F=G\\dfrac{m_1m_2}{R^2}",
+    "unit": "Н"
+  },
+  {
+    "id": "f24",
+    "n": 24,
+    "sIdx": 1,
+    "name": "Сила тяжести",
+    "desc": "Сила тяжести у поверхности Земли равна произведению массы на g.",
+    "vars": [
+      {
+        "s": "F",
+        "d": "сила или фокусное расстояние",
+        "u": "Н / м"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      },
+      {
+        "s": "g",
+        "d": "ускорение свободного падения",
+        "u": "м/с²"
+      }
+    ],
+    "theory": "Сила тяжести у поверхности Земли равна произведению массы на g. Формула относится к разделу «Динамика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "F",
+      "=",
+      "m",
+      "·",
+      "g",
+      "t",
+      "v",
+      "ρ",
+      "+",
+      "−"
+    ],
+    "correct": [
+      "F=m·g"
+    ],
+    "katex": "F=mg",
+    "unit": "Н"
+  },
+  {
+    "id": "f25",
+    "n": 25,
+    "sIdx": 2,
+    "name": "Давление",
+    "desc": "Давление равно перпендикулярной силе, делённой на площадь.",
+    "vars": [
+      {
+        "s": "p",
+        "d": "давление или импульс",
+        "u": "Па / кг·м/с"
+      },
+      {
+        "s": "F⊥",
+        "d": "перпендикулярная сила",
+        "u": "Н"
+      },
+      {
+        "s": "S",
+        "d": "площадь поперечного сечения",
+        "u": "м²"
+      }
+    ],
+    "theory": "Давление равно перпендикулярной силе, делённой на площадь. Формула относится к разделу «Статика и гидростатика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "p",
+      "=",
+      "F⊥",
+      "/",
+      "S",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "p=F⊥/S"
+    ],
+    "katex": "p=\\dfrac{F_{\\perp}}{S}",
+    "unit": "Па"
+  },
+  {
+    "id": "f26",
+    "n": 26,
+    "sIdx": 2,
+    "name": "Давление внутри жидкости",
+    "desc": "Полное давление складывается из гидростатического и атмосферного.",
+    "vars": [
+      {
+        "s": "p",
+        "d": "давление или импульс",
+        "u": "Па / кг·м/с"
+      },
+      {
+        "s": "ρж",
+        "d": "плотность жидкости",
+        "u": "кг/м³"
+      },
+      {
+        "s": "g",
+        "d": "ускорение свободного падения",
+        "u": "м/с²"
+      },
+      {
+        "s": "h",
+        "d": "высота или глубина",
+        "u": "м"
+      },
+      {
+        "s": "pатм",
+        "d": "атмосферное давление",
+        "u": "Па"
+      }
+    ],
+    "theory": "Полное давление складывается из гидростатического и атмосферного. Формула относится к разделу «Статика и гидростатика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "p",
+      "=",
+      "ρж",
+      "·",
+      "g",
+      "h",
+      "+",
+      "pатм",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "p=ρж·g·h+pатм"
+    ],
+    "katex": "p=\\rho_{\\text{ж}}gh+p_{\\text{атм}}",
+    "unit": "Па"
+  },
+  {
+    "id": "f27",
+    "n": 27,
+    "sIdx": 2,
+    "name": "Сила Архимеда",
+    "desc": "Выталкивающая сила равна весу жидкости в объёме погружённой части тела.",
+    "vars": [
+      {
+        "s": "FАрх",
+        "d": "сила Архимеда",
+        "u": "Н"
+      },
+      {
+        "s": "ρж",
+        "d": "плотность жидкости",
+        "u": "кг/м³"
+      },
+      {
+        "s": "g",
+        "d": "ускорение свободного падения",
+        "u": "м/с²"
+      },
+      {
+        "s": "Vпогр",
+        "d": "объём погружённой части",
+        "u": "м³"
+      }
+    ],
+    "theory": "Выталкивающая сила равна весу жидкости в объёме погружённой части тела. Формула относится к разделу «Статика и гидростатика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "FАрх",
+      "=",
+      "ρж",
+      "·",
+      "g",
+      "Vпогр",
+      "m",
+      "t",
+      "v"
+    ],
+    "correct": [
+      "FАрх=ρж·g·Vпогр"
+    ],
+    "katex": "F_{\\text{Арх}}=\\rho_{\\text{ж}}gV_{\\text{погр}}",
+    "unit": "Н"
+  },
+  {
+    "id": "f28",
+    "n": 28,
+    "sIdx": 2,
+    "name": "Сила Архимеда через вес жидкости",
+    "desc": "Выталкивающая сила равна весу вытесненной жидкости.",
+    "vars": [
+      {
+        "s": "FАрх",
+        "d": "сила Архимеда",
+        "u": "Н"
+      },
+      {
+        "s": "Pвыт",
+        "d": "вес вытесненной жидкости",
+        "u": "Н"
+      }
+    ],
+    "theory": "Выталкивающая сила равна весу вытесненной жидкости. Формула относится к разделу «Статика и гидростатика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "FАрх",
+      "=",
+      "Pвыт",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "FАрх=Pвыт"
+    ],
+    "katex": "F_{\\text{Арх}}=P_{\\text{вытесн}}",
+    "unit": "Н"
+  },
+  {
+    "id": "f29",
+    "n": 29,
+    "sIdx": 2,
+    "name": "Момент силы",
+    "desc": "Момент силы равен произведению силы на её плечо.",
+    "vars": [
+      {
+        "s": "M",
+        "d": "момент силы",
+        "u": "Н·м"
+      },
+      {
+        "s": "F",
+        "d": "сила или фокусное расстояние",
+        "u": "Н / м"
+      },
+      {
+        "s": "l",
+        "d": "плечо силы или длина",
+        "u": "м"
+      }
+    ],
+    "theory": "Момент силы равен произведению силы на её плечо. Формула относится к разделу «Статика и гидростатика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "M",
+      "=",
+      "F",
+      "·",
+      "l",
+      "m",
+      "t",
+      "v",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "M=F·l"
+    ],
+    "katex": "M=Fl",
+    "unit": "Н·м"
+  },
+  {
+    "id": "f30",
+    "n": 30,
+    "sIdx": 2,
+    "name": "Равновесие по силам",
+    "desc": "Для равновесия векторная сумма сил равна нулю.",
+    "vars": [
+      {
+        "s": "ΣF",
+        "d": "сумма сил",
+        "u": "Н"
+      }
+    ],
+    "theory": "Для равновесия векторная сумма сил равна нулю. Формула относится к разделу «Статика и гидростатика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "ΣF",
+      "=",
+      "0",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "ΣF=0"
+    ],
+    "katex": "\\vec F_1+\\vec F_2+\\ldots=0",
+    "unit": "Н"
+  },
+  {
+    "id": "f31",
+    "n": 31,
+    "sIdx": 2,
+    "name": "Равновесие по моментам",
+    "desc": "Для равновесия алгебраическая сумма моментов сил равна нулю.",
+    "vars": [
+      {
+        "s": "ΣM",
+        "d": "сумма моментов",
+        "u": "Н·м"
+      }
+    ],
+    "theory": "Для равновесия алгебраическая сумма моментов сил равна нулю. Формула относится к разделу «Статика и гидростатика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "ΣM",
+      "=",
+      "0",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "ΣM=0"
+    ],
+    "katex": "M_1+M_2+\\ldots=0",
+    "unit": "Н·м"
+  },
+  {
+    "id": "f32",
+    "n": 32,
+    "sIdx": 3,
+    "name": "Импульс тела",
+    "desc": "Импульс равен произведению массы на скорость.",
+    "vars": [
+      {
+        "s": "p",
+        "d": "давление или импульс",
+        "u": "Па / кг·м/с"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      },
+      {
+        "s": "v",
+        "d": "скорость",
+        "u": "м/с"
+      }
+    ],
+    "theory": "Импульс равен произведению массы на скорость. Формула относится к разделу «Законы сохранения». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "p",
+      "=",
+      "m",
+      "·",
+      "v",
+      "t",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "p=m·v"
+    ],
+    "katex": "\\vec p=m\\vec v",
+    "unit": "кг·м/с"
+  },
+  {
+    "id": "f33",
+    "n": 33,
+    "sIdx": 3,
+    "name": "Закон сохранения импульса",
+    "desc": "Суммарный импульс замкнутой системы сохраняется.",
+    "vars": [
+      {
+        "s": "m₁",
+        "d": "масса первого тела",
+        "u": "кг"
+      },
+      {
+        "s": "m₂",
+        "d": "масса второго тела",
+        "u": "кг"
+      },
+      {
+        "s": "v₁",
+        "d": "скорость первого тела до взаимодействия",
+        "u": "м/с"
+      },
+      {
+        "s": "v₂",
+        "d": "скорость второго тела до взаимодействия",
+        "u": "м/с"
+      },
+      {
+        "s": "v₁′",
+        "d": "скорость первого тела после взаимодействия",
+        "u": "м/с"
+      },
+      {
+        "s": "v₂′",
+        "d": "скорость второго тела после взаимодействия",
+        "u": "м/с"
+      }
+    ],
+    "theory": "Суммарный импульс замкнутой системы сохраняется. Формула относится к разделу «Законы сохранения». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "m₁",
+      "·",
+      "v₁",
+      "+",
+      "m₂",
+      "v₂",
+      "=",
+      "v₁′",
+      "v₂′",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "m₁·v₁+m₂·v₂=m₁·v₁′+m₂·v₂′"
+    ],
+    "katex": "m_1\\vec v_1+m_2\\vec v_2=m_1\\vec v_1\\prime+m_2\\vec v_2\\prime",
+    "unit": "кг·м/с"
+  },
+  {
+    "id": "f34",
+    "n": 34,
+    "sIdx": 3,
+    "name": "Работа силы",
+    "desc": "Работа постоянной силы зависит от перемещения и угла между силой и перемещением.",
+    "vars": [
+      {
+        "s": "A",
+        "d": "работа",
+        "u": "Дж"
+      },
+      {
+        "s": "F",
+        "d": "сила или фокусное расстояние",
+        "u": "Н / м"
+      },
+      {
+        "s": "s",
+        "d": "перемещение",
+        "u": "м"
+      },
+      {
+        "s": "α",
+        "d": "угол",
+        "u": "рад или °"
+      }
+    ],
+    "theory": "Работа постоянной силы зависит от перемещения и угла между силой и перемещением. Формула относится к разделу «Законы сохранения». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "A",
+      "=",
+      "F",
+      "·",
+      "s",
+      "cosα",
+      "m",
+      "t",
+      "v"
+    ],
+    "correct": [
+      "A=F·s·cosα"
+    ],
+    "katex": "A=Fs\\cos\\alpha",
+    "unit": "Дж"
+  },
+  {
+    "id": "f35",
+    "n": 35,
+    "sIdx": 3,
+    "name": "Мощность",
+    "desc": "Мощность равна работе, выполненной за единицу времени.",
+    "vars": [
+      {
+        "s": "N",
+        "d": "нормальная реакция или мощность",
+        "u": "Н / Вт"
+      },
+      {
+        "s": "A",
+        "d": "работа",
+        "u": "Дж"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Мощность равна работе, выполненной за единицу времени. Формула относится к разделу «Законы сохранения». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "N",
+      "=",
+      "A",
+      "/",
+      "t",
+      "m",
+      "v",
+      "F",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "N=A/t"
+    ],
+    "katex": "N=\\dfrac{A}{t}",
+    "unit": "Вт"
+  },
+  {
+    "id": "f36",
+    "n": 36,
+    "sIdx": 3,
+    "name": "Кинетическая энергия",
+    "desc": "Кинетическая энергия движущегося тела.",
+    "vars": [
+      {
+        "s": "Eₖ",
+        "d": "кинетическая энергия",
+        "u": "Дж"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      },
+      {
+        "s": "v",
+        "d": "скорость",
+        "u": "м/с"
+      }
+    ],
+    "theory": "Кинетическая энергия движущегося тела. Формула относится к разделу «Законы сохранения». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Eₖ",
+      "=",
+      "m",
+      "·",
+      "v²",
+      "/",
+      "2",
+      "t",
+      "v",
+      "F"
+    ],
+    "correct": [
+      "Eₖ=m·v²/2"
+    ],
+    "katex": "E_k=\\dfrac{mv^2}{2}",
+    "unit": "Дж"
+  },
+  {
+    "id": "f37",
+    "n": 37,
+    "sIdx": 3,
+    "name": "Потенциальная энергия над Землёй",
+    "desc": "Потенциальная энергия поднятого тела у поверхности Земли.",
+    "vars": [
+      {
+        "s": "Eₚ",
+        "d": "потенциальная энергия",
+        "u": "Дж"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      },
+      {
+        "s": "g",
+        "d": "ускорение свободного падения",
+        "u": "м/с²"
+      },
+      {
+        "s": "h",
+        "d": "высота или глубина",
+        "u": "м"
+      }
+    ],
+    "theory": "Потенциальная энергия поднятого тела у поверхности Земли. Формула относится к разделу «Законы сохранения». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Eₚ",
+      "=",
+      "m",
+      "·",
+      "g",
+      "h",
+      "t",
+      "v",
+      "F"
+    ],
+    "correct": [
+      "Eₚ=m·g·h"
+    ],
+    "katex": "E_p=mgh",
+    "unit": "Дж"
+  },
+  {
+    "id": "f38",
+    "n": 38,
+    "sIdx": 3,
+    "name": "Энергия деформированной пружины",
+    "desc": "Потенциальная энергия упруго деформированной пружины.",
+    "vars": [
+      {
+        "s": "Eₚ",
+        "d": "потенциальная энергия",
+        "u": "Дж"
+      },
+      {
+        "s": "k",
+        "d": "жёсткость пружины",
+        "u": "Н/м"
+      },
+      {
+        "s": "x",
+        "d": "координата",
+        "u": "м"
+      }
+    ],
+    "theory": "Потенциальная энергия упруго деформированной пружины. Формула относится к разделу «Законы сохранения». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Eₚ",
+      "=",
+      "k",
+      "·",
+      "x²",
+      "/",
+      "2",
+      "m",
+      "t",
+      "v"
+    ],
+    "correct": [
+      "Eₚ=k·x²/2"
+    ],
+    "katex": "E_p=\\dfrac{kx^2}{2}",
+    "unit": "Дж"
+  },
+  {
+    "id": "f39",
+    "n": 39,
+    "sIdx": 3,
+    "name": "Закон сохранения механической энергии",
+    "desc": "При действии только консервативных сил механическая энергия сохраняется.",
+    "vars": [
+      {
+        "s": "Eₖ₁",
+        "d": "начальная кинетическая энергия",
+        "u": "Дж"
+      },
+      {
+        "s": "Eₚ₁",
+        "d": "начальная потенциальная энергия",
+        "u": "Дж"
+      },
+      {
+        "s": "Eₖ₂",
+        "d": "конечная кинетическая энергия",
+        "u": "Дж"
+      },
+      {
+        "s": "Eₚ₂",
+        "d": "конечная потенциальная энергия",
+        "u": "Дж"
+      }
+    ],
+    "theory": "При действии только консервативных сил механическая энергия сохраняется. Формула относится к разделу «Законы сохранения». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Eₖ₁",
+      "+",
+      "Eₚ₁",
+      "=",
+      "Eₖ₂",
+      "Eₚ₂",
+      "m",
+      "t",
+      "v"
+    ],
+    "correct": [
+      "Eₖ₁+Eₚ₁=Eₖ₂+Eₚ₂"
+    ],
+    "katex": "E_{k1}+E_{p1}=E_{k2}+E_{p2}",
+    "unit": "Дж"
+  },
+  {
+    "id": "f40",
+    "n": 40,
+    "sIdx": 3,
+    "name": "Изменение энергии неконсервативными силами",
+    "desc": "Изменение механической энергии равно работе неконсервативных сил.",
+    "vars": [
+      {
+        "s": "ΔE",
+        "d": "изменение механической энергии",
+        "u": "Дж"
+      },
+      {
+        "s": "Aнк",
+        "d": "работа неконсервативных сил",
+        "u": "Дж"
+      }
+    ],
+    "theory": "Изменение механической энергии равно работе неконсервативных сил. Формула относится к разделу «Законы сохранения». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "ΔE",
+      "=",
+      "Aнк",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "ΔE=Aнк"
+    ],
+    "katex": "\\Delta E=A_{\\text{неконс. сил}}",
+    "unit": "Дж"
+  },
+  {
+    "id": "f41",
+    "n": 41,
+    "sIdx": 4,
+    "name": "Период и частота колебаний",
+    "desc": "Период колебаний является величиной, обратной частоте.",
+    "vars": [
+      {
+        "s": "T",
+        "d": "период",
+        "u": "с"
+      },
+      {
+        "s": "ν",
+        "d": "частота",
+        "u": "Гц"
+      }
+    ],
+    "theory": "Период колебаний является величиной, обратной частоте. Формула относится к разделу «Механические колебания и волны». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "T",
+      "=",
+      "1",
+      "/",
+      "ν",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "T=1/ν"
+    ],
+    "katex": "T=\\dfrac{1}{\\nu}",
+    "unit": "с"
+  },
+  {
+    "id": "f42",
+    "n": 42,
+    "sIdx": 4,
+    "name": "Период математического маятника",
+    "desc": "Период малых колебаний математического маятника.",
+    "vars": [
+      {
+        "s": "T",
+        "d": "период",
+        "u": "с"
+      },
+      {
+        "s": "l",
+        "d": "плечо силы или длина",
+        "u": "м"
+      },
+      {
+        "s": "g",
+        "d": "ускорение свободного падения",
+        "u": "м/с²"
+      },
+      {
+        "s": "π",
+        "d": "число пи",
+        "u": "безразм."
+      }
+    ],
+    "theory": "Период малых колебаний математического маятника. Формула относится к разделу «Механические колебания и волны». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "T",
+      "=",
+      "2π",
+      "·",
+      "√(l/g)",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "T=2π·√(l/g)"
+    ],
+    "katex": "T=2\\pi\\sqrt{\\dfrac{l}{g}}",
+    "unit": "с"
+  },
+  {
+    "id": "f43",
+    "n": 43,
+    "sIdx": 4,
+    "name": "Период пружинного маятника",
+    "desc": "Период колебаний груза на пружине.",
+    "vars": [
+      {
+        "s": "T",
+        "d": "период",
+        "u": "с"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      },
+      {
+        "s": "k",
+        "d": "жёсткость пружины",
+        "u": "Н/м"
+      },
+      {
+        "s": "π",
+        "d": "число пи",
+        "u": "безразм."
+      }
+    ],
+    "theory": "Период колебаний груза на пружине. Формула относится к разделу «Механические колебания и волны». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "T",
+      "=",
+      "2π",
+      "·",
+      "√(m/k)",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "T=2π·√(m/k)"
+    ],
+    "katex": "T=2\\pi\\sqrt{\\dfrac{m}{k}}",
+    "unit": "с"
+  },
+  {
+    "id": "f44",
+    "n": 44,
+    "sIdx": 4,
+    "name": "Длина волны",
+    "desc": "Длина волны равна пути волны за один период.",
+    "vars": [
+      {
+        "s": "λ",
+        "d": "длина волны или удельная теплота плавления",
+        "u": "м / Дж/кг"
+      },
+      {
+        "s": "v",
+        "d": "скорость",
+        "u": "м/с"
+      },
+      {
+        "s": "T",
+        "d": "период",
+        "u": "с"
+      },
+      {
+        "s": "ν",
+        "d": "частота",
+        "u": "Гц"
+      }
+    ],
+    "theory": "Длина волны равна пути волны за один период. Формула относится к разделу «Механические колебания и волны». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "λ",
+      "=",
+      "v",
+      "·",
+      "T",
+      "/",
+      "ν",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "λ=v·T=v/ν"
+    ],
+    "katex": "\\lambda=vT=\\dfrac{v}{\\nu}",
+    "unit": "м"
+  },
+  {
+    "id": "f45",
+    "n": 45,
+    "sIdx": 5,
+    "name": "Нагревание и охлаждение",
+    "desc": "Количество теплоты при изменении температуры без фазового перехода.",
+    "vars": [
+      {
+        "s": "Q",
+        "d": "количество теплоты",
+        "u": "Дж"
+      },
+      {
+        "s": "c",
+        "d": "удельная теплоёмкость или скорость света",
+        "u": "Дж/(кг·°C) / м/с"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      },
+      {
+        "s": "t₁",
+        "d": "начальная температура",
+        "u": "°C"
+      },
+      {
+        "s": "t₂",
+        "d": "конечная температура",
+        "u": "°C"
+      }
+    ],
+    "theory": "Количество теплоты при изменении температуры без фазового перехода. Формула относится к разделу «Тепловые явления». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Q",
+      "=",
+      "c",
+      "·",
+      "m",
+      "(",
+      "t₂",
+      "−",
+      "t₁",
+      ")",
+      "t",
+      "v"
+    ],
+    "correct": [
+      "Q=c·m·(t₂−t₁)"
+    ],
+    "katex": "Q=cm(t_2-t_1)",
+    "unit": "Дж"
+  },
+  {
+    "id": "f46",
+    "n": 46,
+    "sIdx": 5,
+    "name": "Плавление и кристаллизация",
+    "desc": "Количество теплоты при плавлении или кристаллизации.",
+    "vars": [
+      {
+        "s": "Q",
+        "d": "количество теплоты",
+        "u": "Дж"
+      },
+      {
+        "s": "λ",
+        "d": "длина волны или удельная теплота плавления",
+        "u": "м / Дж/кг"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      }
+    ],
+    "theory": "Количество теплоты при плавлении или кристаллизации. Формула относится к разделу «Тепловые явления». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Q",
+      "=",
+      "λ",
+      "·",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "Q=λ·m"
+    ],
+    "katex": "Q=\\lambda m",
+    "unit": "Дж"
+  },
+  {
+    "id": "f47",
+    "n": 47,
+    "sIdx": 5,
+    "name": "Парообразование и конденсация",
+    "desc": "Количество теплоты при парообразовании или конденсации.",
+    "vars": [
+      {
+        "s": "Q",
+        "d": "количество теплоты",
+        "u": "Дж"
+      },
+      {
+        "s": "L",
+        "d": "удельная теплота парообразования",
+        "u": "Дж/кг"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      }
+    ],
+    "theory": "Количество теплоты при парообразовании или конденсации. Формула относится к разделу «Тепловые явления». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Q",
+      "=",
+      "L",
+      "·",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "Q=L·m"
+    ],
+    "katex": "Q=Lm",
+    "unit": "Дж"
+  },
+  {
+    "id": "f48",
+    "n": 48,
+    "sIdx": 5,
+    "name": "Сгорание топлива",
+    "desc": "Количество теплоты, выделяемое при полном сгорании топлива.",
+    "vars": [
+      {
+        "s": "Q",
+        "d": "количество теплоты",
+        "u": "Дж"
+      },
+      {
+        "s": "q",
+        "d": "электрический заряд или удельная теплота сгорания",
+        "u": "Кл / Дж/кг"
+      },
+      {
+        "s": "m",
+        "d": "масса",
+        "u": "кг"
+      }
+    ],
+    "theory": "Количество теплоты, выделяемое при полном сгорании топлива. Формула относится к разделу «Тепловые явления». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Q",
+      "=",
+      "q",
+      "·",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "Q=q·m"
+    ],
+    "katex": "Q=qm",
+    "unit": "Дж"
+  },
+  {
+    "id": "f49",
+    "n": 49,
+    "sIdx": 5,
+    "name": "Уравнение теплового баланса",
+    "desc": "В изолированной системе сумма отданной и полученной теплоты равна нулю.",
+    "vars": [
+      {
+        "s": "Q₁",
+        "d": "теплота первого тела",
+        "u": "Дж"
+      },
+      {
+        "s": "Q₂",
+        "d": "теплота второго тела",
+        "u": "Дж"
+      }
+    ],
+    "theory": "В изолированной системе сумма отданной и полученной теплоты равна нулю. Формула относится к разделу «Тепловые явления». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Q₁",
+      "+",
+      "Q₂",
+      "…",
+      "=",
+      "0",
+      "m",
+      "t",
+      "v"
+    ],
+    "correct": [
+      "Q₁+Q₂+…=0"
+    ],
+    "katex": "Q_1+Q_2+\\ldots=0",
+    "unit": "Дж"
+  },
+  {
+    "id": "f50",
+    "n": 50,
+    "sIdx": 5,
+    "name": "КПД тепловой машины",
+    "desc": "КПД - отношение полезной энергии к затраченной.",
+    "vars": [
+      {
+        "s": "η",
+        "d": "КПД",
+        "u": "безразм. или %"
+      },
+      {
+        "s": "Aпол",
+        "d": "полезная работа",
+        "u": "Дж"
+      },
+      {
+        "s": "Aзатр",
+        "d": "затраченная работа",
+        "u": "Дж"
+      },
+      {
+        "s": "Qпол",
+        "d": "полезное количество теплоты",
+        "u": "Дж"
+      },
+      {
+        "s": "Qзатр",
+        "d": "затраченное количество теплоты",
+        "u": "Дж"
+      }
+    ],
+    "theory": "КПД - отношение полезной энергии к затраченной. Формула относится к разделу «Тепловые явления». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "η",
+      "=",
+      "Aпол",
+      "/",
+      "Aзатр",
+      "Qпол",
+      "Qзатр",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "η=Aпол/Aзатр=Qпол/Qзатр"
+    ],
+    "katex": "\\eta=\\dfrac{A_{\\text{полезная}}}{A_{\\text{затраченная}}}=\\dfrac{Q_{\\text{полезная}}}{Q_{\\text{затраченная}}}",
+    "unit": "безразм. или %"
+  },
+  {
+    "id": "f51",
+    "n": 51,
+    "sIdx": 6,
+    "name": "Сила тока",
+    "desc": "Сила тока равна заряду, прошедшему за единицу времени.",
+    "vars": [
+      {
+        "s": "I",
+        "d": "сила тока",
+        "u": "А"
+      },
+      {
+        "s": "q",
+        "d": "электрический заряд или удельная теплота сгорания",
+        "u": "Кл / Дж/кг"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Сила тока равна заряду, прошедшему за единицу времени. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "I",
+      "=",
+      "q",
+      "/",
+      "t",
+      "m",
+      "v",
+      "F",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "I=q/t"
+    ],
+    "katex": "I=\\dfrac{q}{t}",
+    "unit": "А"
+  },
+  {
+    "id": "f52",
+    "n": 52,
+    "sIdx": 6,
+    "name": "Напряжение",
+    "desc": "Напряжение равно работе электрического поля на единицу заряда.",
+    "vars": [
+      {
+        "s": "U",
+        "d": "напряжение",
+        "u": "В"
+      },
+      {
+        "s": "A",
+        "d": "работа",
+        "u": "Дж"
+      },
+      {
+        "s": "q",
+        "d": "электрический заряд или удельная теплота сгорания",
+        "u": "Кл / Дж/кг"
+      }
+    ],
+    "theory": "Напряжение равно работе электрического поля на единицу заряда. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "U",
+      "=",
+      "A",
+      "/",
+      "q",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "U=A/q"
+    ],
+    "katex": "U=\\dfrac{A}{q}",
+    "unit": "В"
+  },
+  {
+    "id": "f53",
+    "n": 53,
+    "sIdx": 6,
+    "name": "Сопротивление проводника",
+    "desc": "Сопротивление зависит от материала, длины и площади сечения проводника.",
+    "vars": [
+      {
+        "s": "R",
+        "d": "радиус или сопротивление",
+        "u": "м / Ом"
+      },
+      {
+        "s": "ρ",
+        "d": "плотность или удельное сопротивление",
+        "u": "по контексту"
+      },
+      {
+        "s": "l",
+        "d": "плечо силы или длина",
+        "u": "м"
+      },
+      {
+        "s": "S",
+        "d": "площадь поперечного сечения",
+        "u": "м²"
+      }
+    ],
+    "theory": "Сопротивление зависит от материала, длины и площади сечения проводника. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "R",
+      "=",
+      "ρ",
+      "·",
+      "l",
+      "/",
+      "S",
+      "m",
+      "t",
+      "v"
+    ],
+    "correct": [
+      "R=ρ·l/S"
+    ],
+    "katex": "R=\\rho\\dfrac{l}{S}",
+    "unit": "Ом"
+  },
+  {
+    "id": "f54",
+    "n": 54,
+    "sIdx": 6,
+    "name": "Закон Ома для участка цепи",
+    "desc": "Сила тока прямо пропорциональна напряжению и обратно пропорциональна сопротивлению.",
+    "vars": [
+      {
+        "s": "I",
+        "d": "сила тока",
+        "u": "А"
+      },
+      {
+        "s": "U",
+        "d": "напряжение",
+        "u": "В"
+      },
+      {
+        "s": "R",
+        "d": "радиус или сопротивление",
+        "u": "м / Ом"
+      }
+    ],
+    "theory": "Сила тока прямо пропорциональна напряжению и обратно пропорциональна сопротивлению. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "I",
+      "=",
+      "U",
+      "/",
+      "R",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "I=U/R"
+    ],
+    "katex": "I=\\dfrac{U}{R}",
+    "unit": "А"
+  },
+  {
+    "id": "f55",
+    "n": 55,
+    "sIdx": 6,
+    "name": "Ток при последовательном соединении",
+    "desc": "Сила тока одинакова на всех участках последовательной цепи.",
+    "vars": [
+      {
+        "s": "I₁",
+        "d": "ток в первой ветви",
+        "u": "А"
+      },
+      {
+        "s": "I₂",
+        "d": "ток во второй ветви",
+        "u": "А"
+      }
+    ],
+    "theory": "Сила тока одинакова на всех участках последовательной цепи. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "I₁",
+      "=",
+      "I₂",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "I₁=I₂"
+    ],
+    "katex": "I_1=I_2",
+    "unit": "А"
+  },
+  {
+    "id": "f56",
+    "n": 56,
+    "sIdx": 6,
+    "name": "Напряжение при последовательном соединении",
+    "desc": "Общее напряжение равно сумме напряжений на участках.",
+    "vars": [
+      {
+        "s": "U",
+        "d": "напряжение",
+        "u": "В"
+      },
+      {
+        "s": "U₁",
+        "d": "напряжение на первом участке",
+        "u": "В"
+      },
+      {
+        "s": "U₂",
+        "d": "напряжение на втором участке",
+        "u": "В"
+      }
+    ],
+    "theory": "Общее напряжение равно сумме напряжений на участках. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "U",
+      "=",
+      "U₁",
+      "+",
+      "U₂",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "U=U₁+U₂"
+    ],
+    "katex": "U=U_1+U_2",
+    "unit": "В"
+  },
+  {
+    "id": "f57",
+    "n": 57,
+    "sIdx": 6,
+    "name": "Сопротивление при последовательном соединении",
+    "desc": "Общее сопротивление равно сумме сопротивлений.",
+    "vars": [
+      {
+        "s": "R",
+        "d": "радиус или сопротивление",
+        "u": "м / Ом"
+      },
+      {
+        "s": "R₁",
+        "d": "сопротивление первого участка",
+        "u": "Ом"
+      },
+      {
+        "s": "R₂",
+        "d": "сопротивление второго участка",
+        "u": "Ом"
+      }
+    ],
+    "theory": "Общее сопротивление равно сумме сопротивлений. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "R",
+      "=",
+      "R₁",
+      "+",
+      "R₂",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "R=R₁+R₂"
+    ],
+    "katex": "R=R_1+R_2",
+    "unit": "Ом"
+  },
+  {
+    "id": "f58",
+    "n": 58,
+    "sIdx": 6,
+    "name": "Ток при параллельном соединении",
+    "desc": "Общий ток равен сумме токов в ветвях.",
+    "vars": [
+      {
+        "s": "I",
+        "d": "сила тока",
+        "u": "А"
+      },
+      {
+        "s": "I₁",
+        "d": "ток в первой ветви",
+        "u": "А"
+      },
+      {
+        "s": "I₂",
+        "d": "ток во второй ветви",
+        "u": "А"
+      }
+    ],
+    "theory": "Общий ток равен сумме токов в ветвях. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "I",
+      "=",
+      "I₁",
+      "+",
+      "I₂",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "I=I₁+I₂"
+    ],
+    "katex": "I=I_1+I_2",
+    "unit": "А"
+  },
+  {
+    "id": "f59",
+    "n": 59,
+    "sIdx": 6,
+    "name": "Напряжение при параллельном соединении",
+    "desc": "Напряжение на параллельных ветвях одинаково.",
+    "vars": [
+      {
+        "s": "U₁",
+        "d": "напряжение на первом участке",
+        "u": "В"
+      },
+      {
+        "s": "U₂",
+        "d": "напряжение на втором участке",
+        "u": "В"
+      }
+    ],
+    "theory": "Напряжение на параллельных ветвях одинаково. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "U₁",
+      "=",
+      "U₂",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "ρ",
+      "+"
+    ],
+    "correct": [
+      "U₁=U₂"
+    ],
+    "katex": "U_1=U_2",
+    "unit": "В"
+  },
+  {
+    "id": "f60",
+    "n": 60,
+    "sIdx": 6,
+    "name": "Сопротивление при параллельном соединении",
+    "desc": "Обратное общее сопротивление равно сумме обратных сопротивлений ветвей.",
+    "vars": [
+      {
+        "s": "R",
+        "d": "радиус или сопротивление",
+        "u": "м / Ом"
+      },
+      {
+        "s": "R₁",
+        "d": "сопротивление первого участка",
+        "u": "Ом"
+      },
+      {
+        "s": "R₂",
+        "d": "сопротивление второго участка",
+        "u": "Ом"
+      }
+    ],
+    "theory": "Обратное общее сопротивление равно сумме обратных сопротивлений ветвей. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам. Для двух проводников можно использовать эквивалентную формулу произведения сопротивлений, делённого на их сумму.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "1/R",
+      "=",
+      "1/R₁",
+      "+",
+      "1/R₂",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g",
+      "R",
+      "R₁",
+      "R₂",
+      "·",
+      "/",
+      "(",
+      ")"
+    ],
+    "correct": [
+      "1/R=1/R₁+1/R₂",
+      "R=R₁·R₂/(R₁+R₂)",
+      "R=R₂·R₁/(R₁+R₂)",
+      "R=R₁·R₂/(R₂+R₁)",
+      "R=R₂·R₁/(R₂+R₁)"
+    ],
+    "katex": "\\dfrac{1}{R}=\\dfrac{1}{R_1}+\\dfrac{1}{R_2}",
+    "unit": "Ом / 1/Ом",
+    "alternativeKatex": "R=\\dfrac{R_1R_2}{R_1+R_2}"
+  },
+  {
+    "id": "f61",
+    "n": 61,
+    "sIdx": 6,
+    "name": "Работа электрического тока",
+    "desc": "Работа тока через напряжение, силу тока и время.",
+    "vars": [
+      {
+        "s": "A",
+        "d": "работа",
+        "u": "Дж"
+      },
+      {
+        "s": "U",
+        "d": "напряжение",
+        "u": "В"
+      },
+      {
+        "s": "I",
+        "d": "сила тока",
+        "u": "А"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Работа тока через напряжение, силу тока и время. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "A",
+      "=",
+      "U",
+      "·",
+      "I",
+      "t",
+      "m",
+      "v",
+      "F"
+    ],
+    "correct": [
+      "A=U·I·t"
+    ],
+    "katex": "A=UIt",
+    "unit": "Дж"
+  },
+  {
+    "id": "f62",
+    "n": 62,
+    "sIdx": 6,
+    "name": "Закон Джоуля-Ленца",
+    "desc": "Количество теплоты в проводнике с током.",
+    "vars": [
+      {
+        "s": "Q",
+        "d": "количество теплоты",
+        "u": "Дж"
+      },
+      {
+        "s": "I",
+        "d": "сила тока",
+        "u": "А"
+      },
+      {
+        "s": "R",
+        "d": "радиус или сопротивление",
+        "u": "м / Ом"
+      },
+      {
+        "s": "t",
+        "d": "время",
+        "u": "с"
+      }
+    ],
+    "theory": "Количество теплоты в проводнике с током. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Q",
+      "=",
+      "I²",
+      "·",
+      "R",
+      "t",
+      "m",
+      "v",
+      "F"
+    ],
+    "correct": [
+      "Q=I²·R·t"
+    ],
+    "katex": "Q=I^2Rt",
+    "unit": "Дж"
+  },
+  {
+    "id": "f63",
+    "n": 63,
+    "sIdx": 6,
+    "name": "Мощность электрического тока",
+    "desc": "Мощность тока равна произведению напряжения на силу тока.",
+    "vars": [
+      {
+        "s": "P",
+        "d": "вес или электрическая мощность",
+        "u": "Н / Вт"
+      },
+      {
+        "s": "U",
+        "d": "напряжение",
+        "u": "В"
+      },
+      {
+        "s": "I",
+        "d": "сила тока",
+        "u": "А"
+      }
+    ],
+    "theory": "Мощность тока равна произведению напряжения на силу тока. Формула относится к разделу «Законы постоянного тока». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "P",
+      "=",
+      "U",
+      "·",
+      "I",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "P=U·I"
+    ],
+    "katex": "P=UI",
+    "unit": "Вт"
+  },
+  {
+    "id": "f64",
+    "n": 64,
+    "sIdx": 7,
+    "name": "Абсолютный показатель преломления",
+    "desc": "Показатель преломления равен отношению скорости света в вакууме к скорости в среде.",
+    "vars": [
+      {
+        "s": "n",
+        "d": "показатель преломления",
+        "u": "безразм."
+      },
+      {
+        "s": "c",
+        "d": "удельная теплоёмкость или скорость света",
+        "u": "Дж/(кг·°C) / м/с"
+      },
+      {
+        "s": "v",
+        "d": "скорость",
+        "u": "м/с"
+      }
+    ],
+    "theory": "Показатель преломления равен отношению скорости света в вакууме к скорости в среде. Формула относится к разделу «Оптика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "n",
+      "=",
+      "c",
+      "/",
+      "v",
+      "m",
+      "t",
+      "F",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "n=c/v"
+    ],
+    "katex": "n=\\dfrac{c}{v}",
+    "unit": "безразм."
+  },
+  {
+    "id": "f65",
+    "n": 65,
+    "sIdx": 7,
+    "name": "Закон преломления света",
+    "desc": "Отношение синусов углов падения и преломления равно показателю преломления.",
+    "vars": [
+      {
+        "s": "α",
+        "d": "угол",
+        "u": "рад или °"
+      },
+      {
+        "s": "β",
+        "d": "угол преломления",
+        "u": "рад или °"
+      },
+      {
+        "s": "n",
+        "d": "показатель преломления",
+        "u": "безразм."
+      }
+    ],
+    "theory": "Отношение синусов углов падения и преломления равно показателю преломления. Формула относится к разделу «Оптика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "sinα",
+      "/",
+      "sinβ",
+      "=",
+      "n",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "sinα/sinβ=n"
+    ],
+    "katex": "\\dfrac{\\sin\\alpha}{\\sin\\beta}=n",
+    "unit": "безразм."
+  },
+  {
+    "id": "f66",
+    "n": 66,
+    "sIdx": 7,
+    "name": "Предельный угол полного внутреннего отражения",
+    "desc": "Синус предельного угла выражается через относительный показатель преломления.",
+    "vars": [
+      {
+        "s": "αпр",
+        "d": "предельный угол",
+        "u": "рад или °"
+      },
+      {
+        "s": "nотн",
+        "d": "относительный показатель преломления",
+        "u": "безразм."
+      },
+      {
+        "s": "n₁",
+        "d": "показатель преломления первой среды",
+        "u": "безразм."
+      },
+      {
+        "s": "n₂",
+        "d": "показатель преломления второй среды",
+        "u": "безразм."
+      }
+    ],
+    "theory": "Синус предельного угла выражается через относительный показатель преломления. Формула относится к разделу «Оптика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "sinαпр",
+      "=",
+      "1",
+      "/",
+      "nотн",
+      "n₂",
+      "n₁",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "sinαпр=1/nотн=n₂/n₁"
+    ],
+    "katex": "\\sin\\alpha_{\\text{пр}}=\\dfrac{1}{n_{\\text{отн}}}=\\dfrac{n_2}{n_1}",
+    "unit": "безразм."
+  },
+  {
+    "id": "f67",
+    "n": 67,
+    "sIdx": 7,
+    "name": "Оптическая сила тонкой линзы",
+    "desc": "Оптическая сила является величиной, обратной фокусному расстоянию.",
+    "vars": [
+      {
+        "s": "D",
+        "d": "оптическая сила",
+        "u": "дптр"
+      },
+      {
+        "s": "F",
+        "d": "сила или фокусное расстояние",
+        "u": "Н / м"
+      }
+    ],
+    "theory": "Оптическая сила является величиной, обратной фокусному расстоянию. Формула относится к разделу «Оптика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "D",
+      "=",
+      "1",
+      "/",
+      "F",
+      "m",
+      "t",
+      "v",
+      "g",
+      "ρ"
+    ],
+    "correct": [
+      "D=1/F"
+    ],
+    "katex": "D=\\dfrac{1}{F}",
+    "unit": "дптр"
+  },
+  {
+    "id": "f68",
+    "n": 68,
+    "sIdx": 7,
+    "name": "Формула тонкой линзы",
+    "desc": "Связывает расстояния от предмета и изображения с фокусным расстоянием.",
+    "vars": [
+      {
+        "s": "d",
+        "d": "расстояние от предмета до линзы",
+        "u": "м"
+      },
+      {
+        "s": "f",
+        "d": "расстояние от линзы до изображения",
+        "u": "м"
+      },
+      {
+        "s": "F",
+        "d": "сила или фокусное расстояние",
+        "u": "Н / м"
+      }
+    ],
+    "theory": "Связывает расстояния от предмета и изображения с фокусным расстоянием. Формула относится к разделу «Оптика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "1/d",
+      "+",
+      "1/f",
+      "=",
+      "1/F",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "1/d+1/f=1/F"
+    ],
+    "katex": "\\dfrac{1}{d}+\\dfrac{1}{f}=\\dfrac{1}{F}",
+    "unit": "1/м"
+  },
+  {
+    "id": "f69",
+    "n": 69,
+    "sIdx": 7,
+    "name": "Увеличение, даваемое линзой",
+    "desc": "Линейное увеличение равно отношению размеров и соответствующих расстояний.",
+    "vars": [
+      {
+        "s": "Γ",
+        "d": "линейное увеличение",
+        "u": "безразм."
+      },
+      {
+        "s": "h",
+        "d": "высота или глубина",
+        "u": "м"
+      },
+      {
+        "s": "H",
+        "d": "высота предмета",
+        "u": "м"
+      },
+      {
+        "s": "f",
+        "d": "расстояние от линзы до изображения",
+        "u": "м"
+      },
+      {
+        "s": "d",
+        "d": "расстояние от предмета до линзы",
+        "u": "м"
+      }
+    ],
+    "theory": "Линейное увеличение равно отношению размеров и соответствующих расстояний. Формула относится к разделу «Оптика». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "Γ",
+      "=",
+      "h",
+      "/",
+      "H",
+      "f",
+      "d",
+      "m",
+      "t"
+    ],
+    "correct": [
+      "Γ=h/H=f/d"
+    ],
+    "katex": "\\Gamma=\\dfrac{h}{H}=\\dfrac{f}{d}",
+    "unit": "безразм."
+  },
+  {
+    "id": "f70",
+    "n": 70,
+    "sIdx": 8,
+    "name": "Альфа-распад",
+    "desc": "При альфа-распаде массовое число уменьшается на 4, а зарядовое - на 2.",
+    "vars": [
+      {
+        "s": "X",
+        "d": "исходное ядро",
+        "u": "-"
+      },
+      {
+        "s": "Y",
+        "d": "дочернее ядро",
+        "u": "-"
+      },
+      {
+        "s": "Aм",
+        "d": "массовое число",
+        "u": "-"
+      },
+      {
+        "s": "Z",
+        "d": "зарядовое число",
+        "u": "-"
+      }
+    ],
+    "theory": "При альфа-распаде массовое число уменьшается на 4, а зарядовое - на 2. Формула относится к разделу «Квантовые явления». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "X(A,Z)",
+      "→",
+      "Y(A−4,Z−2)",
+      "+",
+      "⁴₂He",
+      "m",
+      "t",
+      "v",
+      "F",
+      "g"
+    ],
+    "correct": [
+      "X(A,Z)→Y(A−4,Z−2)+⁴₂He"
+    ],
+    "katex": "{}^A_ZX\\rightarrow{}^{A-4}_{Z-2}Y+{}^4_2He",
+    "unit": "-"
+  },
+  {
+    "id": "f71",
+    "n": 71,
+    "sIdx": 8,
+    "name": "Электронный β-распад",
+    "desc": "При бета-минус-распаде зарядовое число увеличивается на 1.",
+    "vars": [
+      {
+        "s": "X",
+        "d": "исходное ядро",
+        "u": "-"
+      },
+      {
+        "s": "Y",
+        "d": "дочернее ядро",
+        "u": "-"
+      },
+      {
+        "s": "Aм",
+        "d": "массовое число",
+        "u": "-"
+      },
+      {
+        "s": "Z",
+        "d": "зарядовое число",
+        "u": "-"
+      }
+    ],
+    "theory": "При бета-минус-распаде зарядовое число увеличивается на 1. Формула относится к разделу «Квантовые явления». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "X(A,Z)",
+      "→",
+      "Y(A,Z+1)",
+      "+",
+      "⁰₋₁e",
+      "ν̄ₑ",
+      "m",
+      "t",
+      "v"
+    ],
+    "correct": [
+      "X(A,Z)→Y(A,Z+1)+⁰₋₁e+ν̄ₑ"
+    ],
+    "katex": "{}^A_ZX\\rightarrow{}^A_{Z+1}Y+{}^0_{-1}e+\\bar\\nu_e",
+    "unit": "-"
+  },
+  {
+    "id": "f72",
+    "n": 72,
+    "sIdx": 8,
+    "name": "Позитронный β-распад",
+    "desc": "При бета-плюс-распаде зарядовое число уменьшается на 1.",
+    "vars": [
+      {
+        "s": "X",
+        "d": "исходное ядро",
+        "u": "-"
+      },
+      {
+        "s": "Y",
+        "d": "дочернее ядро",
+        "u": "-"
+      },
+      {
+        "s": "Aм",
+        "d": "массовое число",
+        "u": "-"
+      },
+      {
+        "s": "Z",
+        "d": "зарядовое число",
+        "u": "-"
+      }
+    ],
+    "theory": "При бета-плюс-распаде зарядовое число уменьшается на 1. Формула относится к разделу «Квантовые явления». Перед подстановкой величин приведи их к согласованным единицам.",
+    "tip": "Сначала выпиши известные величины, затем выбери нужную форму записи и проверь размерность результата.",
+    "palette": [
+      "X(A,Z)",
+      "→",
+      "Y(A,Z−1)",
+      "+",
+      "⁰₊₁e",
+      "νₑ",
+      "m",
+      "t",
+      "v"
+    ],
+    "correct": [
+      "X(A,Z)→Y(A,Z−1)+⁰₊₁e+νₑ"
+    ],
+    "katex": "{}^A_ZX\\rightarrow{}^A_{Z-1}Y+{}^0_{+1}e+\\nu_e",
+    "unit": "-"
+  }
+];
+
+// ══════════════════════════════════════════════════════════
+//  TOKEN STATE
+// ══════════════════════════════════════════════════════════
+const fTokens = {};
+const answered = {};
+
+// ══════════════════════════════════════════════════════════
+//  SCORE
+// ══════════════════════════════════════════════════════════
+function updateScore() {
+  const n = Object.keys(answered).length;
+  const total = FORMULAS.length;
+  document.getElementById('scoreDisplay').textContent = n + ' / ' + total;
+  document.getElementById('topScore').textContent = n + ' / ' + total;
+  document.getElementById('progressLabel').textContent = n + ' / ' + total;
+  document.getElementById('progressInner').style.width = (n / total * 100) + '%';
+  document.getElementById('progressBar').style.width = (n / total * 100) + '%';
+}
+
+// ══════════════════════════════════════════════════════════
+//  BUILD FORMULA CARDS
+// ══════════════════════════════════════════════════════════
+function shufflePalette(tokens) {
+  const shuffled = [...tokens];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function buildFormulaCards() {
+  // Порядок карточек внутри каждого раздела и порядок кнопок меняются
+  // при каждом открытии страницы, чтобы нельзя было запомнить позиции.
+  shufflePalette(FORMULAS).forEach(f => {
+    fTokens[f.id] = [];
+    const grid = document.getElementById('grid-' + f.sIdx);
+    if (!grid) return;
+
+    const sColor = SECTION_COLORS[f.sIdx];
+
+    // Vars HTML
+    const varsHtml = f.vars.map(v =>
+      `<div class="fc-var-sym">${v.s}</div><div class="fc-var-def">— ${v.d}</div><div class="fc-var-unit">[${v.u}]</div>`
+    ).join('');
+
+    // Palette HTML
+    const OPS = new Set(['=','/','+','−','-','·','(',')','→']);
+    const paletteHtml = shufflePalette(f.palette).map(tok => {
+      const isOp = OPS.has(tok);
+      return `<button class="tok-btn${isOp?' tok-op':''}" data-fid="${f.id}" data-tok="${tok}">${tok}</button>`;
+    }).join('');
+
+    const card = document.createElement('div');
+    card.className = 'formula-card';
+    card.id = 'fc-' + f.id;
+    card.innerHTML = `
+      <div class="fc-top-bar" style="background:${sColor}"></div>
+      <div class="fc-body">
+        <div class="fc-header-row">
+          <div class="fc-num-badge" style="background:${sColor}">№ ${f.n}</div>
+          <div class="fc-name">${f.name}</div>
+        </div>
+        <div class="fc-desc">${f.desc}</div>
+
+        <button class="fc-theory-btn" onclick="toggleTheory('${f.id}')">📖 Теория и переменные</button>
+        <div class="fc-theory-panel" id="theory-${f.id}">
+          <div class="fc-vars-grid">${varsHtml}</div>
+          <div class="fc-theory-text">${f.theory}</div>
+          <div class="fc-tip-box">💡 ${f.tip}</div>
+        </div>
+
+        <div class="fc-builder-area">
+          <div class="fc-build-label">Собери формулу из переменных ↓</div>
+          <div class="fc-built" id="built-${f.id}">
+            <span class="fc-placeholder" id="ph-${f.id}">нажимай кнопки ниже →</span>
+          </div>
+          <div class="fc-palette" id="pal-${f.id}">${paletteHtml}</div>
+          <div class="fc-actions">
+            <button class="fc-btn-back" data-fid="${f.id}" title="Удалить последний">⌫ Стереть</button>
+            <button class="fc-btn-clear" data-fid="${f.id}">✕ Очистить</button>
+            <button class="fc-btn-peek" data-fid="${f.id}">👁 Подсмотреть</button>
+            <button class="fc-btn-check" data-fid="${f.id}" style="background:${sColor}">✓ Проверить</button>
+          </div>
+          <div class="fc-fb" id="fb-${f.id}"></div>
+        </div>
+
+        <div class="fc-peek-reveal" id="peek-${f.id}"></div>
+        <div class="fc-correct-reveal" id="rev-${f.id}">
+          <div class="fc-correct-label">✓ ВЕРНО!</div>
+          <div id="rev-katex-${f.id}"></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">[${f.unit}]</div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // Attach events
+  document.querySelectorAll('.tok-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const fid = btn.dataset.fid;
+      if (answered[fid]) return;
+      addFToken(fid, btn.dataset.tok);
+    });
+  });
+  document.querySelectorAll('.fc-btn-back').forEach(btn => {
+    btn.addEventListener('click', () => { if (!answered[btn.dataset.fid]) popFToken(btn.dataset.fid); });
+  });
+  document.querySelectorAll('.fc-btn-clear').forEach(btn => {
+    btn.addEventListener('click', () => { if (!answered[btn.dataset.fid]) clearFTokens(btn.dataset.fid); });
+  });
+  document.querySelectorAll('.fc-btn-check').forEach(btn => {
+    btn.addEventListener('click', () => checkFormula(btn.dataset.fid));
+  });
+  document.querySelectorAll('.fc-btn-peek').forEach(btn => {
+    btn.addEventListener('click', () => peekFormula(btn.dataset.fid));
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  TOKEN LOGIC
+// ══════════════════════════════════════════════════════════
+function renderBuilt(fid) {
+  const area = document.getElementById('built-' + fid);
+  const ph   = document.getElementById('ph-' + fid);
+  const toks = fTokens[fid];
+  const OPS  = new Set(['=','/','+','−','-','·','(',')','→']);
+  // remove existing built-tok chips
+  area.querySelectorAll('.built-tok').forEach(el => el.remove());
+  if (toks.length === 0) { if (ph) ph.style.display = ''; return; }
+  if (ph) ph.style.display = 'none';
+  toks.forEach(tok => {
+    const span = document.createElement('span');
+    span.className = 'built-tok' + (OPS.has(tok) ? ' bt-op' : '');
+    span.textContent = tok;
+    area.appendChild(span);
+  });
+}
+
+function addFToken(fid, tok) {
+  fTokens[fid].push(tok);
+  renderBuilt(fid);
+  // clear feedback
+  const fb = document.getElementById('fb-' + fid);
+  fb.className = 'fc-fb'; fb.textContent = '';
+}
+
+function popFToken(fid) {
+  fTokens[fid].pop();
+  renderBuilt(fid);
+}
+
+function clearFTokens(fid) {
+  fTokens[fid] = [];
+  renderBuilt(fid);
+  const fb = document.getElementById('fb-' + fid);
+  fb.className = 'fc-fb'; fb.textContent = '';
+}
+
+// ══════════════════════════════════════════════════════════
+//  CHECK
+// ══════════════════════════════════════════════════════════
+function checkFormula(fid) {
+  if (answered[fid]) return;
+  const formula = FORMULAS.find(f => f.id === fid);
+  const student = fTokens[fid].join('');
+  const fb = document.getElementById('fb-' + fid);
+
+  if (!student) {
+    fb.className = 'fc-fb show err';
+    fb.textContent = 'Сначала добери формулу из переменных!';
+    return;
+  }
+
+  if (formula.correct.includes(student)) {
+    // SUCCESS
+    answered[fid] = true;
+    fb.className = 'fc-fb show ok';
+    fb.textContent = '✓ Верно! Формула собрана правильно.';
+
+    // Lock palette
+    document.querySelectorAll(`[data-fid="${fid}"]`).forEach(el => {
+      if (el.classList.contains('tok-btn') || el.classList.contains('fc-btn-back') ||
+          el.classList.contains('fc-btn-clear') || el.classList.contains('fc-btn-check') ||
+          el.classList.contains('fc-btn-peek')) el.disabled = true;
+    });
+
+    // Show KaTeX reveal
+    const rev = document.getElementById('rev-' + fid);
+    const revKatex = document.getElementById('rev-katex-' + fid);
+    rev.classList.add('show');
+    revKatex.innerHTML = '$' + formula.katex + '$' + (formula.alternativeKatex ? '<div>или</div>$' + formula.alternativeKatex + '$' : '');
+    renderMathInElement(revKatex, {
+      delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+      throwOnError: false
+    });
+
+    // Style card
+    const card = document.getElementById('fc-' + fid);
+    card.classList.add('fc-done');
+
+    updateScore();
+  } else {
+    fb.className = 'fc-fb show err';
+    fb.textContent = '✗ Неверно. Проверь порядок переменных и знаки операций. Попробуй ещё раз!';
+    // shake animation
+    const built = document.getElementById('built-' + fid);
+    built.classList.add('shake');
+    built.addEventListener('animationend', () => built.classList.remove('shake'), {once:true});
+  }
+}
+
+function peekFormula(fid) {
+  if (answered[fid]) return;
+  const formula = FORMULAS.find(f => f.id === fid);
+  const peek = document.getElementById('peek-' + fid);
+  peek.classList.add('show');
+  peek.innerHTML = '👁 Подсказка: $' + formula.katex + '$' + (formula.alternativeKatex ? '<div>или</div>$' + formula.alternativeKatex + '$' : '');
+  renderMathInElement(peek, {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+    throwOnError: false
+  });
+}
+
+function toggleTheory(fid) {
+  document.getElementById('theory-' + fid).classList.toggle('open');
+}
+
+// ══════════════════════════════════════════════════════════
+//  SECTION NAV
+// ══════════════════════════════════════════════════════════
+const SEC_DATA = [
+  {
+    "label": "🚀 Кинематика",
+    "id": "sec0",
+    "ci": 0
+  },
+  {
+    "label": "💪 Динамика",
+    "id": "sec1",
+    "ci": 1
+  },
+  {
+    "label": "⚖️ Статика",
+    "id": "sec2",
+    "ci": 2
+  },
+  {
+    "label": "♻️ Сохранение",
+    "id": "sec3",
+    "ci": 3
+  },
+  {
+    "label": "〰️ Колебания",
+    "id": "sec4",
+    "ci": 4
+  },
+  {
+    "label": "🌡️ Теплота",
+    "id": "sec5",
+    "ci": 5
+  },
+  {
+    "label": "⚡ Ток",
+    "id": "sec6",
+    "ci": 6
+  },
+  {
+    "label": "🔭 Оптика",
+    "id": "sec7",
+    "ci": 7
+  },
+  {
+    "label": "⚛️ Квантовые",
+    "id": "sec8",
+    "ci": 8
+  }
+];
+
+let trainerStarted = false;
+let previewTimer = null;
+
+function renderFormulaMath(root) {
+  if (typeof window.renderMathInElement !== 'function') return;
+  window.renderMathInElement(root, {
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+    throwOnError: false
+  });
+}
+
+function buildFormulaPreview() {
+  const root = document.getElementById('previewContent');
+  root.innerHTML = SEC_DATA.map((section, sectionIndex) => {
+    const cards = FORMULAS.filter(formula => formula.sIdx === sectionIndex).map(formula => `
+      <article class="preview-card">
+        <div class="preview-card-name">${formula.n}. ${formula.name}</div>
+        <div class="preview-card-formula">$${formula.katex}$</div>
+      </article>`).join('');
+    return `<section class="preview-section" style="--section-color:${SECTION_COLORS[sectionIndex]}">
+      <h3>${section.label}</h3>
+      <div class="preview-grid">${cards}</div>
+    </section>`;
+  }).join('');
+  renderFormulaMath(root);
+}
+
+function beginFormulaTraining() {
+  if (trainerStarted) return;
+  trainerStarted = true;
+  if (previewTimer) clearInterval(previewTimer);
+  document.getElementById('formulaPreview').hidden = true;
+  buildSecNav();
+  buildFormulaCards();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function startFormulaPreview() {
+  buildFormulaPreview();
+  const overlay = document.getElementById('formulaPreview');
+  const counter = document.getElementById('previewSeconds');
+  let secondsLeft = 60;
+  counter.textContent = String(secondsLeft);
+  overlay.hidden = false;
+  previewTimer = setInterval(() => {
+    secondsLeft -= 1;
+    counter.textContent = String(Math.max(0, secondsLeft));
+    if (secondsLeft <= 0) beginFormulaTraining();
+  }, 1000);
+}
+
+function buildSecNav() {
+  const nav = document.getElementById('secNav');
+  SEC_DATA.forEach(sd => {
+    const btn = document.createElement('button');
+    btn.className = 'sec-pill';
+    btn.textContent = sd.label;
+    btn.style.background = SECTION_COLORS[sd.ci];
+    btn.onclick = () => document.getElementById(sd.id).scrollIntoView({behavior:'smooth',block:'start'});
+    nav.appendChild(btn);
+  });
+  // Active highlight
+  const sections = document.querySelectorAll('.formula-section');
+  const pills = document.querySelectorAll('.sec-pill');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const idx = Array.from(sections).indexOf(e.target);
+        pills.forEach((p,i) => p.classList.toggle('active', i === idx));
+      }
+    });
+  }, {threshold: 0.25});
+  sections.forEach(s => obs.observe(s));
+}
+
+// ══════════════════════════════════════════════════════════
+//  DRAWING BOARD
+// ══════════════════════════════════════════════════════════
+let dc=null,dctx=null,drawColor='#1e1e2e',drawSize=3,drawTool='pen',drawing=false;
+let boardHistory=[],boardOpen=false;
+function getBoardCanvas(){ if(!dc){dc=document.getElementById('draw-canvas');dctx=dc.getContext('2d');}return{dc,dctx}; }
+function initDrawCanvas(){ getBoardCanvas();const pr=window.devicePixelRatio||1;dc.width=dc.offsetWidth*pr;dc.height=dc.offsetHeight*pr;dctx.scale(pr,pr); }
+function toggleBoard(){ boardOpen?closeBoard():openBoard(); }
+function openBoard(){
+  boardOpen=true;
+  document.getElementById('board-panel').classList.add('show');
+  document.getElementById('board-overlay').classList.add('show');
+  document.getElementById('board-fab').classList.add('open');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{initDrawCanvas();redrawBoardHistory();}));
+}
+function closeBoard(){
+  boardOpen=false;
+  document.getElementById('board-panel').classList.remove('show');
+  document.getElementById('board-overlay').classList.remove('show');
+  document.getElementById('board-fab').classList.remove('open');
+}
+function getPos(e){ const r=dc.getBoundingClientRect();if(e.touches)return{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};return{x:e.clientX-r.left,y:e.clientY-r.top}; }
+function startDraw(e){ e.preventDefault();getBoardCanvas();drawing=true;const p=getPos(e);dctx.beginPath();dctx.moveTo(p.x,p.y); }
+function draw(e){
+  if(!drawing)return;e.preventDefault();const p=getPos(e);
+  dctx.lineCap='round';dctx.lineJoin='round';
+  if(drawTool==='eraser'){dctx.globalCompositeOperation='destination-out';dctx.lineWidth=drawSize*5;dctx.strokeStyle='rgba(0,0,0,1)';}
+  else if(drawTool==='marker'){dctx.globalCompositeOperation='source-over';dctx.lineWidth=drawSize*2.2;const h=drawColor.replace('#','');const r=parseInt(h.substring(0,2),16),g=parseInt(h.substring(2,4),16),b=parseInt(h.substring(4,6),16);dctx.strokeStyle=`rgba(${r},${g},${b},0.82)`;}
+  else{dctx.globalCompositeOperation='source-over';dctx.lineWidth=drawSize;dctx.strokeStyle=drawColor;}
+  dctx.lineTo(p.x,p.y);dctx.stroke();dctx.beginPath();dctx.moveTo(p.x,p.y);
+}
+function endDraw(){ if(!drawing)return;drawing=false;dctx.beginPath();boardHistory.push(dc.toDataURL());if(boardHistory.length>30)boardHistory.shift(); }
+function setColor(el){ drawColor=el.dataset.color;if(drawTool==='eraser')setTool('pen');document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');getBoardCanvas();dc.style.cursor='crosshair'; }
+function setSize(el){ drawSize=parseInt(el.dataset.size);document.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active'); }
+function setTool(tool){ drawTool=tool;['pen','marker','eraser'].forEach(t=>document.getElementById('tool-'+t).classList.toggle('active',t===tool));getBoardCanvas();dc.style.cursor=tool==='eraser'?'cell':'crosshair'; }
+function clearBoard(){ getBoardCanvas();boardHistory.push(dc.toDataURL());dctx.globalCompositeOperation='source-over';dctx.clearRect(0,0,dc.offsetWidth,dc.offsetHeight); }
+function undoBoard(){ getBoardCanvas();if(!boardHistory.length)return;const prev=boardHistory.pop();const img=new Image();img.onload=()=>{dctx.globalCompositeOperation='source-over';dctx.clearRect(0,0,dc.offsetWidth,dc.offsetHeight);dctx.drawImage(img,0,0,dc.offsetWidth,dc.offsetHeight);};img.src=prev; }
+function redrawBoardHistory(){ getBoardCanvas();if(!boardHistory.length)return;const prev=boardHistory[boardHistory.length-1];const img=new Image();img.onload=()=>{dctx.drawImage(img,0,0,dc.offsetWidth,dc.offsetHeight);};img.src=prev; }
+let boardExpanded=false;
+function toggleExpandBoard(){
+  const panel=document.getElementById('board-panel'),btn=document.getElementById('board-expand-btn');
+  boardExpanded=!boardExpanded;
+  if(boardExpanded){panel._sl=panel.style.left;panel._st=panel.style.top;panel._sr=panel.style.right;panel._sb=panel.style.bottom;panel.style.left=panel.style.top=panel.style.right=panel.style.bottom='';panel.classList.add('expanded');btn.textContent='⤡';}
+  else{panel.classList.remove('expanded');panel.style.left=panel._sl||'';panel.style.top=panel._st||'';panel.style.right=panel._sr||'28px';panel.style.bottom=panel._sb||'96px';btn.textContent='⤢';}
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{initDrawCanvas();redrawBoardHistory();}));
+}
+
+// ══════════════════════════════════════════════════════════
+//  BOARD DRAG & RESIZE
+// ══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function(){
+  getBoardCanvas();
+  dc.addEventListener('mousedown',startDraw);dc.addEventListener('mousemove',draw);
+  dc.addEventListener('mouseup',endDraw);dc.addEventListener('mouseleave',endDraw);
+  dc.addEventListener('touchstart',startDraw,{passive:false});dc.addEventListener('touchmove',draw,{passive:false});
+  dc.addEventListener('touchend',endDraw);
+
+  const panel=document.getElementById('board-panel');
+  const header=document.getElementById('board-panel-header');
+  const MIN_W=320,MIN_H=280;
+  let mode=null,sX,sY,sL,sT,sW,sH;
+  function anchorPanel(){const r=panel.getBoundingClientRect();panel.style.right='auto';panel.style.bottom='auto';panel.style.left=r.left+'px';panel.style.top=r.top+'px';panel.style.width=r.width+'px';panel.style.height=r.height+'px';}
+  header.addEventListener('mousedown',e=>{if(e.target.closest('button')||panel.classList.contains('expanded'))return;anchorPanel();mode='drag';sX=e.clientX;sY=e.clientY;sL=parseFloat(panel.style.left);sT=parseFloat(panel.style.top);e.preventDefault();});
+  panel.querySelectorAll('.rsz').forEach(h=>{h.addEventListener('mousedown',e=>{if(panel.classList.contains('expanded'))return;anchorPanel();mode=h.dataset.dir;sX=e.clientX;sY=e.clientY;sL=parseFloat(panel.style.left);sT=parseFloat(panel.style.top);sW=parseFloat(panel.style.width);sH=parseFloat(panel.style.height);e.preventDefault();e.stopPropagation();});});
+  document.addEventListener('mousemove',e=>{
+    if(!mode)return;const dx=e.clientX-sX,dy=e.clientY-sY,vw=window.innerWidth,vh=window.innerHeight;
+    if(mode==='drag'){panel.style.left=Math.max(0,Math.min(vw-panel.offsetWidth,sL+dx))+'px';panel.style.top=Math.max(0,Math.min(vh-panel.offsetHeight,sT+dy))+'px';return;}
+    let nl=sL,nt=sT,nw=sW,nh=sH;
+    if(mode.includes('e'))nw=Math.max(MIN_W,sW+dx);if(mode.includes('s'))nh=Math.max(MIN_H,sH+dy);
+    if(mode.includes('w')){nw=Math.max(MIN_W,sW-dx);nl=sL+sW-nw;}if(mode.includes('n')){nh=Math.max(MIN_H,sH-dy);nt=sT+sH-nh;}
+    panel.style.left=nl+'px';panel.style.top=nt+'px';panel.style.width=nw+'px';panel.style.height=nh+'px';
+    const hH=document.getElementById('board-panel-header').offsetHeight;const tH=document.querySelector('#board-panel .board-toolbar').offsetHeight;
+    getBoardCanvas();dc.style.height=Math.max(120,nh-hH-tH)+'px';
+  });
+  document.addEventListener('mouseup',()=>{if(!mode)return;mode=null;requestAnimationFrame(()=>requestAnimationFrame(()=>{initDrawCanvas();redrawBoardHistory();}));});
+});
+</script>
+<script src="../config.js?v=3"></script>
+<script>
+async function startPortalFormulaTrainer() {
+  const activityId = 'oge-formulas';
+  const gate = document.getElementById('accessGate');
+  const shell = document.getElementById('taskShell');
+  const title = document.getElementById('accessTitle');
+  const message = document.getElementById('accessMessage');
+
+  function showError(text) {
+    if (previewTimer) clearInterval(previewTimer);
+    shell.hidden = true;
+    gate.hidden = false;
+    title.textContent = 'Тренажёр пока недоступен';
+    message.textContent = text;
+    const link = document.createElement('a');
+    link.href = '../';
+    link.textContent = 'Вернуться на портал';
+    message.append(document.createElement('br'), link);
+  }
+
+  try {
+    const { PhysicsTracker } = await import('../tracker.js');
+    const progress = await PhysicsTracker.loadProgress(activityId);
+    const studentName = progress.student?.name || '';
+    const access = progress.activities?.find(item => item.activityId === activityId);
+    if (!studentName) throw new Error('Не найдено имя ученика.');
+    if (!access) throw new Error('Эта тренировка пока не опубликована.');
+    if (!access.isOpen) {
+      throw new Error(access.manuallyClosed
+        ? `${studentName}, эта тренировка сейчас закрыта.`
+        : `${studentName}, время выполнения тренировки истекло.`);
+    }
+
+    document.getElementById('studentChip').textContent = studentName;
+    document.getElementById('heroTitle').innerHTML = `${studentName}, повторим <span>формулы</span>`;
+    gate.hidden = true;
+    shell.hidden = false;
+
+    const entryKey = `physics-entry:${activityId}`;
+    const entryId = sessionStorage.getItem(entryKey) || crypto.randomUUID();
+    sessionStorage.removeItem(entryKey);
+    await PhysicsTracker.openActivity(activityId, entryId);
+
+    const serverOffset = progress.serverTime ? Date.parse(progress.serverTime) - Date.now() : 0;
+    if (access.deadlineAt) {
+      const deadline = Date.parse(access.deadlineAt);
+      const deadlineWatcher = setInterval(() => {
+        if (Date.now() + serverOffset < deadline) return;
+        clearInterval(deadlineWatcher);
+        showError(`${studentName}, время выполнения тренировки истекло.`);
+      }, 1000);
+    }
+
+    startFormulaPreview();
+  } catch (error) {
+    const text = error instanceof Error ? error.message : 'Не удалось открыть тренажёр.';
+    showError(text.includes('Сначала войдите') ? 'Сначала войдите на главной странице портала.' : text);
+  }
+}
+
+void startPortalFormulaTrainer();
+</script>
+</body>
+</html>

@@ -65,14 +65,10 @@ function addActivity(id, variants, answers) {
 fs.mkdirSync(publicData, { recursive: true });
 fs.mkdirSync(taskDir, { recursive: true });
 
-const formulas = extractArray(path.join(workspace, "physics-progress-site", "lib", "catalog.ts"), "FORMULAS");
-addActivity("oge-formulas", [{
-  id: "default", title: "Все формулы", maxPoints: formulas.length,
-  questions: formulas.map((item) => ({ id: item.id, title: item.name, prompt: item.desc, kind: "formula", palette: item.palette, unit: item.unit, points: 1, scored: true })),
-}], formulas.map((item) => ({
-  variantId: "default", questionId: item.id, matcherType: "formula", expected: item.correct,
-  tolerance: 0, points: 1, solutionHtml: cleanHtml(`<p><strong>${item.correct.join(" или ")}</strong></p><p>${item.theory}</p><p>${item.tip}</p>`),
-})));
+// «Все формулы ОГЭ» теперь отдельный тренажёр без оценки. Его содержимое
+// находится в tasks/oge-formulas.html, поэтому публичный набор вопросов и
+// закрытый ключ ответов для этой работы больше не создаются.
+fs.rmSync(path.join(publicData, "oge-formulas.json"), { force: true });
 
 const reviewTasks = extractArray(path.join(workspace, "9_grade_first_lesson_review", "dist", "index.html"), "TASKS");
 const reviewQuestions = [], reviewAnswers = [];
