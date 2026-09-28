@@ -6,7 +6,7 @@ import { build } from "esbuild";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
 const files = [
-  "index.html", "teacher.html", "task.html", "styles.css", "config.js",
+  "index.html", "guides.html", "teacher.html", "task.html", "styles.css", "config.js",
 ];
 
 fs.rmSync(dist, { recursive: true, force: true });
@@ -15,6 +15,9 @@ for (const file of files) fs.copyFileSync(path.join(root, file), path.join(dist,
 const catalog = JSON.parse(fs.readFileSync(path.join(root, "data", "activities.json"), "utf8"));
 fs.mkdirSync(path.join(dist, "data", "task-content"), { recursive: true });
 fs.mkdirSync(path.join(dist, "tasks"), { recursive: true });
+fs.mkdirSync(path.join(dist, "guides"), { recursive: true });
+fs.copyFileSync(path.join(root, "guides", "fizika-9-klass-oge.pdf"), path.join(dist, "guides", "fizika-9-klass-oge.pdf"));
+fs.copyFileSync(path.join(root, "guides", "fizika-9-klass-oge-preview.png"), path.join(dist, "guides", "fizika-9-klass-oge-preview.png"));
 fs.copyFileSync(path.join(root, "data", "activities.json"), path.join(dist, "data", "activities.json"));
 for (const activity of catalog.activities.filter((item) => item.published)) {
   if (activity.verificationMode === "server-graded") {
@@ -47,7 +50,7 @@ if (publicUrl || publicKey) {
 
 await build({
   absWorkingDir: root,
-  entryPoints: ["portal.js", "teacher.js", "task-page.js", "tracker.js"],
+  entryPoints: ["portal.js", "guides.js", "teacher.js", "task-page.js", "tracker.js"],
   outdir: dist,
   bundle: true,
   format: "esm",

@@ -151,7 +151,7 @@ function activityCard(activity) {
   card.classList.toggle("is-complete", Boolean(best));
   card.classList.toggle("is-closed", access.known && !access.isOpen);
   card.querySelector(".subject-label").textContent = activity.subject;
-  card.querySelector(".activity-state").textContent = access.known && !access.isOpen ? (access.manuallyClosed ? "Закрыта" : "Время истекло") : activity.verificationMode === "visit-only" ? "Без оценки" : best ? (best.grade == null ? "Сдано" : `Оценка ${best.grade}`) : "Не сдано";
+  card.querySelector(".activity-state").textContent = access.known && !access.isOpen ? (access.manuallyClosed ? "Закрыта" : "Время истекло") : activity.verificationMode === "visit-only" ? (activity.cardState || "Без оценки") : best ? (best.grade == null ? "Сдано" : `Оценка ${best.grade}`) : "Не сдано";
   card.querySelector("h3").textContent = activity.title;
   card.querySelector(".activity-description").textContent = activity.description;
   const count = activity.verificationMode === "visit-only"

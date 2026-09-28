@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Памятки по физике для 9 класса и подготовки к ОГЭ." />
+    <meta name="theme-color" content="#12231a" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2312231a'/%3E%3Cpath d='M18 17v19c0 18 28 18 28 0V17H35v19c0 7-6 7-6 0V17z' fill='%23f2f7f0'/%3E%3Cpath d='M18 17h11v9H18zm17 0h11v9H35z' fill='%23ff6846'/%3E%3C/svg%3E" />
+    <title>Памятки · Физика</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Физика — главная">
+        <span class="brand-mark" aria-hidden="true">φ</span>
+        <span><b>Физика</b><small>9 класс</small></span>
+      </a>
+      <nav class="section-tabs" aria-label="Разделы портала">
+        <a class="section-tab" href="./">Задания</a>
+        <a class="section-tab active" href="guides.html" aria-current="page">Памятки</a>
+      </nav>
+      <div class="student-controls">
+        <span class="student-pill" id="guide-student" hidden></span>
+      </div>
+    </header>
+
+    <main class="guides-main">
+      <section class="guide-hero">
+        <p class="eyebrow">Полезные материалы</p>
+        <h1 id="guide-title">Памятки по физике</h1>
+        <p class="lead" id="guide-lead">Короткие материалы, к которым можно вернуться перед уроком, работой или экзаменом.</p>
+      </section>
+
+      <article class="guide-card">
+        <div class="guide-card-copy">
+          <p class="eyebrow">PDF · 12 страниц</p>
+          <h2>Как решать задачи по физике</h2>
+          <p>Алгоритм решения, основные формулы и подсказки по механике, тепловым явлениям, электричеству, оптике и заданиям ОГЭ.</p>
+          <div class="guide-actions">
+            <a class="primary-button compact" href="guides/fizika-9-klass-oge.pdf" target="_blank" rel="noopener">Открыть памятку</a>
+            <a class="secondary-button guide-download" href="guides/fizika-9-klass-oge.pdf" download>Скачать PDF</a>
+          </div>
+        </div>
+        <a class="guide-preview-link" href="guides/fizika-9-klass-oge.pdf" target="_blank" rel="noopener" aria-label="Открыть памятку в PDF">
+          <img class="guide-preview" src="guides/fizika-9-klass-oge-preview.png" alt="Обложка памятки «Как решать задачи по физике»" />
+        </a>
+      </article>
+    </main>
+
+    <footer>
+      <p>Памятку можно открыть в браузере или сохранить на устройство.</p>
+      <a href="teacher.html">Кабинет преподавателя</a>
+    </footer>
+
+    <script src="config.js?v=2"></script>
+    <script type="module" src="guides.js"></script>
+  </body>
+</html>

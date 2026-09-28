@@ -184,6 +184,36 @@
       "order": 49
     },
     {
+      "id": "accelerated-motion",
+      "title": "Прямолинейное равноускоренное движение",
+      "subject": "Тренажёры",
+      "description": "12 интерактивных задач на скорость, ускорение, путь и перемещение.",
+      "url": "tasks/accelerated-motion.html",
+      "questionCount": 12,
+      "maxPoints": 0,
+      "difficulty": "Тренировка",
+      "verificationMode": "visit-only",
+      "cardState": "Тренажёр",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 55
+    },
+    {
+      "id": "curvilinear-motion",
+      "title": "Криволинейное движение",
+      "subject": "Тренажёры",
+      "description": "12 интерактивных задач на движение по окружности, период, частоту и ускорение.",
+      "url": "tasks/curvilinear-motion.html",
+      "questionCount": 12,
+      "maxPoints": 0,
+      "difficulty": "Тренировка",
+      "verificationMode": "visit-only",
+      "cardState": "Тренажёр",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 56
+    },
+    {
       "id": "olympiad-physics",
       "title": "Олимпиадная физика",
       "subject": "Олимпиада",
