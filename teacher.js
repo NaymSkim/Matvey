@@ -44,6 +44,14 @@ function summaryCard(label, value) {
   article.append(small, strong); return article;
 }
 
+function teacherLoginError(error) {
+  const message = error instanceof Error ? error.message : "Не удалось отправить ссылку.";
+  if (/signups not allowed for otp|otp[_ ]disabled/i.test(message)) {
+    return "Эта почта ещё не подключена к кабинету преподавателя. Проверьте адрес или повторно выполните настройку преподавателя.";
+  }
+  return message;
+}
+
 function button(label, className, action) {
   const element = document.createElement("button");
   element.type = "button"; element.className = className; element.textContent = label;
@@ -206,7 +214,7 @@ ui.loginForm.addEventListener("submit", async (event) => {
     ui.loginMessage.textContent = "Мы отправили письмо. Откройте ссылку в этом браузере.";
     ui.loginMessage.className = "notice success"; ui.loginMessage.hidden = false;
   } catch (error) {
-    ui.loginMessage.textContent = error instanceof Error ? error.message : "Не удалось отправить ссылку.";
+    ui.loginMessage.textContent = teacherLoginError(error);
     ui.loginMessage.className = "notice"; ui.loginMessage.hidden = false;
   } finally { buttonElement.disabled = false; }
 });

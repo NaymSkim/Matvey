@@ -11,6 +11,10 @@ if (!user) {
   response = await fetch(`${url}/auth/v1/admin/users`, { method: "POST", headers, body: JSON.stringify({ email, email_confirm: true }) });
   if (!response.ok) throw new Error(`Не удалось создать преподавателя: ${response.status} ${await response.text()}`);
   user = await response.json();
+} else if (!user.email_confirmed_at) {
+  response = await fetch(`${url}/auth/v1/admin/users/${user.id}`, { method: "PUT", headers, body: JSON.stringify({ email_confirm: true }) });
+  if (!response.ok) throw new Error(`Не удалось подтвердить почту преподавателя: ${response.status} ${await response.text()}`);
+  user = await response.json();
 }
 response = await fetch(`${url}/rest/v1/teachers?on_conflict=auth_user_id`, {
   method: "POST",
