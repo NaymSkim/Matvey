@@ -82,6 +82,46 @@ function graphChoice(graph, line, index) {
   return `<span class="graph-label">${index + 1}</span><svg class="mini-graph" viewBox="0 0 145 100" aria-label="График ${index + 1}"><line x1="25" y1="82" x2="134" y2="82"/><line x1="25" y1="84" x2="25" y2="7"/><line class="graph-data" x1="${Number(x1)}" y1="${Number(y1)}" x2="${Number(x2)}" y2="${Number(y2)}"/><text x="132" y="96">t</text><text x="6" y="14">${escapeHtml(graph.y)}</text></svg>`;
 }
 
+const velocityDiagrams = {
+  g6v1q2: { t: 4, v: 24, xt: [0, 4], yt: [0, 12, 24], lines: [{ points: [[0, 12], [4, 24]] }] },
+  g6v1q3: { t: 40, v: 20, xt: [0, 10, 20, 30, 40], yt: [0, 5, 10, 20], lines: [{ points: [[0, 0], [10, 5], [20, 20], [30, 0], [40, 10]] }] },
+  g6v2q2: { t: 3, v: 60, xt: [0, 1, 2, 3], yt: [0, 30, 60], lines: [{ points: [[0, 30], [1, 60]], label: "I" }, { points: [[0, 0], [3, 60]], label: "II" }] },
+  g6v2q3: { t: 30, v: 20, xt: [0, 10, 20, 30], yt: [0, 10, 15, 20], lines: [{ points: [[0, 15], [10, 0], [20, 20], [30, 10]] }] },
+  g7v1q3: { t: 10, v: 20, xt: [0, 5, 10], yt: [0, 10, 20], lines: [{ points: [[0, 10], [10, 20]] }] },
+  g7v2q3: { t: 3, v: 15, xt: [0, 1, 2, 3], yt: [0, 5, 10, 15], lines: [{ points: [[0, 15], [3, 10]], label: "I" }, { points: [[0, 10], [3, 10]], label: "II" }, { points: [[0, 5], [3, 10]], label: "III" }] },
+};
+
+function diagramMarkup(key) {
+  if (key === "coord1" || key === "coord2") {
+    const start = key === "coord1" ? [6, 1] : [4, 4];
+    const end = key === "coord1" ? [2, 5] : [2, 1];
+    const mapX = (value) => 42 + value * 34;
+    const mapY = (value) => 226 - value * 30;
+    const grid = Array.from({ length: 7 }, (_, value) => `<line class="diagram-grid" x1="${mapX(value)}" y1="46" x2="${mapX(value)}" y2="226"/><line class="diagram-grid" x1="42" y1="${mapY(value)}" x2="246" y2="${mapY(value)}"/>`).join("");
+    const ticks = Array.from({ length: 7 }, (_, value) => `<text x="${mapX(value) - 4}" y="244">${value}</text><text x="24" y="${mapY(value) + 4}">${value}</text>`).join("");
+    return `<svg viewBox="0 0 300 260" role="img" aria-label="Координатная плоскость: вектор из точки A (${start[0]}; ${start[1]}) в точку B (${end[0]}; ${end[1]})"><defs><marker id="arrow-${key}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="diagram-arrow"/></marker></defs>${grid}<line class="diagram-axis" x1="42" y1="226" x2="275" y2="226"/><line class="diagram-axis" x1="42" y1="226" x2="42" y2="25"/><path class="diagram-vector" d="M${mapX(start[0])} ${mapY(start[1])} L${mapX(end[0])} ${mapY(end[1])}" marker-end="url(#arrow-${key})"/><circle class="diagram-point" cx="${mapX(start[0])}" cy="${mapY(start[1])}" r="5"/><circle class="diagram-point" cx="${mapX(end[0])}" cy="${mapY(end[1])}" r="5"/><text class="diagram-label" x="${mapX(start[0]) - 22}" y="${mapY(start[1]) - 10}">A (${start[0]}; ${start[1]})</text><text class="diagram-label" x="${mapX(end[0]) + 8}" y="${mapY(end[1]) - 9}">B (${end[0]}; ${end[1]})</text><text x="268" y="247">x, м</text><text x="7" y="26">y, м</text>${ticks}</svg>`;
+  }
+  if (key === "speed1" || key === "speed2") {
+    const negative = key === "speed2";
+    const y = negative ? 150 : 55;
+    const label = negative ? "−10" : "15";
+    return `<svg viewBox="0 0 330 190" role="img" aria-label="График проекции скорости: ${label} метров в секунду в течение двух секунд"><line class="diagram-axis" x1="46" y1="100" x2="300" y2="100"/><line class="diagram-axis" x1="46" y1="165" x2="46" y2="18"/><line class="diagram-vector" x1="46" y1="${y}" x2="260" y2="${y}"/><line class="diagram-grid dashed" x1="260" y1="28" x2="260" y2="164"/><text x="292" y="120">t, с</text><text x="8" y="22">vₓ, м/с</text><text x="22" y="${y + 4}">${label}</text><text x="254" y="118">2</text></svg>`;
+  }
+  const graph = velocityDiagrams[key];
+  if (!graph) return "";
+  const mapX = (value) => 50 + value / graph.t * 260;
+  const mapY = (value) => 178 - value / graph.v * 135;
+  const grid = [...graph.xt.map((value) => `<line class="diagram-grid" x1="${mapX(value)}" y1="38" x2="${mapX(value)}" y2="178"/><text x="${mapX(value) - 4}" y="198">${value}</text>`), ...graph.yt.map((value) => `<line class="diagram-grid" x1="50" y1="${mapY(value)}" x2="310" y2="${mapY(value)}"/><text x="22" y="${mapY(value) + 4}">${value}</text>`)].join("");
+  const colors = ["#2563eb", "#ea580c", "#168653"];
+  const lines = graph.lines.map((line, index) => {
+    const points = line.points.map((point) => `${mapX(point[0])},${mapY(point[1])}`).join(" ");
+    const middle = line.points[Math.floor((line.points.length - 1) / 2)];
+    const label = line.label ? `<text class="diagram-series-label" x="${mapX(middle[0]) + 10}" y="${mapY(middle[1]) - 8}" fill="${colors[index]}">${line.label}</text>` : "";
+    return `<polyline points="${points}" fill="none" stroke="${colors[index]}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${label}`;
+  }).join("");
+  return `<svg viewBox="0 0 350 220" role="img" aria-label="График зависимости проекции скорости от времени">${grid}<line class="diagram-axis" x1="50" y1="178" x2="326" y2="178"/><line class="diagram-axis" x1="50" y1="190" x2="50" y2="22"/>${lines}<text x="322" y="201">t, с</text><text x="7" y="23">vₓ, м/с</text></svg>`;
+}
+
 function controlFor(question) {
   const wrapper = document.createElement("div");
   wrapper.dataset.kind = question.kind;
@@ -157,6 +197,10 @@ function renderQuestions(questions) {
     card.querySelector(".question-points").textContent = question.scored ? `${question.points} балл${question.points === 1 ? "" : "а"}` : "Без оценки";
     card.querySelector("h2").textContent = question.title || question.prompt;
     if (question.title && question.prompt) { const prompt = document.createElement("p"); prompt.className = "question-prompt"; prompt.textContent = question.prompt; card.querySelector("h2").after(prompt); }
+    if (question.diagram) {
+      const markup = diagramMarkup(question.diagram);
+      if (markup) { const diagram = document.createElement("div"); diagram.className = "question-diagram"; diagram.innerHTML = markup; card.querySelector(".question-control").before(diagram); }
+    }
     const control = controlFor(question); card.querySelector(".question-control").append(control);
     const check = card.querySelector(".check-answer");
     if (!question.scored) check.textContent = "Сохранить ответ";

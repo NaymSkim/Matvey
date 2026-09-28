@@ -127,6 +127,7 @@ for (const work of works) {
       const question = { id, title: item.q, prompt: "", kind, points: scored ? 1 : 0, scored };
       if (item.options) question.options = item.options;
       if (item.unit) question.unit = item.unit;
+      if (item.diagram) question.diagram = item.diagram;
       if (scored) {
         maxPoints += 1;
         srAnswers.push({ variantId, questionId: id, matcherType: kind, expected: item.answer, tolerance: item.tol || 0, points: 1, solutionHtml: cleanHtml(item.a) });
@@ -165,7 +166,22 @@ olympiad = olympiad.replace('"otherPage": "solutions.html", "otherLabel": "От�
 olympiad = olympiad.replace(/if\(CONFIG\.mode==="solutions"\)\{[\s\S]*?el\.append\(az\)\}/, "");
 olympiad = olympiad.replace("Изображения встроены в HTML", "Изображения загружаются по мере просмотра");
 olympiad = olympiad.replace("Все изображения и данные находятся внутри этого HTML-файла. Внешние файлы и PDF не требуются.", "Изображения задач загружаются отдельно по мере просмотра, поэтому страница открывается быстрее.");
-olympiad = olympiad.replace("</body>", '<script src="../config.js?v=2"></script><script type="module">import {PhysicsTracker} from "../tracker.js"; const key="physics-entry:olympiad-physics"; const entryId=sessionStorage.getItem(key)||crypto.randomUUID(); sessionStorage.removeItem(key); PhysicsTracker.openActivity("olympiad-physics",entryId).catch(()=>{});</script></body>');
+olympiad = olympiad.replace("  </style>", `    .portal-access{width:min(1160px,calc(100% - 1.5rem));margin:1rem auto 0;padding:.85rem 1rem;border-left:4px solid var(--orange);border-radius:10px;background:var(--orange-soft);color:#9a3412;font-weight:750}
+    .portal-access.closed{margin-top:2rem;padding:1.2rem;border-left-color:#dc2626;background:#fef2f2;color:#991b1b}
+    .portal-access a{color:#1d4ed8}
+  </style>`);
+olympiad = olympiad.replace("</body>", `<script src="../config.js?v=2"></script><script type="module">
+  import {PhysicsTracker} from "../tracker.js";
+  const activityId="olympiad-physics",key=\`physics-entry:\${activityId}\`,entryId=sessionStorage.getItem(key)||crypto.randomUUID();
+  sessionStorage.removeItem(key);
+  const banner=document.createElement("div");banner.className="portal-access";banner.hidden=true;document.querySelector(".topbar").after(banner);
+  const main=document.querySelector("main");main.hidden=true;let row=null,offset=0;
+  const formatDate=value=>new Intl.DateTimeFormat("ru-RU",{dateStyle:"long",timeStyle:"short"}).format(new Date(value));
+  const remaining=value=>{const seconds=Math.max(0,Math.ceil((Date.parse(value)-(Date.now()+offset))/1000)),days=Math.floor(seconds/86400),hours=Math.floor(seconds%86400/3600),minutes=Math.floor(seconds%3600/60),rest=seconds%60,clock=[hours,minutes,rest].map(part=>String(part).padStart(2,"0")).join(":");return days?\`\${days} дн. \${clock}\`:clock};
+  function render(){if(!row)return;const expired=Boolean(row.deadlineAt&&Date.parse(row.deadlineAt)<=Date.now()+offset),closed=row.manuallyClosed||expired;if(closed){main.hidden=true;banner.hidden=false;banner.className="portal-access closed";banner.textContent=row.manuallyClosed?"Работа закрыта преподавателем.":\`Время выполнения истекло. Срок был \${formatDate(row.deadlineAt)}.\`;return}main.hidden=false;if(row.deadlineAt){banner.hidden=false;banner.className="portal-access";banner.textContent=\`Сдать до \${formatDate(row.deadlineAt)} · осталось \${remaining(row.deadlineAt)}\`}else banner.hidden=true}
+  try{await PhysicsTracker.openActivity(activityId,entryId);const progress=await PhysicsTracker.loadProgress(activityId);if(progress.serverTime)offset=Date.parse(progress.serverTime)-Date.now();row=progress.activities?.find(item=>item.activityId===activityId);if(!row)throw new Error("Работа не найдена");render();setInterval(render,1000)}catch(error){main.hidden=true;banner.hidden=false;banner.className="portal-access closed";banner.innerHTML=\`Сначала войдите на <a href="../">главной странице портала</a>, чтобы открыть работу.\`}
+</script></body>`);
+olympiad = olympiad.replace(/[ \t]+$/gm, "");
 fs.writeFileSync(path.join(taskDir, "olympiad-physics.html"), olympiad);
 
 console.log(JSON.stringify({ publicActivities, privateAnswers: privateAnswers.activities.reduce((sum, activity) => sum + activity.answers.length, 0), olympiadBytes: Buffer.byteLength(olympiad) }, null, 2));

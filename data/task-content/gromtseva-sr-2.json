@@ -32,7 +32,8 @@
           "kind": "numeric",
           "points": 1,
           "scored": true,
-          "unit": "м"
+          "unit": "м",
+          "diagram": "coord1"
         }
       ]
     },
@@ -66,7 +67,8 @@
           "kind": "numeric",
           "points": 1,
           "scored": true,
-          "unit": "м"
+          "unit": "м",
+          "diagram": "coord2"
         }
       ]
     }

@@ -172,6 +172,16 @@ td { font-size: .88rem; }
 .question-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 20px; color: var(--muted); font-size: .77rem; font-weight: 780; letter-spacing: .07em; text-transform: uppercase; }
 .question-card h2 { margin-bottom: 14px; font: 400 1.45rem/1.25 Georgia, serif; }
 .question-prompt { color: var(--muted); white-space: pre-line; }
+.question-diagram { width: min(100%, 540px); margin: 16px 0 22px; padding: 13px; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; background: #f8faf8; }
+.question-diagram svg { display: block; width: 100%; height: auto; }
+.question-diagram text { fill: #4c5870; font: 12px Inter, ui-sans-serif, system-ui, sans-serif; }
+.question-diagram .diagram-grid { stroke: #d5ddd7; stroke-width: 1; }
+.question-diagram .diagram-grid.dashed { stroke-dasharray: 5 5; }
+.question-diagram .diagram-axis { stroke: #607087; stroke-width: 2; }
+.question-diagram .diagram-vector { stroke: var(--blue); stroke-width: 4; fill: none; }
+.question-diagram .diagram-arrow { fill: var(--blue); }
+.question-diagram .diagram-point { fill: var(--blue); stroke: white; stroke-width: 2; }
+.question-diagram .diagram-label, .question-diagram .diagram-series-label { font-weight: 800; }
 .question-actions { margin-top: 17px; }
 .question-feedback { min-height: 24px; margin: 12px 0 0; font-weight: 700; }
 .question-feedback.ok { color: var(--green); }

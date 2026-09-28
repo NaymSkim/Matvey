@@ -32,7 +32,8 @@
           "kind": "numeric",
           "points": 1,
           "scored": true,
-          "unit": "м"
+          "unit": "м",
+          "diagram": "g7v1q3"
         }
       ]
     },
@@ -70,7 +71,8 @@
             "тело I",
             "тело II",
             "тело III"
-          ]
+          ],
+          "diagram": "g7v2q3"
         }
       ]
     }
