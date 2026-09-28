@@ -7,13 +7,14 @@ const ui = {
   description: document.querySelector("#task-description"), variants: document.querySelector("#variant-picker"),
   banner: document.querySelector("#run-banner"), list: document.querySelector("#question-list"),
   template: document.querySelector("#question-template"), submitPanel: document.querySelector("#submit-panel"),
-  submit: document.querySelector("#submit-run"), result: document.querySelector("#result-panel"),
+  submitTitle: document.querySelector("#submit-title"), submit: document.querySelector("#submit-run"), result: document.querySelector("#result-panel"),
   solutions: document.querySelector("#solutions-panel"), deadline: document.querySelector("#task-deadline"),
 };
 let activity;
 let content;
 let selectedVariant;
 let currentRun;
+let studentName = "";
 let taskAccess = { isOpen: true, manuallyClosed: false, deadlineExpired: false, deadlineAt: null };
 let serverOffsetMs = 0;
 let autoSubmitting = false;
@@ -49,13 +50,13 @@ function updateDeadline() {
   if (access.manuallyClosed) {
     ui.deadline.hidden = false;
     ui.deadline.className = "task-deadline closed";
-    ui.deadline.textContent = "Работа закрыта преподавателем.";
+    ui.deadline.textContent = studentName ? `${studentName}, работа закрыта преподавателем.` : "Работа закрыта преподавателем.";
   } else if (access.deadlineAt) {
     ui.deadline.hidden = false;
     ui.deadline.className = `task-deadline${access.deadlineExpired ? " closed" : ""}`;
     ui.deadline.textContent = access.deadlineExpired
-      ? `Время вышло · срок был ${formatDate(access.deadlineAt)}`
-      : `Сдать до ${formatDate(access.deadlineAt)} · осталось ${remainingTime(access.deadlineAt)}`;
+      ? `${studentName ? `${studentName}, ` : ""}время вышло · срок был ${formatDate(access.deadlineAt)}`
+      : `${studentName ? `${studentName}, ` : ""}сдать до ${formatDate(access.deadlineAt)} · осталось ${remainingTime(access.deadlineAt)}`;
   } else ui.deadline.hidden = true;
   if (!access.isOpen && currentRun?.status === "in_progress") void finishRun(true);
   else if (!access.isOpen && !currentRun) renderClosedState();
@@ -67,7 +68,7 @@ function renderClosedState() {
   ui.submitPanel.hidden = true;
   ui.banner.hidden = false;
   const heading = document.createElement("strong");
-  heading.textContent = access.manuallyClosed ? "Работа закрыта" : "Время выполнения истекло";
+  heading.textContent = access.manuallyClosed ? `${studentName ? `${studentName}, ` : ""}работа закрыта` : `${studentName ? `${studentName}, ` : ""}время выполнения истекло`;
   const description = document.createElement("span");
   description.textContent = access.deadlineAt ? `Срок завершился ${formatDate(access.deadlineAt)}.` : "Преподаватель пока не открыл эту работу.";
   ui.banner.replaceChildren(heading, description);
@@ -213,8 +214,8 @@ function renderQuestions(questions) {
         try {
           const result = await PhysicsTracker.submitAnswer(currentRun.id, question.id, answer);
           if (result.queued) { feedback.textContent = "Нет сети. Ответ сохранён и будет отправлен автоматически."; feedback.className = "question-feedback queued"; }
-          else if (!result.graded) { feedback.textContent = "Ответ сохранён для преподавателя."; feedback.className = "question-feedback ok"; }
-          else { feedback.textContent = result.correct ? `Верно · +${result.points}` : "Ответ неверный."; feedback.className = `question-feedback ${result.correct ? "ok" : "bad"}`; }
+          else if (!result.graded) { feedback.textContent = `${studentName ? `${studentName}, ` : ""}ответ сохранён для преподавателя.`; feedback.className = "question-feedback ok"; }
+          else { feedback.textContent = result.correct ? `${studentName ? `${studentName}, ` : ""}верно · +${result.points}` : `${studentName ? `${studentName}, ` : ""}ответ неверный.`; feedback.className = `question-feedback ${result.correct ? "ok" : "bad"}`; }
           answered.set(question.id, result); control.querySelectorAll("input,select,button,textarea").forEach((element) => element.disabled = true);
         } catch (error) { check.disabled = false; feedback.textContent = error.message; feedback.className = "question-feedback bad"; }
       });
@@ -234,7 +235,7 @@ function selectVariant(variantId) {
   ui.banner.replaceChildren();
   const text = document.createElement("div");
   const title = document.createElement("strong"); title.textContent = selectedVariant.title;
-  const note = document.createElement("span"); note.textContent = "Попытка начнётся только после нажатия кнопки. После старта вариант изменить нельзя.";
+  const note = document.createElement("span"); note.textContent = `${studentName ? `${studentName}, ` : ""}попытка начнётся только после нажатия кнопки. После старта вариант изменить нельзя.`;
   text.append(title, note);
   const start = document.createElement("button"); start.type = "button"; start.className = "primary-button compact"; start.textContent = "Начать работу";
   start.addEventListener("click", () => void beginRun(start));
@@ -255,7 +256,7 @@ async function beginRun(startButton = null) {
     ui.banner.hidden = false;
     const pointsWord = selectedVariant.maxPoints % 10 === 1 && selectedVariant.maxPoints % 100 !== 11 ? "балл" : selectedVariant.maxPoints % 10 >= 2 && selectedVariant.maxPoints % 10 <= 4 && !(selectedVariant.maxPoints % 100 >= 12 && selectedVariant.maxPoints % 100 <= 14) ? "балла" : "баллов";
     const heading = document.createElement("strong");
-    heading.textContent = `${currentRun.runNo === 1 ? "Первая сдача" : "Пересдача"}${selectedVariant.maxPoints === 0 ? " · без оценки" : ""}`;
+    heading.textContent = `${studentName ? `${studentName} · ` : ""}${currentRun.runNo === 1 ? "Первая сдача" : "Пересдача"}${selectedVariant.maxPoints === 0 ? " · без оценки" : ""}`;
     const description = document.createElement("span");
     description.textContent = selectedVariant.maxPoints === 0 ? "Одна попытка на каждый вопрос. Ответы увидит преподаватель." : `Одна попытка на каждый вопрос · ${selectedVariant.maxPoints} ${pointsWord}`;
     ui.banner.replaceChildren(heading, description);
@@ -264,9 +265,9 @@ async function beginRun(startButton = null) {
       const card = ui.list.querySelector(`[data-question-id="${CSS.escape(attempt.questionId)}"]`);
       if (!card) continue;
       const feedback = card.querySelector(".question-feedback");
-      feedback.textContent = !attempt.graded ? "Ответ уже сохранён для преподавателя." : attempt.correct ? `Уже проверено: верно · +${attempt.points}` : "Уже проверено: ответ неверный.";
+      feedback.textContent = !attempt.graded ? `${studentName ? `${studentName}, ` : ""}ответ уже сохранён для преподавателя.` : attempt.correct ? `${studentName ? `${studentName}, ` : ""}уже проверено: верно · +${attempt.points}` : `${studentName ? `${studentName}, ` : ""}уже проверено: ответ неверный.`;
       feedback.className = `question-feedback ${!attempt.graded || attempt.correct ? "ok" : "bad"}`;
-      card.querySelectorAll("input,select,button").forEach((element) => element.disabled = true);
+      card.querySelectorAll("input,select,button,textarea").forEach((element) => element.disabled = true);
       answered.set(attempt.questionId, attempt);
     }
     ui.submit.disabled = false;
@@ -315,7 +316,7 @@ async function showSolutionsIfReleased() {
     if (!data.solutions?.length) return;
     ui.solutions.hidden = false;
     const eyebrow = document.createElement("p"); eyebrow.className = "eyebrow"; eyebrow.textContent = "Разбор";
-    const heading = document.createElement("h2"); heading.textContent = "Решения открыты преподавателем";
+    const heading = document.createElement("h2"); heading.textContent = studentName ? `${studentName}, решения открыты преподавателем` : "Решения открыты преподавателем";
     ui.solutions.replaceChildren(eyebrow, heading);
     data.solutions.forEach((item) => {
       const article = document.createElement("article"); article.className = "solution-item";
@@ -330,10 +331,11 @@ function renderResult(result, automatic = false) {
   ui.submitPanel.hidden = true;
   disableTaskControls();
   ui.result.hidden = false;
-  const automaticNote = automatic ? "Время закончилось, поэтому работа была сдана автоматически. " : "";
+  const safeName = escapeHtml(studentName);
+  const automaticNote = automatic ? `${safeName ? `${safeName}, ` : ""}время закончилось, поэтому работа была сдана автоматически. ` : "";
   ui.result.innerHTML = result.grade == null
-    ? `<p class="eyebrow">Готово</p><h2>Ответы сохранены без оценки</h2><p>${automaticNote}Преподаватель увидит их в журнале. ${result.runNo === 1 ? "При необходимости доступна ещё одна полная сдача." : "Обе сдачи сохранены."}</p><a class="activity-link" href="./">Вернуться к каталогу <span>→</span></a>`
-    : `<p class="eyebrow">Результат</p><div class="grade-circle">${result.grade}</div><h2>${result.score} из ${result.maxPoints} · ${result.percent}%</h2><p>${automaticNote}${result.runNo === 1 ? "Теперь доступна одна пересдача. В журнал пойдёт лучший результат." : "Пересдача завершена. В журнале сохранены оба результата."}</p><a class="activity-link" href="./">Вернуться к каталогу <span>→</span></a>`;
+    ? `<p class="eyebrow">Готово</p><h2>${safeName ? `${safeName}, ответы` : "Ответы"} сохранены без оценки</h2><p>${automaticNote}Преподаватель увидит их в журнале. ${result.runNo === 1 ? "При необходимости доступна ещё одна полная сдача." : "Обе сдачи сохранены."}</p><a class="activity-link" href="./">Вернуться к каталогу <span>→</span></a>`
+    : `<p class="eyebrow">Результат${safeName ? ` · ${safeName}` : ""}</p><div class="grade-circle">${result.grade}</div><h2>${safeName ? `${safeName}, ` : ""}${result.score} из ${result.maxPoints} · ${result.percent}%</h2><p>${automaticNote}${result.runNo === 1 ? "Теперь доступна одна пересдача. В журнал пойдёт лучший результат." : "Пересдача завершена. В журнале сохранены оба результата."}</p><a class="activity-link" href="./">Вернуться к каталогу <span>→</span></a>`;
 }
 
 async function finishRun(automatic = false) {
@@ -349,7 +351,7 @@ async function finishRun(automatic = false) {
     if (!automatic) {
       const pending = await PhysicsTracker.flushPending(currentRun.id);
       if (pending.pending) throw new Error("Не все сохранённые ответы отправлены. Проверьте интернет и попробуйте снова.");
-      if (pending.failed) throw new Error("Некоторые сохранённые ответы сервер отклонил. Обновите страницу и отправьте их заново.");
+      if (pending.failed) throw new Error("Некоторые ответы не удалось сохранить. Обновите страницу и отправьте их заново.");
     }
     const result = await PhysicsTracker.submitRun(currentRun.id);
     currentRun.status = "submitted";
@@ -369,7 +371,7 @@ async function finishRun(automatic = false) {
 
 ui.submit.addEventListener("click", async () => {
   if (!currentRun || (!currentAccess().isOpen && ui.submit.textContent !== "Завершить сдачу")) return;
-  if (currentAccess().isOpen && !confirm("Сдать работу? Ответы этой попытки больше нельзя будет изменить.")) return;
+  if (currentAccess().isOpen && !confirm(`${studentName ? `${studentName}, сдать работу?` : "Сдать работу?"} Ответы этой попытки больше нельзя будет изменить.`)) return;
   await finishRun(!currentAccess().isOpen);
 });
 
@@ -391,6 +393,12 @@ async function init() {
   sessionStorage.removeItem(entryKey);
   const opened = await PhysicsTracker.openActivity(activity.id, entryId);
   const progress = await PhysicsTracker.loadProgress(activity.id);
+  studentName = progress.student?.name || "";
+  if (studentName) {
+    document.title = `${studentName} · ${activity.title}`;
+    document.querySelector(".brand small").textContent = studentName;
+    ui.submitTitle.textContent = `${studentName}, после сдачи ответы нельзя будет изменить`;
+  }
   if (progress.serverTime) serverOffsetMs = Date.parse(progress.serverTime) - Date.now();
   const activityProgress = progress.activities?.find((item) => item.activityId === activity.id);
   taskAccess = activityProgress || opened.access || taskAccess;

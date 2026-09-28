@@ -18,6 +18,9 @@ const ui = {
   completed: document.querySelector("#completed-count"),
   progressBar: document.querySelector("#progress-bar"),
   progressNote: document.querySelector("#progress-note"),
+  pageTitle: document.querySelector("#page-title"),
+  pageLead: document.querySelector("#page-lead"),
+  catalogTitle: document.querySelector("#catalog-title"),
 };
 
 async function invoke(name, body = {}) {
@@ -202,14 +205,25 @@ function updateSummary() {
   const completed = graded.filter((item) => state.progress.get(item.id)?.bestRun).length;
   ui.completed.textContent = `${completed} из ${graded.length}`;
   ui.progressBar.style.width = graded.length ? `${completed / graded.length * 100}%` : "0%";
-  ui.progressNote.textContent = state.student ? (completed ? "Продолжай в том же темпе." : "Выбери первую работу из каталога.") : "Войди, чтобы увидеть свой прогресс.";
+  ui.progressNote.textContent = state.student ? (completed ? `${state.student.name}, продолжай в том же темпе.` : `${state.student.name}, выбери первую работу из каталога.`) : "Войди, чтобы увидеть свой прогресс.";
 }
 
 function showStudent(student) {
   state.student = student;
+  document.title = `${student.name} · Задания по физике`;
   ui.pill.textContent = student.name;
   ui.pill.hidden = false;
   ui.change.hidden = false;
+  ui.pageTitle.textContent = `${student.name}, твои задания`;
+  ui.pageLead.textContent = `${student.name}, выбирай работу, решай задачи и следи за своим результатом.`;
+  ui.catalogTitle.textContent = `${student.name}, вот твои работы`;
+}
+
+function resetPersonalization() {
+  document.title = "Задания по физике";
+  ui.pageTitle.textContent = "Задания по физике";
+  ui.pageLead.textContent = "Открой нужную работу, реши задания и следи за своим результатом.";
+  ui.catalogTitle.textContent = "Доступные работы";
 }
 
 function openStudentDialog() {
@@ -219,7 +233,7 @@ function openStudentDialog() {
 }
 
 async function signInStudent(name, code) {
-  if (!state.client) throw new Error("Supabase ещё не подключён. Добавьте адрес проекта и публичный ключ в config.js.");
+  if (!state.client) throw new Error("Портал временно недоступен. Попробуйте немного позже.");
   let { data: sessionData } = await state.client.auth.getSession();
   if (!sessionData.session) {
     const { error } = await state.client.auth.signInAnonymously();
@@ -273,6 +287,7 @@ ui.change.addEventListener("click", async () => {
   state.progress.clear();
   ui.pill.hidden = true;
   ui.change.hidden = true;
+  resetPersonalization();
   renderActivities();
   openStudentDialog();
 });

@@ -22,7 +22,7 @@
       <section class="teacher-login" id="teacher-login">
         <p class="eyebrow">Для преподавателя</p>
         <h1>Статистика и доступ</h1>
-        <p class="lead">Введите разрешённую почту — Supabase пришлёт одноразовую ссылку для входа.</p>
+        <p class="lead">Введите разрешённую почту — мы пришлём одноразовую ссылку для входа.</p>
         <form id="teacher-login-form" class="inline-form">
           <label class="field"><span>Электронная почта</span><input id="teacher-email" type="email" required autocomplete="email" placeholder="teacher@example.com" /></label>
           <button class="primary-button" type="submit">Получить ссылку</button>
@@ -32,25 +32,25 @@
 
       <section id="teacher-dashboard" hidden>
         <div class="teacher-head">
-          <div><p class="eyebrow">Для преподавателя</p><h1>Прогресс ученика</h1></div>
+          <div><p class="eyebrow">Для преподавателя</p><h1 id="teacher-dashboard-title">Прогресс ученика</h1></div>
           <button class="secondary-button" id="refresh-dashboard" type="button">Обновить</button>
         </div>
         <p class="dashboard-meta" id="dashboard-meta"></p>
         <div class="summary-cards" id="summary-cards"></div>
 
         <section class="panel">
-          <div class="panel-head"><div><p class="eyebrow">Расписание</p><h2>Доступ к работам</h2></div></div>
-          <p class="panel-copy">Откройте или закройте работу для ученика. Срок указывается по вашему местному времени; когда он наступит, новые ответы перестанут приниматься.</p>
+          <div class="panel-head"><div><p class="eyebrow">Расписание</p><h2 id="access-panel-title">Доступ к работам</h2></div></div>
+          <p class="panel-copy" id="activity-access-copy">Откройте или закройте работу для ученика. Срок указывается по вашему местному времени; когда он наступит, новые ответы перестанут приниматься.</p>
           <div class="activity-access-list" id="activity-access-list"></div>
         </section>
 
         <section class="panel">
-          <div class="panel-head"><div><p class="eyebrow">Доступ</p><h2>Ученик</h2></div><button class="secondary-button" id="new-student" type="button">Создать ученика</button></div>
+          <div class="panel-head"><div><p class="eyebrow">Доступ</p><h2 id="student-panel-title">Ученик</h2></div><button class="secondary-button" id="new-student" type="button">Создать ученика</button></div>
           <div id="student-admin"></div>
         </section>
 
         <section class="panel">
-          <div class="panel-head"><div><p class="eyebrow">Журнал</p><h2>Результаты работ</h2></div></div>
+          <div class="panel-head"><div><p class="eyebrow">Журнал</p><h2 id="results-panel-title">Результаты работ</h2></div></div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Работа</th><th>Посещения</th><th>Попытка 1</th><th>Пересдача</th><th>Лучшая</th><th>Решения</th></tr></thead>
@@ -61,7 +61,7 @@
         </section>
 
         <section class="panel">
-          <div class="panel-head"><div><p class="eyebrow">Последние действия</p><h2>Попытки ответов</h2></div></div>
+          <div class="panel-head"><div><p class="eyebrow">Последние действия</p><h2 id="attempts-panel-title">Попытки ответов</h2></div></div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Время</th><th>Работа</th><th>Вопрос</th><th>Ответ</th><th>Результат</th></tr></thead>

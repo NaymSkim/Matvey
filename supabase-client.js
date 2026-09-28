@@ -26,7 +26,7 @@ export function getSupabaseClient() {
 
 export async function invokeFunction(name, body = {}) {
   const client = getSupabaseClient();
-  if (!client) throw new PortalRequestError("Портал ещё не подключён к Supabase.");
+  if (!client) throw new PortalRequestError("Портал временно недоступен. Попробуйте немного позже.");
   const { data, error } = await client.functions.invoke(name, { body });
   if (error) {
     const status = Number(error.context?.status) || null;

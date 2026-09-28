@@ -5,7 +5,7 @@ const FAILED_KEY = "physics-portal-failed-v1";
 
 async function invoke(name, body = {}) {
   const supabase = getSupabaseClient();
-  if (!supabase) throw new PortalRequestError("Портал ещё не подключён к Supabase.");
+  if (!supabase) throw new PortalRequestError("Портал временно недоступен. Попробуйте немного позже.");
   const { data: sessionData } = await supabase.auth.getSession();
   if (!sessionData.session) throw new Error("Сначала войдите на главной странице портала.");
   return invokeFunction(name, body);
@@ -50,7 +50,7 @@ async function flushPending(runId = null) {
     }
     catch (error) {
       if (error instanceof PortalRequestError && error.transient) remaining.push(entry);
-      else if (!failed.some((item) => item.entry?.attemptId === entry.attemptId)) failed.push({ entry, reason: error instanceof Error ? error.message : "Ответ отклонён сервером." });
+      else if (!failed.some((item) => item.entry?.attemptId === entry.attemptId)) failed.push({ entry, reason: error instanceof Error ? error.message : "Ответ не удалось сохранить." });
     }
   }
   writeQueue(remaining);

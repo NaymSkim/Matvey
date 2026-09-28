@@ -10,6 +10,10 @@ const ui = {
   attempts: document.querySelector("#attempts-body"), noResults: document.querySelector("#no-results"),
   adminDialog: document.querySelector("#student-admin-dialog"), adminForm: document.querySelector("#student-admin-form"),
   adminError: document.querySelector("#student-admin-error"), codeDialog: document.querySelector("#code-dialog"),
+  dashboardTitle: document.querySelector("#teacher-dashboard-title"), accessCopy: document.querySelector("#activity-access-copy"),
+  accessTitle: document.querySelector("#access-panel-title"),
+  studentTitle: document.querySelector("#student-panel-title"), resultsTitle: document.querySelector("#results-panel-title"),
+  attemptsTitle: document.querySelector("#attempts-panel-title"),
 };
 let client;
 let catalog = [];
@@ -84,7 +88,7 @@ function renderStudent(student) {
   row.append(details, actions); ui.studentAdmin.append(row);
 }
 
-function renderActivityAccess(settings) {
+function renderActivityAccess(settings, studentName = "") {
   ui.activityAccess.replaceChildren();
   settings.forEach((item) => {
     const row = document.createElement("article");
@@ -106,7 +110,7 @@ function renderActivityAccess(settings) {
     checkbox.type = "checkbox";
     checkbox.checked = !item.manuallyClosed;
     const toggleText = document.createElement("span");
-    toggleText.textContent = "Открыта ученику";
+    toggleText.textContent = studentName ? `${studentName}: работа открыта` : "Открыта ученику";
     toggle.append(checkbox, toggleText);
 
     const deadlineLabel = document.createElement("label");
@@ -170,14 +174,23 @@ async function loadDashboard() {
   try {
     const data = await invoke("teacher-summary");
     ui.login.hidden = true; ui.dashboard.hidden = false; ui.signout.hidden = false;
+    const studentName = data.student?.name || "";
+    document.title = studentName ? `${studentName} · Кабинет преподавателя` : "Кабинет преподавателя";
+    ui.dashboardTitle.textContent = studentName ? `${studentName}: прогресс` : "Прогресс ученика";
+    ui.accessTitle.textContent = studentName ? `${studentName}: доступ к работам` : "Доступ к работам";
+    ui.accessCopy.textContent = studentName ? `${studentName}: откройте или закройте нужные работы. Срок указывается по вашему местному времени; когда он наступит, новые ответы перестанут приниматься.` : "Откройте или закройте работу для ученика. Срок указывается по вашему местному времени; когда он наступит, новые ответы перестанут приниматься.";
+    ui.studentTitle.textContent = studentName ? `Ученик: ${studentName}` : "Ученик";
+    ui.resultsTitle.textContent = studentName ? `${studentName}: результаты работ` : "Результаты работ";
+    ui.attemptsTitle.textContent = studentName ? `${studentName}: ответы` : "Попытки ответов";
+    ui.noResults.textContent = studentName ? `${studentName} пока не сдавал работы.` : "Результатов пока нет.";
     ui.meta.textContent = `Обновлено ${date(new Date().toISOString())}`;
     ui.summaries.replaceChildren(
-      summaryCard("Учеников", String(data.studentCount || 0)),
+      summaryCard("Ученик", studentName || "—"),
       summaryCard("Посещений", String(data.totalVisits || 0)),
       summaryCard("Сдано работ", String(data.submittedRuns || 0)),
       summaryCard("Средняя оценка", data.averageGrade ? String(data.averageGrade) : "—"),
     );
-    renderActivityAccess(data.activitySettings || []); renderStudent(data.student); renderResults(data.activities || [], data.student); renderAttempts(data.attempts || []);
+    renderActivityAccess(data.activitySettings || [], studentName); renderStudent(data.student); renderResults(data.activities || [], data.student); renderAttempts(data.attempts || []);
   } finally { ui.refresh.disabled = false; }
 }
 
@@ -186,11 +199,11 @@ ui.loginForm.addEventListener("submit", async (event) => {
   const buttonElement = ui.loginForm.querySelector("button");
   buttonElement.disabled = true;
   try {
-    if (!client) throw new Error("Сначала подключите Supabase в config.js.");
+    if (!client) throw new Error("Кабинет временно недоступен. Попробуйте немного позже.");
     const email = document.querySelector("#teacher-email").value.trim();
     const { error } = await client.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: APP_CONFIG.teacherRedirectUrl } });
     if (error) throw error;
-    ui.loginMessage.textContent = "Письмо отправлено. Откройте ссылку в этом браузере.";
+    ui.loginMessage.textContent = "Мы отправили письмо. Откройте ссылку в этом браузере.";
     ui.loginMessage.className = "notice success"; ui.loginMessage.hidden = false;
   } catch (error) {
     ui.loginMessage.textContent = error instanceof Error ? error.message : "Не удалось отправить ссылку.";
