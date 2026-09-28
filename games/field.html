@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Поле</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07090f; --surface:rgba(255,255,255,0.04); --border:rgba(255,255,255,0.08);
+  --cyan:#00c6ff; --orange:#ff7a3d; --green:#39e87a; --yellow:#ffd166;
+  --purple:#a855f7; --red:#ff4d6d; --text:#e8edf5; --muted:rgba(232,237,245,0.4); --r:13px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:var(--bg); color:var(--text); font-family:'Inter',sans-serif;
+  min-height:100vh; display:flex; flex-direction:column; align-items:center;
+  padding:18px 16px 32px;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,198,255,0.07) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(255,122,61,0.04) 0%,transparent 60%);
+}
+header { width:100%; max-width:980px; display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.logo { font-size:1.35rem; font-weight:700; letter-spacing:-0.02em; background:linear-gradient(135deg,var(--cyan) 0%,var(--purple) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.logo span { font-weight:300; opacity:.5; }
+
+/* ── Progress (8 steps, numbers only) ── */
+#progress { display:flex; align-items:center; gap:4px; }
+.step { display:flex; align-items:center; transition:opacity .3s; }
+.step > span { display:none; } /* hide text labels for 8 steps */
+.step-num {
+  width:22px; height:22px; border-radius:50%; border:1.5px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.62rem; font-weight:600; background:var(--surface); transition:all .2s;
+  color:var(--muted);
+}
+.step:hover .step-num { border-color:rgba(255,255,255,0.35); color:var(--text); background:rgba(255,255,255,0.08); transform:scale(1.15); }
+.step.done .step-num   { background:var(--green); border-color:var(--green); color:#07090f; }
+.step.active .step-num { background:var(--cyan);  border-color:var(--cyan);  color:#07090f; }
+.step-line { width:10px; height:1.5px; background:var(--border); border-radius:2px; transition:background .4s; }
+
+/* ── Layout ── */
+#gameArea { display:flex; gap:14px; align-items:flex-start; width:100%; max-width:980px; }
+#canvasWrap {
+  position:relative; flex:1; border-radius:var(--r); overflow:hidden;
+  border:1px solid var(--border); background:rgba(0,8,20,0.95);
+  box-shadow:0 0 80px rgba(0,198,255,0.04),inset 0 0 60px rgba(0,0,0,0.5);
+}
+canvas { display:block; width:100%; }
+#overlayCanvas { position:absolute; top:0; left:0; pointer-events:none; display:none; }
+#levelBadge {
+  position:absolute; top:12px; left:12px;
+  background:rgba(0,0,0,0.6); backdrop-filter:blur(10px);
+  border:1px solid var(--border); border-radius:100px;
+  padding:4px 12px; font-size:0.67rem; font-weight:600; letter-spacing:0.06em; color:var(--cyan); text-transform:uppercase;
+}
+#panel { width:230px; flex-shrink:0; display:flex; flex-direction:column; gap:8px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:13px; backdrop-filter:blur(12px); }
+#desc-card { border-color:rgba(0,198,255,0.12); }
+.desc-icon { font-size:1rem; margin-bottom:4px; }
+.desc-text { font-size:0.71rem; line-height:1.65; color:var(--muted); }
+.desc-text b { color:var(--text); font-weight:600; }
+.ctrl-lbl { font-size:0.6rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.ctrl-val { font-family:'JetBrains Mono',monospace; font-size:1.45rem; font-weight:600; line-height:1; margin-bottom:9px; }
+.ctrl-val span { font-size:0.85rem; font-weight:400; color:var(--muted); margin-left:2px; }
+input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:4px; background:var(--border); outline:none; cursor:pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:#fff; cursor:grab; box-shadow:0 0 0 3px rgba(0,198,255,0.25),0 2px 6px rgba(0,0,0,0.4); transition:box-shadow .15s,transform .12s; }
+input[type=range]::-webkit-slider-thumb:active { cursor:grabbing; transform:scale(1.22); box-shadow:0 0 0 5px rgba(0,198,255,0.4); }
+#formula-box { border-color:rgba(255,209,102,0.12); }
+.formula-eq { font-family:'JetBrains Mono',monospace; font-size:0.88rem; font-weight:600; color:var(--yellow); margin-bottom:8px; }
+#formulaValues { font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:rgba(57,232,122,0.75); line-height:1.85; }
+#formulaValues b { color:var(--green); font-size:0.76rem; }
+#hintBtn { display:none; width:100%; padding:8px; border-radius:var(--r); border:1px solid rgba(255,209,102,0.25); background:rgba(255,209,102,0.06); color:var(--yellow); font-family:'Inter',sans-serif; font-size:0.76rem; font-weight:500; cursor:pointer; text-align:left; transition:background .2s; }
+#hintBtn:hover { background:rgba(255,209,102,0.12); }
+#hintBox { display:none; font-size:0.69rem; line-height:1.6; color:rgba(255,209,102,0.8); background:rgba(255,209,102,0.05); border:1px solid rgba(255,209,102,0.15); border-radius:var(--r); padding:10px; font-family:'JetBrains Mono',monospace; }
+#win-card { display:none; text-align:center; border-color:rgba(57,232,122,0.25); background:rgba(57,232,122,0.05); animation:popIn .4s cubic-bezier(.175,.885,.32,1.275); }
+@keyframes popIn { from{opacity:0;transform:scale(.92) translateY(5px)} to{opacity:1;transform:none} }
+.win-icon { font-size:1.7rem; margin-bottom:4px; }
+.win-title { font-size:0.8rem; font-weight:600; color:var(--green); margin-bottom:3px; }
+.win-sub { font-size:0.66rem; color:var(--muted); font-family:'JetBrains Mono',monospace; line-height:1.55; }
+#nextBtn { display:none; width:100%; padding:10px; border-radius:var(--r); border:1.5px solid var(--green); background:rgba(57,232,122,0.1); color:var(--green); font-family:'Inter',sans-serif; font-size:0.78rem; font-weight:600; letter-spacing:0.06em; cursor:pointer; text-transform:uppercase; transition:background .2s,transform .1s; }
+#nextBtn:hover { background:rgba(57,232,122,0.18); }
+#restartBtn { width:100%; padding:8px; border-radius:var(--r); border:1px solid var(--border); background:transparent; color:var(--muted); font-family:'Inter',sans-serif; font-size:0.73rem; cursor:pointer; transition:color .2s,border-color .2s,background .2s; }
+#restartBtn:hover { color:var(--text); border-color:rgba(255,255,255,0.16); background:var(--surface); }
+</style>
+</head>
+<body>
+<a href="../games.html" aria-label="Вернуться к списку игр" style="position:fixed;left:16px;bottom:16px;z-index:9999;padding:10px 14px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:#12231a;color:#fff;font:700 13px/1.2 system-ui,sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.24)">← Все игры</a>
+<header>
+  <div class="logo">Поле <span>/ Physics Puzzle</span></div>
+  <div id="progress"></div>
+</header>
+<div id="gameArea">
+  <div id="canvasWrap">
+    <canvas id="gameCanvas" width="700" height="500"></canvas>
+    <canvas id="overlayCanvas" width="700" height="500"></canvas>
+    <div id="levelBadge"></div>
+  </div>
+  <div id="panel">
+    <div class="card" id="desc-card"><div class="desc-icon" id="descIcon">⚡</div><div class="desc-text" id="descText"></div></div>
+    <div class="card" id="ctrl1"><div class="ctrl-lbl" id="lbl1">Ток I</div><div class="ctrl-val" id="val1">0.0<span>А</span></div><input type="range" id="slider1" min="-10" max="10" step="0.1" value="0"></div>
+    <div class="card" id="ctrl2" style="display:none"><div class="ctrl-lbl" id="lbl2">Ток I₂</div><div class="ctrl-val" id="val2">0.0<span>А</span></div><input type="range" id="slider2" min="-10" max="10" step="0.1" value="0"></div>
+    <div class="card" id="ctrl3" style="display:none"><div class="ctrl-lbl" id="lbl3">Угол θ</div><div class="ctrl-val" id="val3">0<span>°</span></div><input type="range" id="slider3" min="0" max="90" step="1" value="0"></div>
+    <div class="card" id="formula-box"><div class="formula-eq" id="formulaEq">F = I·L·B</div><div id="formulaValues">—</div></div>
+    <button id="hintBtn">💡 Подсказка</button>
+    <div id="hintBox"></div>
+    <div class="card" id="win-card"><div class="win-icon">✦</div><div class="win-title" id="winTitle">Уровень пройден!</div><div class="win-sub" id="winSub"></div></div>
+    <button id="nextBtn">Следующий уровень →</button>
+    <button id="restartBtn">↺ Сбросить</button>
+  </div>
+</div>
+
+<script>
+// ─── Setup ────────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas.getContext('2d');
+const oc     = document.getElementById('overlayCanvas');
+const octx   = oc.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+let level=0, won=false, state={};
+let particles=[], hintTimer=0, hintShown=false;
+
+const C = { bg:'#07090f',cyan:'#00c6ff',orange:'#ff7a3d',green:'#39e87a',
+  yellow:'#ffd166',purple:'#a855f7',red:'#ff4d6d',muted:'rgba(232,237,245,0.35)',
+  border:'rgba(255,255,255,0.08)' };
+
+// ─── Level Configs ─────────────────────────────────────────────────────────────
+const CONFIGS = [
+  { badge:'Уровень 1/11 — Равновесие', formula:'F = I·L·B', icon:'⚖️', s1min:-10,
+    desc:'<b>Задача:</b> Гравитация тянет платформу вниз. Подбери ток I, чтобы сила Ампера точно уравновесила её — зависнуть 2 секунды.',
+    hint:'Баланс: I·L·B = F_тяж\nПопробуй I ≈ 3 А', lbl1:'Ток I (Ампер)',
+    controls:['i1'], winTitle:'Равновесие!', winSub:'I·L·B = 6 Н = F_тяжести' },
+  { badge:'Уровень 2/11 — Мягкая посадка', formula:'F = I·L·B', icon:'🎯', s1min:-10,
+    desc:'<b>Задача:</b> Платформа падает. Слишком большой ток — остановится выше зоны. Слишком малый — пролетит мимо. Точный I = мягкая посадка.',
+    hint:'Попробуй I ≈ 4 А\nПри точном значении платформа\nплавно тормозит в зоне', lbl1:'Тормозной ток I',
+    controls:['i1'], winTitle:'Мягкая посадка!', winSub:'Импульс погашен: Δv = F/m·t' },
+  { badge:'Уровень 3/11 — Обратная логика', formula:'F = I·L×B', icon:'🔄', s1min:-10,
+    desc:'<b>Задача:</b> Два вертикальных проводника должны попасть в свои зоны одновременно. Знак тока = направление силы!',
+    hint:'⊙ (ток вверх) → сила ВЛЕВО\n⊗ (ток вниз) → сила ВПРАВО\nЛевый провод: нужен I < 0', lbl1:'Ток провода 1', lbl2:'Ток провода 2',
+    controls:['i1','i2'], winTitle:'Направление верное!', winSub:'F = I·(L×B) — знак меняет всё' },
+  { badge:'Уровень 4/11 — Магнитный поток', formula:'Φ = I·S·cosθ', icon:'🔒', s1min:-10,
+    desc:'<b>Задача:</b> Замок открывается при Φ > порога. Нужны два условия: большой ток И малый угол рамки.',
+    hint:'1. Ток I → 10\n2. Угол θ → 0°\nПри I=10 и θ=0 — гарантировано', lbl1:'Ток источника I', lbl3:'Угол рамки θ',
+    controls:['i1','theta'], winTitle:'Замок открыт!', winSub:'Φ = I·S·cosθ максимален при θ=0°' },
+  { badge:'Уровень 5/11 — Цепочка', formula:'B₁→F₂, Φ=cosθ', icon:'⛓️', s1min:-10,
+    desc:'<b>Двойная задача.</b> Провод A толкает провод B к контакту (нужен I₁). Одновременно рамка должна быть ориентирована (θ < 35°).',
+    hint:'Провод B у контакта при I₁ ≈ 7–9\nРамка: θ < 35°\nОба условия одновременно!', lbl1:'Ток провода A', lbl3:'Угол рамки θ',
+    controls:['i1','theta'], winTitle:'Цепочка сработала!', winSub:'Поле A → сила B → контакт + Φ' },
+  { badge:'Уровень 6/11 — Сила Лоренца', formula:'F = q·v×B', icon:'⚡', s1min:-10,
+    desc:'<b>Задача:</b> Заряженная частица летит вверх. Магнитное поле B отклоняет её по дуге окружности. Попади в мишень, подбирая ток.',
+    hint:'Радиус дуги r = mv/qB ∝ 1/I\nСлишком большой I — дуга маленькая\nСлишком малый — дуга большая\nОтвет: I ≈ 4', lbl1:'Ток (сила поля B)',
+    controls:['i1'], winTitle:'Попадание!', winSub:'F = qv×B — частица движется по окружности\nr = mv/qB' },
+  { badge:'Уровень 7/11 — Генератор', formula:'ε = B·A·ω·sinθ', icon:'⚙️', s1min:0,
+    desc:'<b>Задача:</b> Рамка вращается в поле B, создавая ЭДС. Найди нужные обороты: слишком медленно — мало напряжения, слишком быстро — перегрузка!',
+    hint:'Нужна ЭДС > 35 В\nПерегрузка при ω > 9\nОтвет: 7 ≤ ω ≤ 9', lbl1:'Угловая скорость ω',
+    controls:['i1'], winTitle:'Оптимальный режим!', winSub:'ε = B·A·ω — пик при sin θ = 1' },
+  { badge:'Уровень 8/11 — Резонанс', formula:'τ = I·L×B·L', icon:'🎵', s1min:0,
+    desc:'<b>Задача:</b> Магнитный импульс разгоняет маятник в нижней точке. Малый ток — не раскачается. Большой — улетит за предел. Найди резонанс!',
+    hint:'Слишком малый I: амплитуда мала\nСлишком большой: маятник улетит за предел\nОтвет: I ≈ 3–4', lbl1:'Сила импульса I',
+    controls:['i1'], winTitle:'Резонанс!', winSub:'Маятник раскачан магнитными импульсами\nE_kick = E_демпф' },
+  { badge:'Уровень 9/11 — Рельсотрон', formula:'F = I·L·B', icon:'🔫', s1min:0,
+    desc:'<b>Задача:</b> Сила Ампера разгоняет брусок по рельсам. Слишком мало тока — скорость на выходе ниже нормы. Слишком много — перелёт. Попади в <b>зелёную зону</b> скоростей.',
+    hint:'Слишком мало I → скорость ниже нормы\nСлишком много I → перелёт\nОтвет: I ≈ 5–7', lbl1:'Ток I (Ампер)',
+    controls:['i1'], winTitle:'Запущено!', winSub:'v = F·t/m — скорость в рабочем диапазоне' },
+  { badge:'Уровень 10/11 — Индукция', formula:'ε = −dΦ/dt = B·L·v', icon:'🔁', s1min:0,
+    desc:'<b>Задача:</b> Рамка движется в магнитное поле. ЭДС = B·L·v. Подбери скорость — не слишком медленно и не слишком быстро.',
+    hint:'Слишком медленно → ЭДС мала\nСлишком быстро → зашкаливает\nОтвет: v ≈ 4–6', lbl1:'Скорость v',
+    controls:['i1'], winTitle:'Индукция!', winSub:'ε = B·L·v — ЭДС из движения в поле' },
+  { badge:'Уровень 11/11 — Циклотрон', formula:'r = mv/qB', icon:'🌀', s1min:0,
+    desc:'<b>Задача:</b> Каждые 360° частица получает пинок и радиус растёт. Подбери B (ток), чтобы на <b>3-м витке</b> частица попала в щель (r₃ ≈ 128 px).',
+    hint:'r₃ = 3·v_kick/(I·kf) = 643/I\nДля r₃≈128: I ≈ 5\nОбрати внимание на виток 3', lbl1:'Ток (поле B)',
+    controls:['i1'], winTitle:'Выход!', winSub:'r = mv/qB — радиус нарастает с каждым витком' },
+];
+
+// ─── DOM & Controls ──────────────────────────────────────────────────────────
+const s1=document.getElementById('slider1'), s2=document.getElementById('slider2'), s3=document.getElementById('slider3');
+const v1=document.getElementById('val1'), v2=document.getElementById('val2'), v3=document.getElementById('val3');
+
+function fmt(v,u){ return `${(+v).toFixed(1)}<span>${u}</span>`; }
+function fill(el,lo,hi,col){ const p=((+el.value-lo)/(hi-lo))*100; el.style.background=`linear-gradient(to right,${col} ${p}%,rgba(255,255,255,0.08) ${p}%)`; }
+
+s1.oninput=()=>{ state.I1=+s1.value; v1.innerHTML=fmt(state.I1,'А'); fill(s1,+s1.min,+s1.max,C.cyan); };
+s2.oninput=()=>{ state.I2=+s2.value; v2.innerHTML=fmt(state.I2,'А'); fill(s2,-10,10,C.orange); };
+s3.oninput=()=>{ state.theta=+s3.value; v3.innerHTML=fmt(state.theta,'°'); fill(s3,0,90,C.purple); };
+
+document.getElementById('nextBtn').onclick=()=>{ level++; initLevel(); };
+document.getElementById('restartBtn').onclick=()=>{ initLevel(); };
+document.getElementById('hintBtn').onclick=()=>{ const h=document.getElementById('hintBox'); h.style.display=h.style.display==='none'?'block':'none'; };
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const lerp=(a,b,t)=>a+(b-a)*t, clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+function dotGrid(col='rgba(255,255,255,0.03)',s=42){
+  ctx.save(); ctx.fillStyle=col;
+  for(let x=s/2;x<W;x+=s) for(let y=s/2;y<H;y+=s){ ctx.beginPath(); ctx.arc(x,y,1.2,0,Math.PI*2); ctx.fill(); }
+  ctx.restore();
+}
+function bField(into){
+  ctx.save(); ctx.font='13px "JetBrains Mono"'; ctx.fillStyle='rgba(0,198,255,0.09)'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  const s=52; for(let x=s/2;x<W;x+=s) for(let y=s/2;y<H;y+=s) ctx.fillText(into?'×':'·',x,y); ctx.restore();
+}
+function arrow(x1,y1,x2,y2,col,lbl){
+  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy); if(len<3) return;
+  const ux=dx/len,uy=dy/len,hw=8,hl=11;
+  ctx.save(); ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2.5;
+  ctx.shadowColor=col; ctx.shadowBlur=7;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-ux*hl-uy*hw/2,y2-uy*hl+ux*hw/2); ctx.lineTo(x2-ux*hl+uy*hw/2,y2-uy*hl-ux*hw/2); ctx.closePath(); ctx.fill(); ctx.shadowBlur=0;
+  if(lbl){ ctx.font='bold 11px "JetBrains Mono"'; ctx.fillText(lbl,x2+8,y2+4); } ctx.restore();
+}
+function glowLine(x1,y1,x2,y2,col,lw=4){
+  ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.shadowColor=col; ctx.shadowBlur=16;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.shadowBlur=5; ctx.lineWidth=lw*0.35; ctx.strokeStyle='rgba(255,255,255,0.55)'; ctx.stroke(); ctx.restore();
+}
+function wireNode(x,y,r,col,sym){
+  ctx.save(); ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle=C.bg; ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.shadowColor=col; ctx.shadowBlur=12; ctx.stroke(); ctx.shadowBlur=0;
+  ctx.fillStyle=col; ctx.font=`bold ${Math.round(r*0.88)}px "JetBrains Mono"`;
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(sym,x,y); ctx.restore();
+}
+function rrect(x,y,w,h,r,fill,stroke,lw){
+  ctx.save(); ctx.beginPath(); ctx.roundRect(x,y,w,h,r||6);
+  if(fill){ctx.fillStyle=fill;ctx.fill();} if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||2;ctx.stroke();} ctx.restore();
+}
+function targetZone(x,y,w,h,active,lbl){
+  const a=active?0.2:0.06, s=active?0.85:0.3;
+  ctx.save(); const g=ctx.createLinearGradient(x,y,x,y+h);
+  g.addColorStop(0,`rgba(57,232,122,${a})`); g.addColorStop(1,'rgba(57,232,122,0)');
+  ctx.fillStyle=g; ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle=`rgba(57,232,122,${s})`; ctx.lineWidth=1.5; ctx.setLineDash([6,4]);
+  ctx.strokeRect(x,y,w,h); ctx.setLineDash([]);
+  if(lbl){ctx.font='600 11px Inter';ctx.fillStyle=`rgba(57,232,122,${s})`;ctx.textAlign='center';ctx.fillText(lbl,x+w/2,y+h/2+4);}
+  ctx.restore();
+}
+function holdRing(cx,cy,r,t,col){
+  ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle=col; ctx.lineWidth=3; ctx.shadowColor=col; ctx.shadowBlur=8;
+  ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*t); ctx.stroke(); ctx.restore();
+}
+
+// Particles
+function spawn(cx,cy,col,n=60){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2,sp=2+Math.random()*5; particles.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,col,r:1.5+Math.random()*3}); } }
+function stepParticles(){ particles=particles.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.09;p.vx*=0.97;p.life-=0.024;return p.life>0;}); }
+function drawParticles(){ particles.forEach(p=>{ octx.save();octx.globalAlpha=p.life;octx.fillStyle=p.col;octx.shadowColor=p.col;octx.shadowBlur=5;octx.beginPath();octx.arc(p.x,p.y,p.r,0,Math.PI*2);octx.fill();octx.restore();}); }
+
+// ─── Progress ────────────────────────────────────────────────────────────────
+function buildProgress(){
+  const prog=document.getElementById('progress'); prog.innerHTML='';
+  CONFIGS.forEach((_,i)=>{
+    const st=document.createElement('div'); st.id='st'+i;
+    st.className='step'+(i<level?' done':i===level?' active':'');
+    st.innerHTML=`<div class="step-num">${i+1}</div>`;
+    st.title=CONFIGS[i].badge;
+    st.style.cursor='pointer';
+    st.onclick=()=>{ won=false; level=i; initLevel(); };
+    prog.appendChild(st);
+    if(i<CONFIGS.length-1){ const ln=document.createElement('div'); ln.id='ln'+i; ln.className='step-line'; prog.appendChild(ln); }
+  });
+}
+function updateProgress(){
+  CONFIGS.forEach((_,i)=>{
+    const el=document.getElementById('st'+i); if(el) el.className='step'+(i<level?' done':i===level?' active':'');
+    const ln=document.getElementById('ln'+i); if(ln) ln.style.background=i<level?C.green:C.border;
+  });
+}
+
+// ─── Win ─────────────────────────────────────────────────────────────────────
+function triggerWin(title,sub,col){
+  won=true;
+  const wc=document.getElementById('win-card'); wc.style.display='block';
+  wc.style.borderColor=`${col}44`; wc.style.background=`${col}0a`;
+  document.getElementById('winTitle').style.color=col;
+  document.getElementById('winTitle').textContent=title;
+  document.getElementById('winSub').textContent=sub;
+  document.getElementById('nextBtn').style.display=level<CONFIGS.length-1?'block':'none';
+  oc.style.display='block'; spawn(W/2,H/2,col);
+}
+
+// ─── Init Level ───────────────────────────────────────────────────────────────
+function initLevel(){
+  won=false; particles=[]; hintTimer=0; hintShown=false;
+  oc.style.display='none';
+  document.getElementById('win-card').style.display='none';
+  document.getElementById('nextBtn').style.display='none';
+  document.getElementById('hintBtn').style.display='none';
+  document.getElementById('hintBox').style.display='none';
+  buildProgress();
+  const cfg=CONFIGS[level];
+  document.getElementById('levelBadge').textContent=cfg.badge;
+  document.getElementById('descIcon').textContent=cfg.icon;
+  document.getElementById('descText').innerHTML=cfg.desc;
+  document.getElementById('formulaEq').textContent=cfg.formula;
+  document.getElementById('hintBox').textContent=cfg.hint;
+  // Set slider ranges
+  const mn=cfg.s1min!=null?cfg.s1min:-10;
+  s1.min=mn; s1.max='10'; s1.step='0.1'; s1.value=0;
+  v1.innerHTML=fmt(0,'А'); fill(s1,mn,10,C.cyan);
+  s2.value=0; v2.innerHTML=fmt(0,'А'); fill(s2,-10,10,C.orange);
+  s3.value=0; v3.innerHTML=fmt(0,'°'); fill(s3,0,90,C.purple);
+  document.getElementById('ctrl1').style.display='block';
+  document.getElementById('ctrl2').style.display=cfg.controls.includes('i2')?'block':'none';
+  document.getElementById('ctrl3').style.display=cfg.controls.includes('theta')?'block':'none';
+  document.getElementById('lbl1').textContent=cfg.lbl1||'Ток I';
+  if(cfg.lbl2) document.getElementById('lbl2').textContent=cfg.lbl2;
+  if(cfg.lbl3) document.getElementById('lbl3').textContent=cfg.lbl3;
+  [initL0,initL1,initL2,initL3,initL4,initL5,initL6,initL7,initL8,initL9,initL10][level]();
+}
+
+function hintTick(){ if(!hintShown){hintTimer++;if(hintTimer>900){hintShown=true;document.getElementById('hintBtn').style.display='block';}} }
+
+// ════════════════ LEVEL 0 — BALANCE ══════════════════════════════════════════
+function initL0(){ state={I1:0,py:415,pvy:0,holdTime:0,targetY:215,targetH:70}; }
+function updateL0(){
+  if(won) return;
+  state.pvy+=(0.15-state.I1*0.05); state.pvy*=0.97;
+  state.py=clamp(state.py+state.pvy,30,H-30);
+  const inZ=state.py>=state.targetY&&state.py<=state.targetY+state.targetH;
+  state.holdTime=inZ?state.holdTime+1:Math.max(0,state.holdTime-2);
+  const F=(state.I1*2).toFixed(2);
+  document.getElementById('formulaValues').innerHTML=`I = ${state.I1.toFixed(1)} А<br>F↑ = ${F} Н<br>F↓ = 6.00 Н  ${Math.abs(state.I1*2-6)<0.6?'<b>≈ баланс!</b>':''}`;
+  if(state.holdTime>=120) triggerWin(CONFIGS[0].winTitle,CONFIGS[0].winSub,C.cyan);
+  hintTick();
+}
+function renderL0(){
+  bField(true);
+  const inZ=state.py>=state.targetY&&state.py<=state.targetY+state.targetH;
+  targetZone(80,state.targetY,W-160,state.targetH,inZ,'ЗАВИСНИ');
+  if(state.holdTime>0) holdRing(W/2,state.targetY+state.targetH/2,28,state.holdTime/120,C.green);
+  glowLine(90,H-70,W-90,H-70,C.orange,4);
+  wireNode(W/2,H-70,13,C.orange,state.I1>0?'→':state.I1<0?'←':'·');
+  const col=inZ?C.green:C.cyan;
+  ctx.save(); ctx.shadowColor=col; ctx.shadowBlur=14;
+  rrect(W/2-65,state.py-15,130,30,7,`${col}18`,col,2); ctx.shadowBlur=0;
+  ctx.font='500 11px Inter'; ctx.fillStyle=col; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('ПЛАТФОРМА',W/2,state.py); ctx.restore();
+  arrow(W/2-105,state.py,W/2-105,state.py+52,C.red,'F↓');
+  if(Math.abs(state.I1)>0.15) arrow(W/2-105,state.py,W/2-105,state.py-clamp(state.I1*17,-100,100),C.cyan,`F↑`);
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(0,198,255,0.25)'; ctx.textAlign='center'; ctx.fillText('B = 1 Тл [× в экран], L = 2 м',W/2,H-12); ctx.restore();
+}
+
+// ════════════════ LEVEL 1 — SOFT LANDING ══════════════════════════════════════
+function initL1(){ state={I1:0,py:55,pvy:6,targetY:265,targetH:55,resets:0}; }
+function updateL1(){
+  if(won) return;
+  const ay=0.12-state.I1*0.05; state.pvy+=ay; state.py+=state.pvy;
+  if(state.py>H+20||state.py<-20){state.py=55;state.pvy=6;state.resets++;}
+  const inZ=state.py>=state.targetY&&state.py<=state.targetY+state.targetH, slow=Math.abs(state.pvy)<2.5;
+  document.getElementById('formulaValues').innerHTML=`a = ${ay.toFixed(3)}<br>v = ${state.pvy.toFixed(2)}<br>${inZ&&slow?'<b>✓ ПОСАДКА!</b>':'—'}<br><span style="color:var(--muted)">сбросов:${state.resets}</span>`;
+  if(inZ&&slow) triggerWin(CONFIGS[1].winTitle,CONFIGS[1].winSub,C.cyan);
+  hintTick();
+}
+function renderL1(){
+  bField(true);
+  const inZ=state.py>=state.targetY&&state.py<=state.targetY+state.targetH, slow=Math.abs(state.pvy)<2.5;
+  targetZone(80,state.targetY,W-160,state.targetH,inZ&&slow,'ПОСАДКА');
+  glowLine(90,H-55,W-90,H-55,C.orange,4);
+  wireNode(W/2,H-55,13,C.orange,state.I1>0?'→':state.I1<0?'←':'·');
+  const col=inZ&&slow?C.green:C.cyan;
+  ctx.save(); ctx.shadowColor=col; ctx.shadowBlur=14;
+  rrect(W/2-60,state.py-14,120,28,7,`${col}18`,col,2); ctx.shadowBlur=0;
+  ctx.font='500 11px Inter'; ctx.fillStyle=col; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('▼ ПЛАТФОРМА',W/2,state.py); ctx.restore();
+  const av=clamp(state.pvy*8,-110,110);
+  arrow(W/2+88,state.py,W/2+88,state.py+av,C.red,`v=${state.pvy.toFixed(1)}`);
+  if(state.I1>0.15) arrow(W/2+88,state.py,W/2+88,state.py-state.I1*13,C.cyan,'F↑');
+}
+
+// ════════════════ LEVEL 2 — REVERSE LOGIC ════════════════════════════════════
+function initL2(){ state={I1:0,I2:0,x1:160,vx1:0,x2:540,vx2:0,t1:260,t2:420,tol:32,holdTime:0}; }
+function updateL2(){
+  if(won) return;
+  state.vx1+=(-state.I1*0.028); state.vx1*=0.84; state.x1=clamp(state.x1+state.vx1,50,W-50);
+  state.vx2+=(-state.I2*0.028); state.vx2*=0.84; state.x2=clamp(state.x2+state.vx2,50,W-50);
+  const in1=Math.abs(state.x1-state.t1)<state.tol, in2=Math.abs(state.x2-state.t2)<state.tol;
+  state.holdTime=(in1&&in2)?state.holdTime+1:Math.max(0,state.holdTime-2);
+  document.getElementById('formulaValues').innerHTML=`I₁=${state.I1.toFixed(1)} → ${state.I1>0?'←':state.I1<0?'→':'·'}<br>I₂=${state.I2.toFixed(1)} → ${state.I2>0?'←':state.I2<0?'→':'·'}<br>${in1?'<b>✓ Провод 1</b>':'Провод 1: вне зоны'}<br>${in2?'<b>✓ Провод 2</b>':'Провод 2: вне зоны'}`;
+  if(state.holdTime>=60) triggerWin(CONFIGS[2].winTitle,CONFIGS[2].winSub,C.green);
+  hintTick();
+}
+function renderL2(){
+  bField(true); const wY=H/2;
+  const in1=Math.abs(state.x1-state.t1)<32, in2=Math.abs(state.x2-state.t2)<32;
+  targetZone(state.t1-32,60,64,H-120,in1,'ЗОНА 1');
+  targetZone(state.t2-32,60,64,H-120,in2,'ЗОНА 2');
+  if(state.holdTime>0){holdRing(state.t1,wY,22,state.holdTime/60,C.green);holdRing(state.t2,wY,22,state.holdTime/60,C.green);}
+  [[state.x1,state.I1,C.cyan,'I₁'],[state.x2,state.I2,C.orange,'I₂']].forEach(([wx,I,col,lbl])=>{
+    [25,55,85].forEach(r=>{const a=0.12*(1-r/100)*Math.min(Math.abs(I)/10,1); ctx.save(); ctx.strokeStyle=`${col}${Math.round(a*255).toString(16).padStart(2,'0')}`; ctx.lineWidth=1.2; ctx.beginPath(); ctx.arc(wx,wY,r,0,Math.PI*2); ctx.stroke(); ctx.restore();});
+    glowLine(wx,60,wx,H-60,col,4);
+    wireNode(wx,wY,14,col,I>0?'⊙':I<0?'⊗':'·');
+    ctx.save(); ctx.font='11px "JetBrains Mono"'; ctx.fillStyle=col; ctx.textAlign='center';
+    ctx.fillText(`${lbl}=${I.toFixed(1)}`,wx,wY+32); ctx.restore();
+    if(Math.abs(I)>0.1) arrow(wx,wY-75,wx+(-I>0?40:-40),wY-75,col);
+  });
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(0,198,255,0.2)'; ctx.textAlign='center';
+  ctx.fillText('⊙→влево  |  ⊗→вправо  (B в экран, ток вертикальный)',W/2,H-10); ctx.restore();
+}
+
+// ════════════════ LEVEL 3 — FLUX ═════════════════════════════════════════════
+function initL3(){ state={I1:0,theta:0,srcX:W/2-100,srcY:H/2,fX:W/2+100,fY:H/2,fW:110,fH:60,threshold:0.75}; }
+function getFlux3(){ const dx=state.fX-state.srcX,dy=state.fY-state.srcY; return state.I1*5000/Math.max(dx*dx+dy*dy,2500)*(state.fW*state.fH/10000)*Math.abs(Math.cos(state.theta*Math.PI/180)); }
+function updateL3(){
+  if(won) return;
+  const fl=getFlux3(),pct=Math.min(fl/state.threshold,1);
+  document.getElementById('formulaValues').innerHTML=`I = ${state.I1.toFixed(1)} А<br>θ = ${state.theta|0}°<br>cosθ = ${Math.cos(state.theta*Math.PI/180).toFixed(2)}<br><b>Φ = ${fl.toFixed(3)} Вб</b><br><span style="color:var(--muted)">нужно ≥${state.threshold}</span>`;
+  if(fl>=state.threshold) triggerWin(CONFIGS[3].winTitle,CONFIGS[3].winSub,C.purple);
+  hintTick();
+}
+function renderL3(){
+  const fl=getFlux3(),ratio=Math.min(fl/state.threshold,1);
+  const fCol=won?C.green:`rgb(${Math.round(lerp(100,168,ratio))},${Math.round(lerp(140,90,ratio))},255)`;
+  if(state.I1>0.1){const n=16,str=Math.min(state.I1/10,1);for(let i=0;i<n;i++){const a=(i/n)*Math.PI*2;for(let r=18;r<=190;r+=35){const x=state.srcX+Math.cos(a)*r,y=state.srcY+Math.sin(a)*r,al=Math.max(0,(0.4-r/480))*str;ctx.save();ctx.fillStyle=`rgba(168,85,247,${al})`;ctx.shadowColor=C.purple;ctx.shadowBlur=3;ctx.beginPath();ctx.arc(x,y,1.8,0,Math.PI*2);ctx.fill();ctx.restore();}}}
+  wireNode(state.srcX,state.srcY,17,C.orange,state.I1>0?'⊙':'·');
+  ctx.save(); ctx.font='10px Inter'; ctx.fillStyle=C.muted; ctx.textAlign='center'; ctx.fillText(`источник I=${state.I1.toFixed(1)}А`,state.srcX,state.srcY-32); ctx.restore();
+  ctx.save(); ctx.translate(state.fX,state.fY); ctx.rotate(state.theta*Math.PI/180);
+  ctx.strokeStyle=fCol; ctx.lineWidth=2.5; ctx.shadowColor=fCol; ctx.shadowBlur=12;
+  ctx.beginPath(); ctx.roundRect(-state.fW/2,-state.fH/2,state.fW,state.fH,6); ctx.stroke();
+  ctx.fillStyle=`rgba(168,85,247,${ratio*0.1})`; ctx.fill(); ctx.shadowBlur=0;
+  ctx.strokeStyle=C.yellow; ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(0,4); ctx.lineTo(0,-44); ctx.stroke();
+  ctx.fillStyle=C.yellow; ctx.beginPath(); ctx.moveTo(0,-44); ctx.lineTo(-5,-33); ctx.lineTo(5,-33); ctx.closePath(); ctx.fill();
+  ctx.font='10px "JetBrains Mono"'; ctx.fillStyle=C.yellow; ctx.textAlign='center'; ctx.fillText('n',0,-54); ctx.restore();
+  ctx.save(); ctx.font='11px "JetBrains Mono"'; ctx.fillStyle='rgba(255,209,102,0.6)'; ctx.textAlign='center'; ctx.fillText(`θ = ${state.theta|0}°`,state.fX,state.fY+55); ctx.restore();
+  ctx.save(); ctx.font=`${won?32:26}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(won?'🔓':'🔒',state.fX+78,state.fY); ctx.restore();
+  const bx=20,by=H-50,bw=260,bh=14;
+  rrect(bx,by,bw,bh,7,'rgba(255,255,255,0.04)','rgba(255,255,255,0.08)',1);
+  if(ratio>0){ctx.save();ctx.beginPath();ctx.roundRect(bx,by,bw*ratio,bh,7);const g=ctx.createLinearGradient(bx,0,bx+bw*ratio,0);g.addColorStop(0,'#a855f7');g.addColorStop(1,won?C.green:'#00c6ff');ctx.fillStyle=g;ctx.fill();ctx.restore();}
+  ctx.save(); ctx.strokeStyle=C.red; ctx.lineWidth=2; ctx.setLineDash([3,2]); ctx.beginPath(); ctx.moveTo(bx+bw,by-2); ctx.lineTo(bx+bw,by+bh+2); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font='10px "JetBrains Mono"'; ctx.fillStyle=C.muted; ctx.fillText(`Φ=${fl.toFixed(3)} Вб   порог≥${state.threshold}`,bx,by-7);
+  ctx.fillStyle=fCol; ctx.fillText(`${Math.round(ratio*100)}%`,bx+bw+10,by+bh/2+4); ctx.restore();
+}
+
+// ════════════════ LEVEL 4 — CHAIN ════════════════════════════════════════════
+function initL4(){ state={I1:0,theta:0,xB:320,vxB:0,xA:120,yA:H/2,targetX:460,tol:36,fX:570,fY:320,threshold:2.2,holdTime:0}; }
+function getFlux4(){ return 3.0*Math.abs(Math.cos(state.theta*Math.PI/180)); }
+function updateL4(){
+  if(won) return;
+  state.vxB+=(-0.1*(state.xB-320)+state.I1*2)*0.016*4; state.vxB*=0.88;
+  state.xB=clamp(state.xB+state.vxB,100,W-60);
+  const atGate=Math.abs(state.xB-state.targetX)<state.tol, fl=getFlux4(), flOK=fl>=state.threshold;
+  state.holdTime=(atGate&&flOK)?state.holdTime+1:Math.max(0,state.holdTime-2);
+  document.getElementById('formulaValues').innerHTML=`I₁ = ${state.I1.toFixed(1)} А<br>Провод B: x=${state.xB.toFixed(0)} ${atGate?'<b>✓ контакт</b>':'→ ~460'}<br>θ = ${state.theta|0}°<br>Φ = ${fl.toFixed(2)} Вб ${flOK?'<b>✓ порог</b>':'нужно ≥'+state.threshold}`;
+  if(state.holdTime>=60) triggerWin(CONFIGS[4].winTitle,CONFIGS[4].winSub,C.purple);
+  hintTick();
+}
+function renderL4(){
+  const atGate=Math.abs(state.xB-state.targetX)<state.tol, fl=getFlux4(), ratio=Math.min(fl/state.threshold,1), flOK=fl>=state.threshold;
+  dotGrid();
+  glowLine(state.xA,80,state.xA,H-80,C.orange,4); wireNode(state.xA,state.yA,14,C.orange,state.I1>0?'⊙':state.I1<0?'⊗':'·');
+  ctx.save(); ctx.font='10px Inter'; ctx.fillStyle=C.muted; ctx.textAlign='center'; ctx.fillText(`Провод A  I₁=${state.I1.toFixed(1)}`,state.xA,state.yA-32); ctx.restore();
+  if(state.I1>0.1){[30,60,90].forEach(r=>{const a=0.1*Math.min(state.I1/10,1)*(1-r/110);ctx.save();ctx.strokeStyle=`rgba(255,122,61,${a})`;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(state.xA,state.yA,r,0,Math.PI*2);ctx.stroke();ctx.restore();});arrow((state.xA+state.xB)/2-15,state.yA,(state.xA+state.xB)/2+15,state.yA,C.orange);}
+  const bCol=atGate?C.green:C.cyan;
+  glowLine(state.xB,80,state.xB,H-80,bCol,4); wireNode(state.xB,state.yA,14,bCol,'⊗');
+  ctx.save(); ctx.font='10px Inter'; ctx.fillStyle=bCol; ctx.textAlign='center'; ctx.fillText('Провод B (фикс.)',state.xB,state.yA-32); ctx.restore();
+  targetZone(state.targetX-state.tol,130,state.tol*2,H-260,atGate,'КОНТАКТ');
+  if(state.holdTime>0){holdRing(state.targetX,state.yA,26,state.holdTime/60,C.green);}
+  ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(0,H/2+58); ctx.lineTo(W,H/2+58); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+  const sx=480,sy=state.fY,fx=state.fX,fy=state.fY;
+  const fCol=flOK?C.green:`rgb(${Math.round(lerp(140,168,ratio))},${Math.round(lerp(140,90,ratio))},255)`;
+  wireNode(sx,sy,13,C.purple,'⊙');
+  [20,45,70].forEach(r=>{ctx.save();ctx.strokeStyle=`rgba(168,85,247,${0.12*(1-r/90)})`;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(sx,sy,r,0,Math.PI*2);ctx.stroke();ctx.restore();});
+  ctx.save(); ctx.translate(fx,fy); ctx.rotate(state.theta*Math.PI/180);
+  ctx.strokeStyle=fCol; ctx.lineWidth=2.5; ctx.shadowColor=fCol; ctx.shadowBlur=10;
+  ctx.beginPath(); ctx.roundRect(-44,-27,88,54,5); ctx.stroke(); ctx.fillStyle=`${fCol}15`; ctx.fill(); ctx.shadowBlur=0;
+  ctx.strokeStyle=C.yellow; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-34); ctx.stroke(); ctx.restore();
+  ctx.save(); ctx.font=`${won?28:22}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(won?'🔓':'🔒',fx+58,fy); ctx.restore();
+  const bx=sx-50,by=H-30,bw=150,bh=10;
+  rrect(bx,by,bw,bh,5,'rgba(255,255,255,0.03)','rgba(255,255,255,0.07)',1);
+  if(ratio>0){ctx.save();ctx.beginPath();ctx.roundRect(bx,by,bw*ratio,bh,5);ctx.fillStyle=fCol;ctx.fill();ctx.restore();}
+  ctx.save(); ctx.font='9px "JetBrains Mono"'; ctx.fillStyle=C.muted; ctx.fillText(`Φ=${fl.toFixed(2)}/${state.threshold} | θ=${state.theta|0}°`,bx,by-5); ctx.restore();
+}
+
+// ════════════════ LEVEL 5 — LORENTZ ══════════════════════════════════════════
+function initL5(){
+  const spd=5;
+  state={ I1:0, px:350, py:H-40, pvx:0, pvy:-spd, spd0:spd,
+    trail:[], attempts:0,
+    targetX:530, targetY:280, targetR:35 };
+}
+function updateL5(){
+  if(won) return;
+  // Lorentz: ax = -k*vy, ay = k*vx (clockwise deflection for I>0)
+  const k=state.I1*0.007;
+  const ax=-k*state.pvy, ay=k*state.pvx;
+  state.pvx+=ax; state.pvy+=ay;
+  // Conserve speed (magnetic force does no work)
+  const spd=Math.hypot(state.pvx,state.pvy);
+  if(spd>0.01){state.pvx=state.pvx/spd*state.spd0; state.pvy=state.pvy/spd*state.spd0;}
+  state.trail.push({x:state.px,y:state.py});
+  if(state.trail.length>90) state.trail.shift();
+  state.px+=state.pvx; state.py+=state.pvy;
+  // Hit check
+  const d=Math.hypot(state.px-state.targetX,state.py-state.targetY);
+  if(d<state.targetR) { triggerWin(CONFIGS[5].winTitle,CONFIGS[5].winSub,C.yellow); return; }
+  // Exit → reset
+  if(state.px<0||state.px>W||state.py<0||state.py>H){
+    state.px=350; state.py=H-40; state.pvx=0; state.pvy=-state.spd0;
+    state.trail=[]; state.attempts++;
+  }
+  const r=state.I1!==0?state.spd0/(Math.abs(state.I1)*0.007):999;
+  document.getElementById('formulaValues').innerHTML=`I = ${state.I1.toFixed(1)} А<br>r = ${r.toFixed(0)} px<br>v = (${state.pvx.toFixed(1)}, ${state.pvy.toFixed(1)})<br><span style="color:var(--muted)">попыток: ${state.attempts}</span>`;
+  hintTick();
+}
+function renderL5(){
+  bField(true);
+  // Target circle
+  const d=Math.hypot(state.px-state.targetX,state.py-state.targetY);
+  const near=d<state.targetR+40;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(state.targetX,state.targetY,state.targetR,0,Math.PI*2);
+  ctx.fillStyle=near?'rgba(255,209,102,0.2)':'rgba(57,232,122,0.1)';
+  ctx.fill(); ctx.strokeStyle=near?C.yellow:C.green; ctx.lineWidth=2; ctx.shadowColor=ctx.strokeStyle; ctx.shadowBlur=10; ctx.stroke(); ctx.shadowBlur=0;
+  ctx.font='bold 11px Inter'; ctx.fillStyle=near?C.yellow:C.green; ctx.textAlign='center';
+  ctx.fillText('МИШЕНЬ',state.targetX,state.targetY+state.targetR+14);
+  ctx.restore();
+  // Expected radius circle (faint guide)
+  if(Math.abs(state.I1)>0.3){
+    const r=state.spd0/(Math.abs(state.I1)*0.007);
+    const cx=350+r*(state.I1>0?1:-1), cy=H-40;
+    ctx.save(); ctx.strokeStyle='rgba(0,198,255,0.06)'; ctx.lineWidth=1; ctx.setLineDash([3,5]);
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+  }
+  // Particle trail
+  state.trail.forEach((p,i)=>{
+    const a=i/state.trail.length;
+    ctx.save(); ctx.globalAlpha=a*0.8; ctx.fillStyle=C.cyan;
+    ctx.shadowColor=C.cyan; ctx.shadowBlur=4;
+    ctx.beginPath(); ctx.arc(p.x,p.y,1.8,0,Math.PI*2); ctx.fill(); ctx.restore();
+  });
+  // Particle
+  ctx.save(); ctx.fillStyle=C.yellow; ctx.shadowColor=C.yellow; ctx.shadowBlur=14;
+  ctx.beginPath(); ctx.arc(state.px,state.py,7,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+  // Charge label
+  ctx.fillStyle=C.bg; ctx.font='bold 9px Inter'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('+',state.px,state.py); ctx.restore();
+  // Velocity arrow
+  if(Math.hypot(state.pvx,state.pvy)>0.1) arrow(state.px,state.py,state.px+state.pvx*8,state.py+state.pvy*8,'rgba(255,209,102,0.5)');
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(0,198,255,0.25)'; ctx.textAlign='center';
+  ctx.fillText('F = q·v×B  |  r = mv/qB ∝ 1/I',W/2,H-10); ctx.restore();
+}
+
+// ════════════════ LEVEL 6 — GENERATOR ════════════════════════════════════════
+function initL6(){
+  state={ I1:0, theta:0, emfHistory:new Array(120).fill(0), peakEmf:0, overload:false, overloadTimer:0, holdTime:0, threshold:34 };
+}
+function updateL6(){
+  if(won) return;
+  const omega=state.I1; // ω = slider value (0–10)
+  state.theta+=omega*0.025;
+  const emf=Math.abs(5*omega*Math.sin(state.theta));
+  state.emfHistory.shift(); state.emfHistory.push(emf);
+  state.peakEmf=Math.max(...state.emfHistory);
+  // Overload
+  if(omega>9){ state.overload=true; state.overloadTimer=90; }
+  else if(state.overloadTimer>0){ state.overloadTimer--; if(state.overloadTimer===0) state.overload=false; }
+  const ok=state.peakEmf>state.threshold&&!state.overload;
+  state.holdTime=ok?state.holdTime+1:Math.max(0,state.holdTime-2);
+  document.getElementById('formulaValues').innerHTML=`ω = ${omega.toFixed(1)} рад/с<br>θ = ${(state.theta%(Math.PI*2)/(Math.PI*2)*360).toFixed(0)}°<br>ЭДС = ${emf.toFixed(1)} В<br><b>пик = ${state.peakEmf.toFixed(1)} В</b>${state.overload?'<br><b style="color:'+C.red+'">⚠ ПЕРЕГРУЗКА</b>':''}`;
+  if(state.holdTime>=50) triggerWin(CONFIGS[6].winTitle,CONFIGS[6].winSub,C.orange);
+  hintTick();
+}
+function renderL6(){
+  dotGrid();
+  const cx=W/2-60, cy=H/2, cw=180, ch=100;
+  const omega=state.I1, theta=state.theta;
+  // B field dots in background
+  bField(true);
+  // Rotating coil
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(theta);
+  const col=state.overload?C.red:C.orange;
+  ctx.strokeStyle=col; ctx.lineWidth=3; ctx.shadowColor=col; ctx.shadowBlur=state.overload?18:10;
+  ctx.beginPath(); ctx.roundRect(-cw/2,-ch/2,cw,ch,4); ctx.stroke();
+  ctx.shadowBlur=0;
+  // Coil wires (top+bottom thicker = current direction)
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(-cw/2+8,-ch/2); ctx.lineTo(cw/2-8,-ch/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-cw/2+8,ch/2); ctx.lineTo(cw/2-8,ch/2); ctx.stroke();
+  // Rotation arrow
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.shadowColor=col; ctx.shadowBlur=6;
+  ctx.beginPath(); ctx.arc(0,0,ch/2+15,0,Math.PI*1.5,false); ctx.stroke();
+  ctx.shadowBlur=0; ctx.restore();
+  // Axis line
+  ctx.save(); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(cx,cy-ch/2-30); ctx.lineTo(cx,cy+ch/2+30); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+  // Overload flash
+  if(state.overload){
+    ctx.save(); ctx.fillStyle=`rgba(255,77,109,${0.1+0.05*Math.sin(Date.now()*0.02)})`;
+    ctx.fillRect(0,0,W,H); ctx.restore();
+    ctx.save(); ctx.font='bold 20px Inter'; ctx.fillStyle=C.red; ctx.textAlign='center'; ctx.shadowColor=C.red; ctx.shadowBlur=20;
+    ctx.fillText('⚠ ПЕРЕГРУЗКА',cx,cy-ch/2-50); ctx.restore();
+  }
+  // Voltmeter / waveform (right side)
+  const wx=cx+cw/2+50, wy=100, ww=W-wx-20, wh=H-150;
+  rrect(wx,wy,ww,wh,8,'rgba(0,0,0,0.4)','rgba(255,255,255,0.08)',1);
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.fillText('ЭДС (В)',wx+ww/2,wy-8); ctx.textAlign='center'; ctx.restore();
+  // Waveform history
+  ctx.save(); ctx.strokeStyle=state.overload?C.red:C.orange; ctx.lineWidth=1.5; ctx.shadowColor=ctx.strokeStyle; ctx.shadowBlur=4;
+  ctx.beginPath();
+  state.emfHistory.forEach((e,i)=>{
+    const x=wx+4+(i/120)*(ww-8), y=wy+wh-8-(e/50)*wh;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }); ctx.stroke(); ctx.shadowBlur=0;
+  // Threshold line
+  ctx.strokeStyle='rgba(57,232,122,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  const ty=wy+wh-8-(state.threshold/50)*wh;
+  ctx.beginPath(); ctx.moveTo(wx,ty); ctx.lineTo(wx+ww,ty); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font='9px "JetBrains Mono"'; ctx.fillStyle='rgba(57,232,122,0.7)'; ctx.fillText(`порог=${state.threshold}В`,wx+ww-60,ty-4);
+  // Current EMF big number
+  const curEmf=state.emfHistory[state.emfHistory.length-1];
+  const emfCol=state.overload?C.red:state.peakEmf>state.threshold?C.green:C.orange;
+  ctx.font=`bold 28px "JetBrains Mono"`; ctx.fillStyle=emfCol; ctx.shadowColor=emfCol; ctx.shadowBlur=10;
+  ctx.fillText(`${curEmf.toFixed(1)} В`,wx+ww/2,wy+wh/2+10); ctx.shadowBlur=0;
+  // Peak / hold ring
+  if(state.holdTime>0) holdRing(wx+ww/2,wy+wh/2+10,38,state.holdTime/50,C.green);
+  ctx.restore();
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(255,122,61,0.25)'; ctx.textAlign='center';
+  ctx.fillText('ε = B·A·ω·sinθ  |  ω > 9 → перегрузка!',W/2,H-10); ctx.restore();
+}
+
+// ════════════════ LEVEL 7 — PENDULUM RESONANCE ════════════════════════════════
+function initL7(){
+  state={ I1:0, theta:0.12, dtheta:0, anchorX:W/2, anchorY:55, L:175,
+    kickCooldown:0, flashTimer:0, resetCount:0,
+    winThresh:0.90, resetThresh:1.72,
+    swingCount:0, wasAbove:false };
+}
+function updateL7(){
+  if(won) return;
+  const g=0.0055, damp=0.014;
+  // Pendulum ODE
+  const alpha=-g*Math.sin(state.theta)-damp*state.dtheta;
+  state.dtheta+=alpha;
+  state.theta+=state.dtheta;
+  // Magnetic kick at zero crossing (bottom of swing)
+  state.kickCooldown=Math.max(0,state.kickCooldown-1);
+  if(Math.abs(state.theta)<0.08&&state.kickCooldown===0&&Math.abs(state.dtheta)>0.001){
+    state.dtheta+=state.I1*0.009*Math.sign(state.dtheta);
+    state.kickCooldown=42; state.flashTimer=12;
+  }
+  state.flashTimer=Math.max(0,state.flashTimer-1);
+  const absTheta=Math.abs(state.theta);
+  // Reset if too far
+  if(absTheta>state.resetThresh){
+    state.theta=0.12; state.dtheta=0; state.kickCooldown=0;
+    state.resetCount++; state.flashTimer=0;
+    state.swingCount=0; state.wasAbove=false;
+  }
+  // Count peaks above winThresh (each new peak counts once)
+  if(absTheta>state.winThresh && !state.wasAbove){ state.swingCount++; state.wasAbove=true; }
+  if(absTheta<state.winThresh*0.75){ state.wasAbove=false; }
+  const deg=(absTheta*180/Math.PI).toFixed(1);
+  document.getElementById('formulaValues').innerHTML=`I = ${state.I1.toFixed(1)} А<br>θ = ${deg}°<br>${absTheta>state.winThresh?'<b>✓ раскачано!':`<span style="color:var(--muted)">нужно >${(state.winThresh*180/Math.PI).toFixed(0)}°</span>`}<br>пиков: <b>${state.swingCount}/5</b><br><span style="color:var(--muted)">сбросов: ${state.resetCount}</span>`;
+  if(state.swingCount>=5) triggerWin(CONFIGS[7].winTitle,CONFIGS[7].winSub,C.yellow);
+  hintTick();
+}
+function renderL7(){
+  bField(false); // B out of screen for pendulum setup
+  const ax=state.anchorX, ay=state.anchorY, L=state.L;
+  const bx=ax+Math.sin(state.theta)*L, by=ay+Math.cos(state.theta)*L;
+  // Win / danger arcs
+  const wa=state.winThresh, ra=state.resetThresh;
+  ctx.save();
+  ctx.strokeStyle='rgba(57,232,122,0.15)'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.arc(ax,ay,L,-Math.PI/2-wa,-Math.PI/2+wa,false); ctx.stroke();
+  ctx.strokeStyle='rgba(255,77,109,0.12)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(ax,ay,L,-Math.PI/2-ra,-Math.PI/2-wa,false); ctx.stroke();
+  ctx.beginPath(); ctx.arc(ax,ay,L,-Math.PI/2+wa,-Math.PI/2+ra,false); ctx.stroke();
+  ctx.setLineDash([]); ctx.restore();
+  // Labels
+  ctx.save(); ctx.font='10px Inter';
+  ctx.fillStyle='rgba(57,232,122,0.5)'; ctx.textAlign='center';
+  ctx.fillText(`✓ ${(wa*180/Math.PI).toFixed(0)}°`,ax-Math.sin(wa)*L-20,ay+Math.cos(wa)*L);
+  ctx.fillText(`✓ ${(wa*180/Math.PI).toFixed(0)}°`,ax+Math.sin(wa)*L+20,ay+Math.cos(wa)*L);
+  ctx.fillStyle='rgba(255,77,109,0.5)';
+  ctx.fillText('⚠ улетит',ax,ay+Math.cos(ra)*L+18); ctx.restore();
+  // Anchor
+  ctx.save(); ctx.fillStyle='rgba(255,255,255,0.15)';
+  ctx.beginPath(); ctx.arc(ax,ay,6,0,Math.PI*2); ctx.fill(); ctx.restore();
+  // Rope
+  const ropeCol=state.flashTimer>0?C.yellow:C.cyan;
+  glowLine(ax,ay,bx,by,`${ropeCol}88`,2);
+  // Kick flash at center
+  if(state.flashTimer>0){
+    const a=state.flashTimer/12;
+    ctx.save(); ctx.fillStyle=`rgba(255,209,102,${a*0.3})`; ctx.beginPath(); ctx.arc(ax,ay+L,40,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=C.yellow; ctx.lineWidth=2; ctx.globalAlpha=a; ctx.shadowColor=C.yellow; ctx.shadowBlur=20;
+    ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.font='bold 13px Inter'; ctx.fillStyle=C.yellow; ctx.textAlign='center';
+    ctx.fillText('ИМПУЛЬС!',ax,ay+L+55); ctx.restore();
+  }
+  // Bob
+  const absT=Math.abs(state.theta);
+  const bobCol=absT>state.resetThresh-0.1?C.red:absT>state.winThresh?C.green:C.orange;
+  ctx.save(); ctx.fillStyle=bobCol; ctx.shadowColor=bobCol; ctx.shadowBlur=16;
+  ctx.beginPath(); ctx.arc(bx,by,16,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+  ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=1.5; ctx.stroke();
+  // Magnet label
+  ctx.fillStyle=C.bg; ctx.font='bold 10px Inter'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('N',bx,by); ctx.restore();
+  // Angle arc
+  ctx.save(); ctx.strokeStyle='rgba(255,209,102,0.35)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(ax,ay,50,-Math.PI/2,-Math.PI/2+state.theta,state.theta<0); ctx.stroke();
+  ctx.font='11px "JetBrains Mono"'; ctx.fillStyle=C.yellow; ctx.textAlign='center';
+  ctx.fillText(`${(absT*180/Math.PI).toFixed(1)}°`,ax+(state.theta>0?55:-55),ay+30);
+  // Win progress ring (5 peaks)
+  if(state.swingCount>0) holdRing(bx,by,24,state.swingCount/5,C.green);
+  ctx.restore();
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(255,209,102,0.2)'; ctx.textAlign='center';
+  ctx.fillText('Магнитный импульс в нижней точке разгоняет маятник',W/2,H-10); ctx.restore();
+}
+
+// ════════════════ LEVEL 8 — RAILGUN ══════════════════════════════════════════
+function initL8(){
+  state={ I1:0, bx:65, vbx:0, exited:false, exitVx:0,
+    winVmin:4.0, winVmax:5.5, attempts:0 };
+}
+function updateL8(){
+  if(won) return;
+  if(state.exited){ hintTick(); return; }
+  const ax=state.I1*0.006;
+  state.vbx+=ax; state.vbx*=0.995;
+  state.bx+=state.vbx;
+  const v=state.vbx;
+  document.getElementById('formulaValues').innerHTML=`I = ${state.I1.toFixed(1)} А<br>F = ${(state.I1*0.6).toFixed(2)} Н<br>v = ${v.toFixed(2)} px/f<br><span style="color:var(--muted)">попыток: ${state.attempts}</span>`;
+  if(state.bx>W-65){
+    state.exited=true; state.exitVx=v; state.attempts++;
+    const ok=v>=state.winVmin&&v<=state.winVmax;
+    if(ok) triggerWin(CONFIGS[8].winTitle,CONFIGS[8].winSub,C.green);
+    else { setTimeout(()=>{ state.bx=65; state.vbx=0; state.exited=false; },900); }
+  }
+  hintTick();
+}
+function renderL8(){
+  dotGrid();
+  const railY1=H/2-55, railY2=H/2+55;
+  // B field symbols between rails
+  ctx.save(); ctx.font='14px "JetBrains Mono"'; ctx.fillStyle='rgba(0,198,255,0.07)'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(let x=100;x<W-80;x+=52) for(let y=railY1+18;y<railY2-8;y+=36) ctx.fillText('×',x,y);
+  ctx.restore();
+  // Exit speed scale (right side)
+  const sx=W-58, sy=railY1, sh=railY2-railY1;
+  const vmax_display=10;
+  rrect(sx,sy,18,sh,4,'rgba(0,0,0,0.4)','rgba(255,255,255,0.08)',1);
+  // Color zones
+  const vminPx=sh*(1-state.winVmin/vmax_display), vmaxPx=sh*(1-state.winVmax/vmax_display);
+  // slow zone (blue)
+  ctx.save(); ctx.fillStyle='rgba(0,198,255,0.18)'; ctx.fillRect(sx,sy+sh*(1-state.winVmin/vmax_display),18,sh*state.winVmin/vmax_display); ctx.restore();
+  // win zone (green)
+  const gz_top=sy+sh*(1-state.winVmax/vmax_display), gz_h=sh*(state.winVmax-state.winVmin)/vmax_display;
+  ctx.save(); ctx.fillStyle='rgba(57,232,122,0.3)'; ctx.fillRect(sx,gz_top,18,gz_h);
+  ctx.strokeStyle='rgba(57,232,122,0.7)'; ctx.lineWidth=1.5; ctx.setLineDash([3,2]);
+  ctx.strokeRect(sx,gz_top,18,gz_h); ctx.setLineDash([]);
+  ctx.font='9px "JetBrains Mono"'; ctx.fillStyle='rgba(57,232,122,0.8)'; ctx.textAlign='left';
+  ctx.fillText('✓',sx+20,gz_top+gz_h/2+4); ctx.restore();
+  // fast zone (red)
+  ctx.save(); ctx.fillStyle='rgba(255,77,109,0.18)'; ctx.fillRect(sx,sy,18,sh*(1-state.winVmax/vmax_display)); ctx.restore();
+  // Current v needle
+  if(state.vbx>0.1){
+    const ny=sy+sh*(1-Math.min(state.vbx,vmax_display)/vmax_display);
+    ctx.save(); ctx.strokeStyle=C.yellow; ctx.lineWidth=2; ctx.shadowColor=C.yellow; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.moveTo(sx-4,ny); ctx.lineTo(sx+22,ny); ctx.stroke(); ctx.shadowBlur=0;
+    ctx.font='9px "JetBrains Mono"'; ctx.fillStyle=C.yellow; ctx.textAlign='left';
+    ctx.fillText(state.vbx.toFixed(1),sx+24,ny+4); ctx.restore();
+  }
+  // Exit flash if exited wrong
+  if(state.exited&&!won){
+    const v=state.exitVx, tooFast=v>state.winVmax, tooSlow=v<state.winVmin;
+    ctx.save(); ctx.font='bold 15px Inter';
+    ctx.fillStyle=tooFast?C.red:C.cyan; ctx.textAlign='center'; ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=10;
+    ctx.fillText(tooFast?'↑ СЛИШКОМ БЫСТРО':'↓ СЛИШКОМ МЕДЛЕННО',W/2-30,H/2-75); ctx.restore();
+  }
+  // Rails
+  glowLine(65,railY1,W-65,railY1,C.cyan,3);
+  glowLine(65,railY2,W-65,railY2,C.cyan,3);
+  // End caps
+  ctx.save(); ctx.strokeStyle='rgba(0,198,255,0.3)'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(W-65,railY1-15); ctx.lineTo(W-65,railY2+15); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+  ctx.save(); ctx.font='9px Inter'; ctx.fillStyle='rgba(0,198,255,0.4)'; ctx.textAlign='center';
+  ctx.fillText('ВЫХОД',W-65,railY2+26); ctx.restore();
+  // Bar
+  if(!state.exited||won){
+    const bh=40, by=H/2-bh/2;
+    const bCol=state.vbx>state.winVmax?C.red:state.vbx>state.winVmin?C.green:C.orange;
+    ctx.save(); ctx.shadowColor=bCol; ctx.shadowBlur=12;
+    rrect(state.bx-16,by,32,bh,5,`${bCol}22`,bCol,2.5); ctx.shadowBlur=0;
+    ctx.font='bold 10px Inter'; ctx.fillStyle=bCol; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('I→',state.bx,H/2); ctx.restore();
+    if(state.vbx>0.3) arrow(state.bx+16,H/2,state.bx+16+state.vbx*6,H/2,C.yellow,`v`);
+  }
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(0,198,255,0.2)'; ctx.textAlign='center';
+  ctx.fillText('F = I·L·B → a = F/m   |   нужна скорость 4.0–5.5',W/2,H-10); ctx.restore();
+}
+
+// ════════════════ LEVEL 9 — FARADAY INDUCTION ════════════════════════════════
+function initL9(){
+  state={ I1:0, fx:W+10, frameW:120, frameH:90,
+    winMin:10, winMax:18, epsilon:0, holdTime:0, attempts:0 };
+}
+function updateL9(){
+  if(won) return;
+  const v=state.I1; // slider = speed (0–10)
+  state.fx-=v;
+  const bBoundary=W/2;
+  const overlapW=clamp(bBoundary-state.fx,0,state.frameW);
+  const entering=overlapW>0&&overlapW<state.frameW;
+  // ε = B·L·v — simplified: epsilon = v * 2.7 during crossing (gives ε≈13.5 at v=5)
+  state.epsilon=entering?v*2.7:0;
+  const ok=entering&&state.epsilon>=state.winMin&&state.epsilon<=state.winMax;
+  state.holdTime=ok?state.holdTime+1:Math.max(0,state.holdTime-3);
+  document.getElementById('formulaValues').innerHTML=`v = ${v.toFixed(1)}<br>ΔΦ/Δt = ε<br><b>ε = ${state.epsilon.toFixed(1)} В</b><br>${entering?`нужно [${state.winMin}–${state.winMax}]`:'<span style="color:var(--muted)">рамка вне поля</span>'}${ok?'<br><b>✓ в зоне!</b>':''}`;
+  if(state.holdTime>=12) triggerWin(CONFIGS[9].winTitle,CONFIGS[9].winSub,C.cyan);
+  // Reset when fully past B zone
+  if(state.fx+state.frameW<0){ state.fx=W+10; state.attempts++; state.holdTime=0; }
+  hintTick();
+}
+function renderL9(){
+  // B-zone (left half)
+  ctx.save(); ctx.fillStyle='rgba(0,198,255,0.04)'; ctx.fillRect(0,0,W/2,H); ctx.restore();
+  ctx.save(); ctx.font='14px "JetBrains Mono"'; ctx.fillStyle='rgba(0,198,255,0.09)'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(let x=26;x<W/2-10;x+=52) for(let y=30;y<H-20;y+=44) ctx.fillText('×',x,y);
+  ctx.restore();
+  // B zone boundary
+  ctx.save(); ctx.strokeStyle='rgba(0,198,255,0.3)'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(W/2,20); ctx.lineTo(W/2,H-20); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font='10px Inter'; ctx.fillStyle='rgba(0,198,255,0.4)'; ctx.textAlign='center'; ctx.fillText('B ≠ 0',W/4,18); ctx.fillText('B = 0',W*3/4,18); ctx.restore();
+  // EMF scale (right panel)
+  const sx=W-52, sy=80, sh=H-140;
+  rrect(sx,sy,20,sh,4,'rgba(0,0,0,0.4)','rgba(255,255,255,0.08)',1);
+  const emax=25;
+  const winTop=sy+sh*(1-state.winMax/emax), winH=sh*(state.winMax-state.winMin)/emax;
+  ctx.save(); ctx.fillStyle='rgba(57,232,122,0.25)'; ctx.fillRect(sx,winTop,20,winH);
+  ctx.strokeStyle='rgba(57,232,122,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([3,2]);
+  ctx.strokeRect(sx,winTop,20,winH); ctx.setLineDash([]);
+  ctx.font='9px "JetBrains Mono"'; ctx.fillStyle='rgba(57,232,122,0.7)'; ctx.textAlign='left'; ctx.fillText('✓',sx+22,winTop+winH/2+4); ctx.restore();
+  // EMF needle
+  if(state.epsilon>0.1){
+    const ey=sy+sh*(1-Math.min(state.epsilon,emax)/emax);
+    const nCol=state.epsilon>=state.winMin&&state.epsilon<=state.winMax?C.green:state.epsilon>state.winMax?C.red:C.cyan;
+    ctx.save(); ctx.strokeStyle=nCol; ctx.lineWidth=2.5; ctx.shadowColor=nCol; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.moveTo(sx-4,ey); ctx.lineTo(sx+26,ey); ctx.stroke(); ctx.shadowBlur=0;
+    ctx.font='bold 11px "JetBrains Mono"'; ctx.fillStyle=nCol; ctx.textAlign='left';
+    ctx.fillText(state.epsilon.toFixed(1),sx+28,ey+4); ctx.restore();
+  }
+  // Big EMF voltmeter
+  const vmid=H/2+30;
+  ctx.save(); const eCol=state.epsilon>=state.winMin&&state.epsilon<=state.winMax?C.green:C.orange;
+  ctx.font=`bold 32px "JetBrains Mono"`; ctx.fillStyle=eCol; ctx.textAlign='center'; ctx.shadowColor=eCol; ctx.shadowBlur=state.epsilon>0?12:0;
+  ctx.fillText(`${state.epsilon.toFixed(1)} В`,W*3/4,vmid); ctx.shadowBlur=0;
+  ctx.font='10px Inter'; ctx.fillStyle=C.muted; ctx.fillText('ЭДС',W*3/4,vmid+22); ctx.restore();
+  if(state.holdTime>0) holdRing(W*3/4,vmid,40,state.holdTime/50,C.green);
+  // Frame
+  const fy=H/2-state.frameH/2;
+  const overlapW=clamp(W/2-state.fx,0,state.frameW);
+  const fRight=state.fx+state.frameW;
+  const fCol=state.epsilon>=state.winMin&&state.epsilon<=state.winMax?C.green:C.cyan;
+  ctx.save(); ctx.strokeStyle=fCol; ctx.lineWidth=2.5; ctx.shadowColor=fCol; ctx.shadowBlur=10;
+  ctx.beginPath(); ctx.roundRect(state.fx,fy,state.frameW,state.frameH,5); ctx.stroke(); ctx.shadowBlur=0;
+  // Fill overlap area
+  if(overlapW>0){ ctx.fillStyle=`${fCol}15`; ctx.fillRect(state.fx,fy,overlapW,state.frameH); }
+  // Induced current direction arrow (Lenz's law: oppose change)
+  if(state.epsilon>0.5){
+    const mx=state.fx+state.frameW/2, my=fy+state.frameH/2;
+    ctx.strokeStyle=C.yellow; ctx.lineWidth=1.8; ctx.shadowColor=C.yellow; ctx.shadowBlur=6;
+    const ar=16; ctx.beginPath(); ctx.arc(mx,my,ar,0.2,Math.PI*2-0.2,false); ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle=C.yellow; ctx.font='10px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('↺',mx,my);
+  }
+  ctx.restore();
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(0,198,255,0.2)'; ctx.textAlign='center';
+  ctx.fillText('ε = B·L·v  |  нужна ЭДС от 10 до 18 В',W/2,H-10); ctx.restore();
+}
+
+// ════════════════ LEVEL 10 — CYCLOTRON ════════════════════════════════════════
+// Analytic: orbit n = circle of radius r_n = n*kick/(I*kf), centered (cx, cy+r_n).
+// Parametric: px=cx+r*sin(θ), py=cy+r*(1-cos(θ)). Exit gap at θ=π/2 (rightmost point).
+function initL10(){
+  state={ I1:0, cx:W/2-80, cy:H/2-50,
+    kick:1.5, kf:0.007,
+    orbitNum:1, theta:0,
+    targetR:128, tol:15,
+    missedMsg:'', missedTimer:0,
+    pts:[], attempts:0 };
+}
+function _cycR(){ return state.I1>0.05?state.orbitNum*state.kick/(state.I1*state.kf):0; }
+function updateL10(){
+  if(won) return;
+  if(state.I1<0.2){
+    document.getElementById('formulaValues').innerHTML=`I = 0<br>B = 0<br><span style="color:var(--muted)">Нужен ток!</span>`; return;
+  }
+  state.theta+=0.055;
+  const r=_cycR();
+  const px=state.cx+r*Math.sin(state.theta);
+  const py=state.cy+r*(1-Math.cos(state.theta));
+  state.pts.push({x:px,y:py});
+  if(state.pts.length>1400) state.pts.shift();
+  state.missedTimer=Math.max(0,state.missedTimer-1);
+  if(state.theta>=Math.PI*2){
+    state.theta-=Math.PI*2;
+    // Feedback if orbit 3 passed without win
+    if(state.orbitNum===3){
+      const diff=r-state.targetR;
+      state.missedMsg=diff>0?'↑ ток слишком мал — r велик':'↓ ток слишком велик — r мал';
+      state.missedTimer=90;
+    }
+    state.orbitNum++;
+    if(state.orbitNum>7){ state.orbitNum=1; state.theta=0; state.pts=[]; state.attempts++; state.missedTimer=0; }
+  }
+  const nearGap=Math.abs(state.theta-Math.PI/2)<0.14;
+  // Win only on exactly orbit 3
+  if(nearGap&&state.orbitNum===3&&Math.abs(r-state.targetR)<=state.tol){
+    triggerWin(CONFIGS[10].winTitle,CONFIGS[10].winSub,C.purple); return;
+  }
+  const diff=Math.abs(r-state.targetR);
+  document.getElementById('formulaValues').innerHTML=
+    `I = ${state.I1.toFixed(1)} А<br>r₃ = ${(3*state.kick/(state.I1*state.kf)).toFixed(0)} px<br>виток ${state.orbitNum}<br>`+
+    `${state.orbitNum===3&&diff<=state.tol+8?`<b style="color:${C.yellow}">≈ цель!</b>`:`<span style="color:var(--muted)">нужно r₃≈${state.targetR}</span>`}`;
+  hintTick();
+}
+function renderL10(){
+  bField(true);
+  const cx=state.cx, cy=state.cy;
+  const r=_cycR();
+  // Target orbit circle (centered at cx, cy+targetR)
+  const tCx=cx, tCy=cy+state.targetR;
+  ctx.save(); ctx.strokeStyle='rgba(57,232,122,0.25)'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.arc(tCx,tCy,state.targetR,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font='10px Inter'; ctx.fillStyle='rgba(57,232,122,0.45)'; ctx.textAlign='center';
+  ctx.fillText(`r = ${state.targetR}`,tCx,cy+state.targetR*2+14); ctx.restore();
+  // Exit gap at θ=π/2 of target orbit: (cx+targetR, cy+targetR)
+  const gx=cx+state.targetR, gy=cy+state.targetR;
+  ctx.save(); ctx.strokeStyle=C.green; ctx.lineWidth=3.5; ctx.shadowColor=C.green; ctx.shadowBlur=14;
+  ctx.beginPath(); ctx.arc(tCx,tCy,state.targetR+3,Math.PI*0.4,Math.PI*0.6,false); ctx.stroke(); ctx.shadowBlur=0;
+  ctx.font='bold 11px Inter'; ctx.fillStyle=C.green; ctx.textAlign='left';
+  ctx.fillText('ВЫХОД',gx+6,gy+4); ctx.restore();
+  // Start point marker
+  ctx.save(); ctx.fillStyle='rgba(168,85,247,0.35)'; ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.fill(); ctx.restore();
+  // Spiral trail
+  if(state.pts.length>1){
+    ctx.save(); ctx.lineWidth=1.5;
+    for(let i=1;i<state.pts.length;i++){
+      const a=(i/state.pts.length)*0.8;
+      ctx.strokeStyle=`rgba(168,85,247,${a})`;
+      ctx.beginPath(); ctx.moveTo(state.pts[i-1].x,state.pts[i-1].y); ctx.lineTo(state.pts[i].x,state.pts[i].y); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  // Current orbit faint circle
+  if(r>5){
+    const oCx=cx, oCy=cy+r;
+    ctx.save(); ctx.strokeStyle=`rgba(168,85,247,0.1)`; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(oCx,oCy,r,0,Math.PI*2); ctx.stroke(); ctx.restore();
+  }
+  // Particle
+  if(state.pts.length>0){
+    const p=state.pts[state.pts.length-1];
+    const near=Math.abs(r-state.targetR)<=state.tol+8;
+    const pCol=near?C.green:C.purple;
+    ctx.save(); ctx.fillStyle=pCol; ctx.shadowColor=pCol; ctx.shadowBlur=16;
+    ctx.beginPath(); ctx.arc(p.x,p.y,7,0,Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
+    ctx.fillStyle=C.bg; ctx.font='bold 9px Inter'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('+',p.x,p.y); ctx.restore();
+  }
+  // Orbit counter badge
+  ctx.save(); ctx.font='11px "JetBrains Mono"'; ctx.fillStyle=state.orbitNum===3?C.green:C.yellow; ctx.textAlign='center';
+  ctx.fillText(`виток ${state.orbitNum}${state.orbitNum===3?' ← здесь!':''}`,cx,cy-12); ctx.restore();
+  // Missed feedback
+  if(state.missedTimer>0){
+    const a=Math.min(state.missedTimer/30,1);
+    ctx.save(); ctx.font='bold 14px Inter'; ctx.fillStyle=C.red; ctx.textAlign='center'; ctx.globalAlpha=a;
+    ctx.shadowColor=C.red; ctx.shadowBlur=10;
+    ctx.fillText(state.missedMsg,cx+state.targetR/2,cy+state.targetR*2+32); ctx.shadowBlur=0; ctx.restore();
+  }
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(168,85,247,0.22)'; ctx.textAlign='center';
+  ctx.fillText(`r = mv/qB  |  нужно r ≈ ${state.targetR} px при θ = 90°  |  попыток: ${state.attempts}`,W/2,H-10); ctx.restore();
+}
+
+// ─── Main Loop ─────────────────────────────────────────────────────────────────
+function update(){
+  state.I1=+s1.value; state.I2=+s2.value;
+  if(CONFIGS[level].controls.includes('theta')) state.theta=+s3.value;
+  [updateL0,updateL1,updateL2,updateL3,updateL4,updateL5,updateL6,updateL7,updateL8,updateL9,updateL10][level]();
+  stepParticles();
+}
+function render(){
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+  [renderL0,renderL1,renderL2,renderL3,renderL4,renderL5,renderL6,renderL7,renderL8,renderL9,renderL10][level]();
+  ctx.save(); ctx.font='10px "JetBrains Mono"'; ctx.fillStyle='rgba(255,255,255,0.07)'; ctx.textAlign='right';
+  ctx.fillText(`${level+1}/${CONFIGS.length}`,W-10,H-8); ctx.restore();
+  octx.clearRect(0,0,W,H); drawParticles();
+}
+function loop(){ update(); render(); requestAnimationFrame(loop); }
+
+initLevel();
+loop();
+</script>
+</body>
+</html>

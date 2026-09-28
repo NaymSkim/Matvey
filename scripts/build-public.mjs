@@ -6,7 +6,7 @@ import { build } from "esbuild";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
 const files = [
-  "index.html", "guides.html", "teacher.html", "task.html", "styles.css", "config.js",
+  "index.html", "guides.html", "games.html", "teacher.html", "task.html", "styles.css", "config.js",
 ];
 
 fs.rmSync(dist, { recursive: true, force: true });
@@ -16,8 +16,12 @@ const catalog = JSON.parse(fs.readFileSync(path.join(root, "data", "activities.j
 fs.mkdirSync(path.join(dist, "data", "task-content"), { recursive: true });
 fs.mkdirSync(path.join(dist, "tasks"), { recursive: true });
 fs.mkdirSync(path.join(dist, "guides"), { recursive: true });
+fs.mkdirSync(path.join(dist, "games"), { recursive: true });
 fs.copyFileSync(path.join(root, "guides", "fizika-9-klass-oge.pdf"), path.join(dist, "guides", "fizika-9-klass-oge.pdf"));
 fs.copyFileSync(path.join(root, "guides", "fizika-9-klass-oge-preview.png"), path.join(dist, "guides", "fizika-9-klass-oge-preview.png"));
+for (const game of ["field.html", "goldberg.html", "alchemy.html", "pressure-duel.html", "physics-detective.html"]) {
+  fs.copyFileSync(path.join(root, "games", game), path.join(dist, "games", game));
+}
 fs.copyFileSync(path.join(root, "data", "activities.json"), path.join(dist, "data", "activities.json"));
 for (const activity of catalog.activities.filter((item) => item.published)) {
   if (activity.verificationMode === "server-graded") {
@@ -50,7 +54,7 @@ if (publicUrl || publicKey) {
 
 await build({
   absWorkingDir: root,
-  entryPoints: ["portal.js", "guides.js", "teacher.js", "task-page.js", "tracker.js"],
+  entryPoints: ["portal.js", "guides.js", "games.js", "teacher.js", "task-page.js", "tracker.js"],
   outdir: dist,
   bundle: true,
   format: "esm",

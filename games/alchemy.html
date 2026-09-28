@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Физическая Алхимия</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+    :root {
+      --bg:#0d0f1a; --field-bg:#0b0d17; --panel-bg:#111424; --border:#1e2340;
+      --gold:#c8a84b; --gold2:#edd97a; --glow-gold:rgba(200,168,75,0.15);
+      --text:#ccc5b0; --dim:#5a5650;
+      --c-base:#c8a84b; --c-mech:#5588ff; --c-therm:#ff7744;
+      --c-em:#44ddaa; --c-opt:#cc66ff; --c-astro:#ff88bb;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;user-select:none}
+    #app{display:flex;flex-direction:column;height:100vh}
+
+    header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 22px;border-bottom:1px solid var(--border);background:var(--panel-bg);z-index:10}
+    header h1{font-family:'Cinzel',serif;font-size:26px;font-weight:900;letter-spacing:0.1em;background:linear-gradient(90deg,#c8a84b,#edd97a,#c8a84b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .header-stats{display:flex;gap:24px;font-family:'Cinzel',serif;font-size:13px;color:var(--dim);letter-spacing:0.08em}
+    .header-stats b{color:var(--gold2);font-weight:600}
+    .header-btn{font-family:'Cinzel',serif;font-size:13px;letter-spacing:0.1em;padding:7px 18px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;transition:all 0.2s}
+    .header-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+    .main-area{flex:1;display:flex;min-height:0}
+
+    #field{flex:1;position:relative;overflow:hidden;background:var(--field-bg);background-image:radial-gradient(ellipse at 25% 35%,rgba(85,136,255,0.04) 0%,transparent 55%),radial-gradient(ellipse at 75% 70%,rgba(200,168,75,0.05) 0%,transparent 50%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.012) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.012) 40px)}
+
+    .field-hint{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;pointer-events:none;transition:opacity 0.6s}
+    .field-hint.hidden{opacity:0;pointer-events:none}
+    .hint-symbol{font-size:60px;animation:breathe 4s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(200,168,75,0.3))}
+    @keyframes breathe{0%,100%{transform:scale(1);opacity:0.6}50%{transform:scale(1.08);opacity:1}}
+    .hint-text{font-size:17px;color:var(--dim);font-style:italic;text-align:center;max-width:340px;line-height:1.9}
+
+    .token{position:absolute;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:grab;z-index:5;transform:translate(-50%,-50%)}
+    .token:active{cursor:grabbing;z-index:20}
+    .token-bubble{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;border:2px solid transparent;transition:all 0.2s;position:relative;background:rgba(13,15,26,0.92);box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+    .token-delete{position:absolute;top:-7px;right:-7px;width:24px;height:24px;border-radius:50%;background:#1a1c2e;border:1px solid #3a3c50;color:#666;font-size:13px;line-height:22px;text-align:center;cursor:pointer;opacity:0;transition:all 0.15s;z-index:30;pointer-events:none}
+    .token:hover .token-delete{opacity:1;pointer-events:all}
+    .token-delete:hover{background:#3a1a1a;border-color:#aa4444;color:#ff6666;transform:scale(1.2)}
+
+    .token[data-era="base"]  .token-bubble{border-color:rgba(200,168,75,0.65);box-shadow:0 4px 20px rgba(0,0,0,0.5),0 0 16px rgba(200,168,75,0.25)}
+    .token[data-era="mech"]  .token-bubble{border-color:rgba(85,136,255,0.55);box-shadow:0 4px 20px rgba(0,0,0,0.5),0 0 14px rgba(85,136,255,0.2)}
+    .token[data-era="therm"] .token-bubble{border-color:rgba(255,119,68,0.55);box-shadow:0 4px 20px rgba(0,0,0,0.5),0 0 14px rgba(255,119,68,0.2)}
+    .token[data-era="em"]    .token-bubble{border-color:rgba(68,221,170,0.55);box-shadow:0 4px 20px rgba(0,0,0,0.5),0 0 14px rgba(68,221,170,0.2)}
+    .token[data-era="opt"]   .token-bubble{border-color:rgba(204,102,255,0.55);box-shadow:0 4px 20px rgba(0,0,0,0.5),0 0 14px rgba(204,102,255,0.2)}
+    .token[data-era="astro"] .token-bubble{border-color:rgba(255,136,187,0.55);box-shadow:0 4px 20px rgba(0,0,0,0.5),0 0 14px rgba(255,136,187,0.2)}
+    .token.near .token-bubble{border-color:var(--gold2)!important;box-shadow:0 0 0 3px rgba(237,217,122,0.4),0 4px 20px rgba(0,0,0,0.5)!important}
+    .token-label{font-size:13px;color:var(--text);font-family:'Crimson Pro',serif;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,0.9);letter-spacing:0.03em}
+    .token.dragging{z-index:50;filter:drop-shadow(0 8px 24px rgba(0,0,0,0.7))}
+    .token.dragging .token-bubble{transform:scale(1.1)}
+    @keyframes shake{0%,100%{transform:translate(-50%,-50%)}20%{transform:translate(calc(-50% + 7px),-50%)}40%{transform:translate(calc(-50% - 7px),-50%)}60%{transform:translate(calc(-50% + 4px),-50%)}80%{transform:translate(calc(-50% - 4px),-50%)}}
+    .token.shake{animation:shake 0.35s ease}
+    @keyframes materialize{0%{transform:translate(-50%,-50%) scale(0) rotate(-20deg);opacity:0}60%{transform:translate(-50%,-50%) scale(1.15) rotate(4deg);opacity:1}100%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:1}}
+    .token.spawn{animation:materialize 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards}
+
+    #infoPanel{width:310px;flex-shrink:0;background:var(--panel-bg);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+    .panel-content{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;text-align:center;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+    .panel-empty{color:var(--dim);font-style:italic;font-size:16px;line-height:1.9}
+    .panel-empty-icon{font-size:44px;margin-bottom:14px;opacity:0.25}
+    .info-icon{font-size:68px;margin-bottom:12px}
+    .info-era{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:14px;border:1px solid}
+    .era-base {color:var(--c-base);border-color:rgba(200,168,75,0.4);background:rgba(200,168,75,0.07)}
+    .era-mech {color:var(--c-mech);border-color:rgba(85,136,255,0.4);background:rgba(85,136,255,0.07)}
+    .era-therm{color:var(--c-therm);border-color:rgba(255,119,68,0.4);background:rgba(255,119,68,0.07)}
+    .era-em   {color:var(--c-em);border-color:rgba(68,221,170,0.4);background:rgba(68,221,170,0.07)}
+    .era-opt  {color:var(--c-opt);border-color:rgba(204,102,255,0.4);background:rgba(204,102,255,0.07)}
+    .era-astro{color:var(--c-astro);border-color:rgba(255,136,187,0.4);background:rgba(255,136,187,0.07)}
+    .info-name{font-family:'Cinzel',serif;font-size:22px;font-weight:600;color:var(--gold2);margin-bottom:6px}
+    .info-formula{font-family:'Crimson Pro',serif;font-size:24px;font-style:italic;color:var(--gold);margin-bottom:16px;letter-spacing:0.04em}
+    .info-divider{width:36px;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 auto 16px}
+    .info-desc{font-size:16px;color:var(--text);line-height:1.75;margin-bottom:14px}
+    .info-recipe{font-size:14px;color:var(--dim);font-style:italic;line-height:1.7;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,0.025);border:1px solid var(--border);width:100%;text-align:left}
+    .info-recipe b{color:var(--text);font-style:normal}
+    .info-progress{width:100%;margin-top:16px;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,0.025);border:1px solid var(--border);text-align:left}
+    .info-progress-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.15em;color:var(--dim);text-transform:uppercase;margin-bottom:6px}
+    .info-progress-bar-bg{height:5px;border-radius:2px;background:var(--border);overflow:hidden}
+    .info-progress-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 0.4s ease}
+    .info-progress-text{font-size:14px;color:var(--dim);margin-top:6px}
+
+    #inventory{flex-shrink:0;height:112px;background:var(--panel-bg);border-top:1px solid var(--border);display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:var(--border) transparent;padding:0 16px;gap:2px}
+    .inv-section-label{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--dim);white-space:nowrap;padding:0 14px;flex-shrink:0;border-right:1px solid var(--border);margin-right:6px}
+    .inv-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 11px;border-radius:10px;cursor:pointer;transition:all 0.18s;flex-shrink:0;border:1px solid transparent;position:relative}
+    .inv-item:hover{background:var(--glow-gold);border-color:rgba(200,168,75,0.28)}
+    .inv-icon{font-size:30px}
+    .inv-label{font-size:11px;color:var(--dim);white-space:nowrap;font-family:'Crimson Pro',serif}
+    .inv-item:hover .inv-label{color:var(--text)}
+    @keyframes newPop{0%{transform:scale(0) rotate(-10deg);opacity:0}70%{transform:scale(1.1) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+    .inv-item.new-item{animation:newPop 0.45s cubic-bezier(0.175,0.885,0.32,1.275)}
+    .inv-item-fog{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 11px;border-radius:10px;flex-shrink:0;border:1px solid transparent;cursor:default;position:relative;opacity:0.42;transition:opacity 0.2s}
+    .inv-item-fog:hover{opacity:0.65}
+    .fog-bubble{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px dashed rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;filter:blur(2px) grayscale(1)}
+    .fog-label{font-size:11px;color:var(--dim);font-style:italic;white-space:nowrap;font-family:'Crimson Pro',serif}
+    .fog-dot{width:6px;height:6px;border-radius:50%;position:absolute;top:6px;right:6px}
+
+    .reaction-flash{position:absolute;border-radius:50%;pointer-events:none;z-index:100;transform:translate(-50%,-50%) scale(0);animation:flash 0.55s ease-out forwards}
+    @keyframes flash{0%{transform:translate(-50%,-50%) scale(0);opacity:1}50%{opacity:0.85}100%{transform:translate(-50%,-50%) scale(5);opacity:0}}
+    .particle-burst{position:absolute;pointer-events:none;z-index:99;font-size:18px;transform:translate(-50%,-50%);animation:burst 0.85s ease-out forwards}
+    @keyframes burst{0%{opacity:1;transform:translate(-50%,-50%) scale(0.6)}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(0.1)}}
+    .fail-cloud{position:absolute;pointer-events:none;z-index:99;font-size:22px;transform:translate(-50%,-50%);animation:failPuff 0.7s ease-out forwards}
+    @keyframes failPuff{0%{opacity:1;transform:translate(-50%,-50%) scale(0.8)}50%{transform:translate(-50%,calc(-50% - 20px)) scale(1.2);opacity:0.7}100%{transform:translate(-50%,calc(-50% - 40px)) scale(0.5);opacity:0}}
+
+    #toast{position:fixed;bottom:128px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--panel-bg);border:1px solid var(--gold);color:var(--gold2);font-family:'Cinzel',serif;font-size:14px;letter-spacing:0.08em;padding:11px 26px;border-radius:30px;opacity:0;transition:all 0.28s;pointer-events:none;z-index:200;box-shadow:0 4px 24px rgba(200,168,75,0.18);white-space:nowrap}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  </style>
+</head>
+<body>
+  <a href="../games.html" aria-label="Вернуться к списку игр" style="position:fixed;left:16px;bottom:16px;z-index:9999;padding:10px 14px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:#12231a;color:#fff;font:700 13px/1.2 system-ui,sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.24)">← Все игры</a>
+<div id="app">
+  <header>
+    <h1>⚗️ Физическая Алхимия</h1>
+    <div class="header-stats">
+      <div>Открыто: <b id="statUnlocked">8</b> / <b id="statTotal">?</b></div>
+      <div>На поле: <b id="statOnField">0</b></div>
+      <div>Реакций: <b id="statReactions">0</b></div>
+    </div>
+    <button class="header-btn" onclick="clearField()">✕ Очистить поле</button>
+  </header>
+  <div class="main-area">
+    <div id="field">
+      <div class="field-hint" id="fieldHint">
+        <div class="hint-symbol">⚗️</div>
+        <div class="hint-text">Дважды кликни на элемент внизу — он появится на поле.<br>Перетащи один на другой, чтобы получить новый.</div>
+      </div>
+    </div>
+    <div id="infoPanel">
+      <div class="panel-content" id="panelContent">
+        <div class="panel-empty"><div class="panel-empty-icon">🔭</div>Наведи курсор на элемент,<br>чтобы узнать о нём</div>
+      </div>
+    </div>
+  </div>
+  <div id="inventory"><div class="inv-section-label">Элементы</div></div>
+</div>
+<div id="toast"></div>
+
+<script>
+  // ══════════════════════════════════════════════════════════
+  //  Все рецепты строго соответствуют формулам из программы 7 класса.
+  //  Каждая пара элементов → ровно один результат.
+  //  Стартовые: масса, время, расстояние, сила, температура,
+  //             площадь, объём, деформация
+  // ══════════════════════════════════════════════════════════
+
+  const ERA_NAMES  = { base:'Первоначала', mech:'Механика', therm:'Термодинамика', em:'Электричество', opt:'Оптика', astro:'Астрономия' };
+  const ERA_COLORS = { base:'#c8a84b', mech:'#5588ff', therm:'#ff7744', em:'#44ddaa', opt:'#cc66ff', astro:'#ff88bb' };
+
+  // ── ЭЛЕМЕНТЫ ─────────────────────────────────────────────────────────────────
+  const ELEMENTS = {
+
+    // ════ ПЕРВОНАЧАЛА ════════════════════════════════════════════════════════════
+    // (стартовые — то, что нельзя вывести, но всё остальное выводится из них)
+    mass:      { name:'Масса',         icon:'⚫',  formula:'m [кг]',       era:'base',  recipe:null,
+      desc:'Мера инертности тела. Измеряют весами. 1 кг — масса эталона в Севре. Не зависит от места: на Луне масса та же, что и на Земле.' },
+    time:      { name:'Время',         icon:'⏱️', formula:'t [с]',        era:'base',  recipe:null,
+      desc:'Длительность процесса. Единица — секунда. Измеряют часами, секундомером. Одна из 7 основных единиц СИ.' },
+    dist:      { name:'Расстояние',    icon:'📏',  formula:'s [м]',        era:'base',  recipe:null,
+      desc:'Длина пути или промежуток между двумя точками. Единица — метр. Измеряют линейкой, рулеткой или дальномером.' },
+    force:     { name:'Сила',          icon:'⚡',  formula:'F [Н]',        era:'base',  recipe:null,
+      desc:'Причина изменения скорости или деформации тела. Единица — ньютон (Н). Измеряют динамометром. Вектор — важно направление.' },
+    temp:      { name:'Температура',   icon:'🌡️', formula:'T [°C]',       era:'base',  recipe:null,
+      desc:'Мера нагретости тела. В физике — кельвины (К), в быту — градусы Цельсия. 0 °C = 273 К.' },
+    area:      { name:'Площадь',       icon:'⬜',  formula:'S [м²]',       era:'base',  recipe:null,
+      desc:'Мера поверхности. Единица — квадратный метр. S = a·b для прямоугольника. Нужна при расчёте давления, работы, сечения проводника.' },
+    volume:    { name:'Объём',         icon:'📦',  formula:'V [м³]',       era:'base',  recipe:null,
+      desc:'Мера пространства, занимаемого телом. Единица — м³, на практике — дм³ = литр. Объём правильного тела: V = a·b·c.' },
+    deform:    { name:'Деформация',    icon:'〰️', formula:'x [м]',        era:'base',  recipe:null,
+      desc:'Изменение формы или размера тела под действием силы. Бывает растяжение, сжатие, изгиб. Упругая деформация — тело восстанавливает форму.' },
+
+    // ════ МЕХАНИКА — кинематика ══════════════════════════════════════════════════
+    speed:     { name:'Скорость',      icon:'💨',  formula:'v = s / t',    era:'mech',  recipe:'📏 Расстояние + ⏱️ Время',
+      desc:'Путь, пройденный в единицу времени. v = s/t. Пешеход — 1,5 м/с, автомобиль — 30 м/с, звук — 340 м/с, свет — 3·10⁸ м/с.' },
+
+    uniMotion: { name:'Равном. движение', icon:'➡️', formula:'s = v · t', era:'mech',  recipe:'💨 Скорость + ⏱️ Время',
+      desc:'Движение с постоянной скоростью. Путь s = v·t. График s(t) — прямая линия. Пример: езда по трассе с круиз-контролем.' },
+
+    accel:     { name:'Ускорение',     icon:'🚀',  formula:'a = Δv / t',   era:'mech',  recipe:'💨 Скорость + ⏱️ Время → другой результат?',
+      desc:'Изменение скорости за единицу времени. a = Δv/t. Единица — м/с². При торможении — отрицательное. Ускорение свободного падения g = 9,8 м/с².' },
+
+    accelMotion:{ name:'Равноуск. движ.', icon:'📈', formula:'s = v₀t + at²/2', era:'mech', recipe:'🚀 Ускорение + ⏱️ Время',
+      desc:'Движение с постоянным ускорением. Путь s = v₀t + at²/2. Скорость v = v₀ + at. Пример — разгон автомобиля или свободное падение.' },
+
+    freeFall:  { name:'Свободное падение', icon:'⬇️', formula:'h = gt²/2',  era:'mech',  recipe:'🚀 Ускорение + 🌍 Сила тяжести',
+      desc:'Падение только под действием силы тяжести (без сопротивления воздуха). h = gt²/2. Все тела падают одинаково, что доказал Галилей.' },
+
+    trajectory:{ name:'Траектория',   icon:'🛤️', formula:'линия пути',   era:'mech',  recipe:'💨 Скорость + 📏 Расстояние',
+      desc:'Линия, по которой движется тело. При равномерном прямолинейном — прямая. При кругового — окружность. Определяется видом движения.' },
+
+    // ════ МЕХАНИКА — силы ════════════════════════════════════════════════════════
+    gravForce: { name:'Сила тяжести',  icon:'🌍',  formula:'Fт = m · g',   era:'mech',  recipe:'⚫ Масса + 🚀 Ускорение',
+      desc:'Fт = m·g. Направлена вертикально вниз. g = 9,8 м/с² у поверхности Земли. На Луне g = 1,6 м/с², поэтому там легче прыгать.' },
+
+    weight:    { name:'Вес тела',      icon:'⚖️', formula:'P = m · g',    era:'mech',  recipe:'⚫ Масса + 🌍 Сила тяжести',
+      desc:'Сила, с которой тело давит на опору или тянет подвес. В покое P = Fт = mg. В лифте при ускорении вверх P > mg, вниз P < mg. В невесомости P = 0.' },
+
+    hookeLaw:  { name:'Закон Гука',    icon:'🌀',  formula:'F = k · x',    era:'mech',  recipe:'⚡ Сила + 〰️ Деформация',
+      desc:'Сила упругости пропорциональна деформации: F = kx. k — жёсткость пружины (Н/м). Работает пока деформация невелика. Основа пружинных весов.' },
+
+    friction:  { name:'Сила трения',   icon:'🛞',  formula:'Fтр = μ · N',  era:'mech',  recipe:'⚡ Сила + ⚫ Масса',
+      desc:'Сила, препятствующая скольжению. Fтр = μN, где μ — коэффициент трения, N — сила нормальной реакции. Трение скольжения < трения покоя.' },
+
+    resultant: { name:'Равнодействующая', icon:'🎯', formula:'F⃗ = ΣF⃗ᵢ',  era:'mech',  recipe:'⚡ Сила + ⚡ Сила',
+      desc:'Одна сила, эквивалентная нескольким. Тело в покое: равнодействующая = 0. При коллинеарных силах: F = F₁ ± F₂. Второй закон Ньютона: F = ma.' },
+
+    pressure:  { name:'Давление',      icon:'🫧',  formula:'P = F / S',    era:'mech',  recipe:'⚡ Сила + ⬜ Площадь',
+      desc:'Сила, действующая перпендикулярно на единицу площади. P = F/S. Единица — паскаль (Па = Н/м²). Острый нож давит сильнее — меньше площадь.' },
+
+    atmP:      { name:'Атмосф. давление', icon:'🌬️', formula:'P₀ ≈ 101 кПа', era:'mech', recipe:'🫧 Давление + ⚫ Масса',
+      desc:'Давление столба воздуха над нами. P₀ ≈ 101 325 Па = 760 мм рт. ст. Торричелли измерил его ртутным барометром. С высотой убывает.' },
+
+    liquidP:   { name:'Давление жидкости', icon:'🌊', formula:'P = ρgh',   era:'mech',  recipe:'🫧 Давление + 📦 Объём',
+      desc:'Давление жидкости на дне: P = ρgh. Зависит от плотности ρ, ускорения g и глубины h. Не зависит от формы сосуда — закон Паскаля.' },
+
+    // ════ МЕХАНИКА — работа и энергия ════════════════════════════════════════════
+    work:      { name:'Работа',        icon:'🔧',  formula:'A = F · s',    era:'mech',  recipe:'⚡ Сила + 📏 Расстояние',
+      desc:'A = F·s·cosα. Единица — джоуль (Дж). Работа совершается, когда сила перемещает тело вдоль своего направления. Если α = 90° → A = 0.' },
+
+    kinE:      { name:'Кинетич. энергия', icon:'🔋', formula:'Eк = mv² / 2', era:'mech', recipe:'⚫ Масса + 💨 Скорость',
+      desc:'Энергия движущегося тела. Eк = mv²/2. Зависит от скорости квадратично: удвой скорость → энергия в 4 раза больше. Единица — джоуль (Дж).' },
+
+    potE:      { name:'Потенц. энергия', icon:'⬆️', formula:'Eп = mgh',    era:'mech',  recipe:'⚖️ Вес тела + 📏 Расстояние',
+      desc:'Энергия тела в поле тяготения. Eп = mgh. h — высота над уровнем отсчёта. При падении переходит в кинетическую. Единица — джоуль (Дж).' },
+
+    mechE:     { name:'Механич. энергия', icon:'⚡🔋', formula:'E = Eк + Eп', era:'mech', recipe:'🔋 Кинетич. энергия + ⬆️ Потенц. энергия',
+      desc:'Сумма кинетической и потенциальной энергий. В замкнутой системе без трения сохраняется: E = const. Маятник качается — обменивается Eк и Eп.' },
+
+    power:     { name:'Мощность',      icon:'⚙️', formula:'N = A / t',    era:'mech',  recipe:'🔧 Работа + ⏱️ Время',
+      desc:'Работа в единицу времени. N = A/t = F·v. Единица — ватт (Вт). Лошадиная сила ≈ 735 Вт. Мощность определяет скорость выполнения работы.' },
+
+    simpleMach:{ name:'Простой механизм', icon:'⚙🔩', formula:'Fвых·hвых = Fвх·hвх', era:'mech', recipe:'🔧 Работа + ⚡ Сила',
+      desc:'Рычаг, блок, наклонная плоскость, клин, винт. Не создают и не уничтожают энергию — перераспределяют. «Золотое правило»: выигрыш в силе = проигрыш в пути.' },
+
+    lever:     { name:'Рычаг',         icon:'⚖️🔩', formula:'F₁·l₁ = F₂·l₂', era:'mech', recipe:'⚙🔩 Простой механизм + 📏 Расстояние',
+      desc:'Твёрдое тело, вращающееся вокруг оси. Условие равновесия: F₁·l₁ = F₂·l₂ (моменты сил равны). Длинное плечо → выигрыш в силе.' },
+
+    // ════ МЕХАНИКА — плотность, тело, вещество ═══════════════════════════════════
+    density:   { name:'Плотность',     icon:'🧱',  formula:'ρ = m / V',    era:'mech',  recipe:'⚫ Масса + 📦 Объём',
+      desc:'Масса единицы объёма. ρ = m/V. Вода — 1000 кг/м³, лёд — 900, железо — 7800, воздух — 1,29. Чем плотнее, тем «тяжелее» при равном объёме.' },
+
+    buoyancy:  { name:'Выталкив. сила', icon:'🚢', formula:'Fа = ρж · g · V', era:'mech', recipe:'🌊 Давление жидкости + 📦 Объём',
+      desc:'Закон Архимеда: тело, погружённое в жидкость, выталкивается с силой, равной весу вытесненной жидкости. Fа = ρж·g·V.' },
+
+    floatCond: { name:'Условие плавания', icon:'⛵', formula:'ρт vs ρж',   era:'mech',  recipe:'🚢 Выталкив. сила + ⚖️ Вес тела',
+      desc:'Тело плавает, если ρт < ρж. Тонет, если ρт > ρж. Находится в равновесии, если ρт = ρж. Стальной корабль плавает, потому что внутри воздух.' },
+
+    // ════ ТЕРМОДИНАМИКА ═══════════════════════════════════════════════════════════
+    heat:      { name:'Количество теплоты', icon:'🔥', formula:'Q = c·m·ΔT', era:'therm', recipe:'⚫ Масса + 🌡️ Температура',
+      desc:'Энергия, передаваемая при нагревании или охлаждении. Q = c·m·ΔT. c — удельная теплоёмкость. У воды c = 4200 Дж/(кг·°C) — одна из самых высоких.' },
+
+    heatCap:   { name:'Теплоёмкость',  icon:'♨️', formula:'c [Дж/(кг·°C)]', era:'therm', recipe:'🔥 Теплота + 📦 Объём',
+      desc:'Количество теплоты для нагрева 1 кг на 1°C. Вода: 4200, железо: 450, алюминий: 900 Дж/(кг·°C). Вода медленно нагревается, но долго держит тепло.' },
+
+    heatBal:   { name:'Тепловой баланс', icon:'🔄🌡️', formula:'Q отд = Q пол', era:'therm', recipe:'🔥 Теплота + 🌡️ Температура',
+      desc:'При теплообмене сколько теплоты отдаёт горячее тело, столько получает холодное: Q₁ = Q₂. Уравнение теплового баланса — основа калориметрии.' },
+
+    melt:      { name:'Плавление',     icon:'🧊🔥', formula:'Q = λ · m',   era:'therm', recipe:'🔥 Теплота + 🧱 Плотность',
+      desc:'Переход из твёрдого состояния в жидкое. Температура не меняется, пока не расплавится. Q = λ·m. λ — удельная теплота плавления (Дж/кг).' },
+
+    evap:      { name:'Испарение',     icon:'💧',  formula:'Q = L · m',    era:'therm', recipe:'🔥 Теплота + 💨 Скорость',
+      desc:'Переход жидкости в пар с поверхности. Охлаждает жидкость (молекулы с большой скоростью улетают). Q = L·m. L — удельная теплота парообразования.' },
+
+    combust:   { name:'Сгорание топлива', icon:'🔥💧', formula:'Q = q · m', era:'therm', recipe:'🔥 Теплота + ⚫ Масса',
+      desc:'Выделение теплоты при сгорании. Q = qm. Удельная теплота сгорания q: бензин — 44 МДж/кг, природный газ — 35 МДж/м³, дрова — 10 МДж/кг.' },
+
+    heatEng:   { name:'Тепловой двигатель', icon:'🏭', formula:'η = A / Q', era:'therm', recipe:'🔥 Теплота + ⚙️ Мощность',
+      desc:'Превращает теплоту в работу. КПД η = A/Q. Паровая машина — 10-15%, двигатель внутреннего сгорания — до 40%. КПД всегда меньше 100%.' },
+
+    solid:     { name:'Твёрдое тело',  icon:'💎',  formula:'кристаллическая решётка', era:'therm', recipe:'🧱 Плотность + 🌡️ Температура',
+      desc:'Вещество сохраняет форму и объём. Молекулы колеблются около узлов кристаллической решётки. Имеет чёткую температуру плавления.' },
+
+    liquid:    { name:'Жидкость',      icon:'🫗',  formula:'ρ = const, V = const', era:'therm', recipe:'💎 Твёрдое тело + 🔥 Теплота',
+      desc:'Вещество сохраняет объём, но принимает форму сосуда. Молекулы взаимодействуют, но могут перемещаться. Практически несжимаема.' },
+
+    gas:       { name:'Газ',           icon:'💨🫧', formula:'PV = νRT',    era:'therm', recipe:'🫗 Жидкость + 🔥 Теплота',
+      desc:'Заполняет весь объём, нет постоянной формы. Молекулы движутся хаотично и почти не взаимодействуют. Законы Бойля-Мариотта и Гей-Люссака.' },
+
+    // ════ ЭЛЕКТРИЧЕСТВО ═══════════════════════════════════════════════════════════
+    elCharge:  { name:'Электр. заряд', icon:'⚛️', formula:'q [Кл]',       era:'em',    recipe:'⚫ Масса + ⏱️ Время',
+      desc:'Свойство тел взаимодействовать электрически. Бывает + (протоны) и − (электроны). Одноимённые заряды отталкиваются, разноимённые — притягиваются.' },
+
+    current:   { name:'Электр. ток',   icon:'⚡🔄', formula:'I = q / t',  era:'em',    recipe:'⚛️ Электр. заряд + ⏱️ Время',
+      desc:'Упорядоченное движение заряженных частиц. I = q/t. Единица — ампер (А). В металлах — электроны, в растворах кислот/щелочей — ионы.' },
+
+    voltage:   { name:'Напряжение',    icon:'🔌',  formula:'U = A / q',    era:'em',    recipe:'🔧 Работа + ⚛️ Электр. заряд',
+      desc:'Работа по перемещению единичного заряда. U = A/q. Единица — вольт (В). В розетке 220 В, в батарейке АА — 1,5 В, в аккумуляторе авто — 12 В.' },
+
+    resist:    { name:'Сопротивление', icon:'〽️', formula:'R = ρ · l / S', era:'em',   recipe:'📏 Расстояние + ⬜ Площадь',
+      desc:'Зависит от материала (удельное сопротивление ρ), длины l и площади поперечного сечения S. R = ρl/S. Медь — хороший проводник, нихром — нет.' },
+
+    ohm:       { name:'Закон Ома',     icon:'⚖️⚡', formula:'I = U / R',  era:'em',    recipe:'⚡🔄 Электр. ток + 🔌 Напряжение',
+      desc:'Сила тока прямо пропорциональна напряжению и обратно пропорциональна сопротивлению. I = U/R. Фундаментальный закон электрических цепей.' },
+
+    seriesC:   { name:'Послед. соединение', icon:'🔗', formula:'R = R₁ + R₂', era:'em', recipe:'〽️ Сопротивление + 〽️ Сопротивление',
+      desc:'Элементы включены друг за другом. Ток одинаков во всех элементах. Напряжения складываются. Сопротивления складываются. Обрыв — всё гаснет.' },
+
+    parallelC: { name:'Парал. соединение', icon:'⇌', formula:'1/R = 1/R₁ + 1/R₂', era:'em', recipe:'⚖️⚡ Закон Ома + 🔗 Послед. соединение',
+      desc:'Элементы подключены к одним точкам. Напряжение одинаково. Токи складываются. Общее сопротивление меньше наименьшего. Обрыв — остальные работают.' },
+
+    elPower:   { name:'Электр. мощность', icon:'💥', formula:'P = U · I',  era:'em',   recipe:'⚖️⚡ Закон Ома + 〽️ Сопротивление',
+      desc:'Скорость преобразования электрической энергии. P = UI = I²R = U²/R. Единица — ватт (Вт). Лампочка 100 Вт в час расходует 100 Вт·ч = 0,1 кВт·ч.' },
+
+    elWork:    { name:'Электр. работа', icon:'🔧⚡', formula:'A = U · I · t', era:'em', recipe:'💥 Электр. мощность + ⏱️ Время',
+      desc:'Энергия, потреблённая прибором. A = UIt = Pt. Единица — джоуль или кВт·ч (1 кВт·ч = 3,6 МДж). Именно её считает электросчётчик.' },
+
+    conductor: { name:'Проводник',     icon:'🔴',  formula:'ρ → 0',        era:'em',    recipe:'⚛️ Электр. заряд + 📏 Расстояние',
+      desc:'Вещество, хорошо проводящее электрический ток. Металлы, графит, растворы электролитов. В металлах много свободных электронов.' },
+
+    insulator: { name:'Изолятор',      icon:'⚪',  formula:'ρ → ∞',        era:'em',    recipe:'🔴 Проводник + ⬜ Площадь',
+      desc:'Плохо проводит ток. Резина, стекло, пластик, фарфор. Применяется в изоляции проводов, конденсаторах. Вопреки мифу — дерево не изолятор.' },
+
+    magnet:    { name:'Магнит',        icon:'🧲',  formula:'B [Тл]',       era:'em',    recipe:'⚡🔄 Электр. ток + 📏 Расстояние',
+      desc:'Тело с постоянным магнитным полем. Два полюса — N и S. Разноимённые притягиваются, одноимённые отталкиваются. Магнитный монополь не найден.' },
+
+    magField:  { name:'Магнитное поле', icon:'🌐🧲', formula:'F = q·v·B', era:'em',    recipe:'🧲 Магнит + ⚡🔄 Электр. ток',
+      desc:'Особый вид материи, возникающий вокруг токов и магнитов. Обнаруживают с помощью железных опилок (силовые линии) или компаса.' },
+
+    compass:   { name:'Компас',        icon:'🧭',  formula:'N → север',    era:'em',    recipe:'🧲 Магнит + 🌍 Сила тяжести',
+      desc:'Намагниченная стрелка, свободно вращающаяся на оси, указывает на магнитный север Земли. Земля сама — огромный магнит.' },
+
+    // ════ ОПТИКА ══════════════════════════════════════════════════════════════════
+    light:     { name:'Свет',          icon:'💡',  formula:'c = 3·10⁸ м/с', era:'opt', recipe:'⚡🔄 Электр. ток + 🌡️ Температура',
+      desc:'Электромагнитное излучение, воспринимаемое глазом. Скорость в вакууме c = 3·10⁸ м/с. В стекле и воде медленнее. Одновременно волна и частица.' },
+
+    ray:       { name:'Световой луч',  icon:'➡️💡', formula:'прямолинейно', era:'opt',  recipe:'💡 Свет + 📏 Расстояние',
+      desc:'В однородной прозрачной среде свет распространяется прямолинейно. Именно поэтому образуются тени с чёткими краями.' },
+
+    shadow:    { name:'Тень',          icon:'🌑',  formula:'геометрия',    era:'opt',   recipe:'➡️💡 Световой луч + ⚫ Масса',
+      desc:'Область, куда не попадает свет из-за непрозрачного препятствия. Форма тени зависит от формы тела и расположения источника. Солнечное затмение — тень Луны.' },
+
+    reflect:   { name:'Отражение',     icon:'🪞',  formula:'α = β',        era:'opt',   recipe:'💡 Свет + ⬜ Площадь',
+      desc:'Угол падения равен углу отражения. Оба угла — от нормали к поверхности. Зеркальное отражение (ровная поверхность) vs диффузное (шероховатая).' },
+
+    mirror:    { name:'Зеркало',       icon:'🪞✨', formula:'d = d\'',      era:'opt',   recipe:'🪞 Отражение + 📏 Расстояние',
+      desc:'Плоское зеркало: изображение мнимое, прямое, равного размера, расположено симметрично. Расстояние от предмета до зеркала = расстоянию от зеркала до изображения.' },
+
+    refract:   { name:'Преломление',   icon:'🌈',  formula:'n₁sinα = n₂sinβ', era:'opt', recipe:'💡 Свет + 🧱 Плотность',
+      desc:'Изменение направления луча при переходе из одной среды в другую. Связано с изменением скорости. Именно поэтому ложка «ломается» в стакане с водой.' },
+
+    lens:      { name:'Линза',         icon:'🔍',  formula:'1/f = 1/d + 1/f\'', era:'opt', recipe:'🌈 Преломление + ⬜ Площадь',
+      desc:'Прозрачное тело с изогнутыми поверхностями. Собирающая (выпуклая) — фокусирует лучи. Рассеивающая (вогнутая) — расходит. Фокус f — главная характеристика.' },
+
+    eye:       { name:'Глаз',          icon:'👁️', formula:'хрусталик = линза', era:'opt', recipe:'🔍 Линза + 💡 Свет',
+      desc:'Оптическая система: роговица + хрусталик (линза) + сетчатка. Хрусталик меняет форму (аккомодация). Близорукость — длинное глазное яблоко.' },
+
+    spectrum:  { name:'Спектр света',  icon:'🌈✨', formula:'c = λ · f',   era:'opt',   recipe:'🌈 Преломление + 💡 Свет',
+      desc:'Белый свет — смесь всех цветов. Призма разлагает его в спектр: красный, оранжевый, жёлтый, зелёный, голубой, синий, фиолетовый. Радуга — тот же эффект.' },
+
+    telescope: { name:'Телескоп',      icon:'🔭',  formula:'Γ = F₁ / F₂', era:'opt',   recipe:'🔍 Линза + 📏 Расстояние',
+      desc:'Прибор для наблюдения далёких объектов. Объектив (большая линза или зеркало) собирает свет, окуляр (малая линза) увеличивает изображение. Γ = F₁/F₂.' },
+
+    microscope:{ name:'Микроскоп',     icon:'🔬',  formula:'Γ = Γ₁ · Γ₂',  era:'opt',  recipe:'🔍 Линза + 🔍 Линза',
+      desc:'Две линзы: объектив близко к объекту — даёт увеличенное действительное изображение. Окуляр — его ещё увеличивает. Общее Γ = Γ₁·Γ₂.' },
+
+    // ════ АСТРОНОМИЯ ══════════════════════════════════════════════════════════════
+    solarSys:  { name:'Солнечная система', icon:'🌞', formula:'8 планет',  era:'astro', recipe:'🌍 Сила тяжести + 💨 Скорость',
+      desc:'Солнце — центр. 8 планет: Меркурий, Венера, Земля, Марс, Юпитер, Сатурн, Уран, Нептун. Земля — третья, единственная с жизнью. Луна — спутник Земли.' },
+
+    moonPhase: { name:'Фазы Луны',     icon:'🌓',  formula:'T = 29,5 суток', era:'astro', recipe:'🌑 Тень + ⏱️ Время',
+      desc:'Луна обходит Землю за 29,5 суток. Мы видим разно освещённые участки. Новолуние → первая четверть → полнолуние → последняя четверть → новолуние.' },
+
+    eclipse:   { name:'Затмение',      icon:'🌑🌞', formula:'тень + орбита', era:'astro', recipe:'🌑 Тень + 🌞 Солнечная система',
+      desc:'Солнечное: Луна попадает между Землёй и Солнцем, закрывает его. Лунное: Земля отбрасывает тень на Луну. Предсказывают по расчётам орбит.' },
+  };
+
+  // ── РЕЦЕПТЫ ──────────────────────────────────────────────────────────────────
+  // Каждая пара (a, b) — ровно один результат. Формула физически верна.
+  const RECIPES = [
+
+    // ── КИНЕМАТИКА ────────────────────────────────────────
+    { a:'dist',       b:'time',       result:'speed'      }, // v = s/t
+    { a:'speed',      b:'time',       result:'uniMotion'  }, // s = v·t
+    { a:'speed',      b:'force',      result:'accel'      }, // a = F/m → связь через 2й закон Ньютона
+    { a:'accel',      b:'time',       result:'accelMotion'}, // s = v₀t + at²/2
+    { a:'accel',      b:'gravForce',  result:'freeFall'   }, // g = 9,8 м/с², a = g
+    { a:'speed',      b:'dist',       result:'trajectory' }, // путь + направление → траектория
+
+    // ── СИЛЫ ──────────────────────────────────────────────
+    { a:'mass',       b:'accel',      result:'gravForce'  }, // Fт = m·g (g — ускорение)
+    { a:'mass',       b:'gravForce',  result:'weight'     }, // P = mg
+    { a:'force',      b:'deform',     result:'hookeLaw'   }, // F = kx
+    { a:'force',      b:'mass',       result:'friction'   }, // Fтр = μ·N = μ·mg
+    { a:'force',      b:'force',      result:'resultant'  }, // F = F₁ + F₂
+    { a:'force',      b:'area',       result:'pressure'   }, // P = F/S
+    { a:'pressure',   b:'mass',       result:'atmP'       }, // масса воздуха → атм. давление
+    { a:'pressure',   b:'volume',     result:'liquidP'    }, // P = ρgh, V связан с h·S
+
+    // ── РАБОТА И ЭНЕРГИЯ ──────────────────────────────────
+    { a:'force',      b:'dist',       result:'work'       }, // A = F·s
+    { a:'mass',       b:'speed',      result:'kinE'       }, // Eк = mv²/2
+    { a:'weight',     b:'dist',       result:'potE'       }, // Eп = mgh — уникально: g, не масса+масса
+    { a:'kinE',       b:'potE',       result:'mechE'      }, // E = Eк + Eп
+    { a:'work',       b:'time',       result:'power'      }, // N = A/t
+    { a:'work',       b:'force',      result:'simpleMach' }, // A = const, меняем F и s
+    { a:'simpleMach', b:'dist',       result:'lever'      }, // рычаг — конкретный механизм
+
+    // ── ВЕЩЕСТВО ──────────────────────────────────────────
+    { a:'mass',       b:'volume',     result:'density'    }, // ρ = m/V
+    { a:'liquidP',    b:'volume',     result:'buoyancy'   }, // Fа = ρ·g·V
+    { a:'buoyancy',   b:'weight',     result:'floatCond'  }, // условие плавания
+
+    // ── ТЕРМОДИНАМИКА ─────────────────────────────────────
+    { a:'mass',       b:'temp',       result:'heat'       }, // Q = c·m·ΔT
+    { a:'heat',       b:'volume',     result:'heatCap'    }, // c = Q/(m·ΔT) — V≈m через плотность
+    { a:'heat',       b:'temp',       result:'heatBal'    }, // уравнение теплового баланса
+    { a:'heat',       b:'density',    result:'melt'       }, // плавление зависит от вещества (ρ)
+    { a:'heat',       b:'speed',      result:'evap'       }, // молекулы с большой v улетают
+    { a:'heat',       b:'mass',       result:'combust'    }, // Q = q·m
+    { a:'heat',       b:'power',      result:'heatEng'    }, // η = A/Q, N = A/t
+    { a:'density',    b:'temp',       result:'solid'      }, // твёрдое: высокая ρ, низкая T
+    { a:'solid',      b:'heat',       result:'liquid'     }, // плавление → жидкость
+    { a:'liquid',     b:'heat',       result:'gas'        }, // кипение → газ
+
+    // ── ЭЛЕКТРИЧЕСТВО ─────────────────────────────────────
+    { a:'mass',       b:'time',       result:'elCharge'   }, // заряд через электризацию (q накапливается)
+    { a:'elCharge',   b:'time',       result:'current'    }, // I = q/t
+    { a:'work',       b:'elCharge',   result:'voltage'    }, // U = A/q
+    { a:'dist',       b:'area',       result:'resist'     }, // R = ρ·l/S (l — длина, S — сечение)
+    { a:'current',    b:'voltage',    result:'ohm'        }, // I = U/R — закон Ома
+    { a:'resist',     b:'resist',     result:'seriesC'    }, // R = R₁ + R₂
+    { a:'ohm',        b:'seriesC',    result:'parallelC'  }, // 1/R = 1/R₁ + 1/R₂
+    { a:'ohm',        b:'resist',     result:'elPower'    }, // P = U·I
+    { a:'elPower',    b:'time',       result:'elWork'     }, // A = P·t
+    { a:'elCharge',   b:'dist',       result:'conductor'  }, // заряд движется по длине проводника
+    { a:'conductor',  b:'area',       result:'insulator'  }, // изолятор — нет свободных зарядов
+    { a:'current',    b:'dist',       result:'magnet'     }, // ток в проводе → магнитное поле
+    { a:'magnet',     b:'current',    result:'magField'   }, // F = q·v·B
+    { a:'magnet',     b:'gravForce',  result:'compass'    }, // стрелка в поле тяжести и магн. поле
+
+    // ── ОПТИКА ────────────────────────────────────────────
+    { a:'current',    b:'temp',       result:'light'      }, // нагрев нити накала → свечение
+    { a:'light',      b:'dist',       result:'ray'        }, // прямолинейное распространение
+    { a:'ray',        b:'mass',       result:'shadow'     }, // непрозрачное тело перекрывает луч
+    { a:'light',      b:'area',       result:'reflect'    }, // отражение от поверхности (S → угол)
+    { a:'reflect',    b:'dist',       result:'mirror'     }, // зеркало = плоская отражающая поверхность
+    { a:'light',      b:'density',    result:'refract'    }, // n = sinα/sinβ, зависит от плотности среды
+    { a:'refract',    b:'area',       result:'lens'       }, // линза = преломление через кривую поверхность
+    { a:'lens',       b:'light',      result:'eye'        }, // хрусталик — биологическая линза
+    { a:'refract',    b:'light',      result:'spectrum'   }, // разложение белого света в спектр
+    { a:'lens',       b:'dist',       result:'telescope'  }, // две линзы + большое расстояние
+    { a:'lens',       b:'lens',       result:'microscope' }, // объектив + окуляр
+
+    // ── АСТРОНОМИЯ ────────────────────────────────────────
+    { a:'gravForce',  b:'speed',      result:'solarSys'   }, // планеты удерживаются тяготением
+    { a:'shadow',     b:'time',       result:'moonPhase'  }, // фазы = смена освещённости во времени
+    { a:'moonPhase',  b:'solarSys',   result:'eclipse'    }, // затмение = тень в Солнечной системе
+  ];
+
+  // ═════════════════════════════════════════════════════════
+  //  STATE
+  // ═════════════════════════════════════════════════════════
+  const STARTERS = ['mass','time','dist','force','temp','area','volume','deform'];
+  const ALL_KEYS  = Object.keys(ELEMENTS);
+  const TOTAL     = ALL_KEYS.length;
+
+  let unlocked  = new Set(STARTERS);
+  let tokens    = [];
+  let nextId    = 0;
+  let reactions = 0;
+  let hoverKey  = null;
+
+  // ═════════════════════════════════════════════════════════
+  //  DOM
+  // ═════════════════════════════════════════════════════════
+  const field        = document.getElementById('field');
+  const fieldHint    = document.getElementById('fieldHint');
+  const inventory    = document.getElementById('inventory');
+  const panelContent = document.getElementById('panelContent');
+  const toast        = document.getElementById('toast');
+
+  // ═════════════════════════════════════════════════════════
+  //  INVENTORY
+  // ═════════════════════════════════════════════════════════
+  function renderInventory(newKey) {
+    [...inventory.querySelectorAll('.inv-item,.inv-item-fog')].forEach(e => e.remove());
+    [...unlocked].forEach(key => {
+      const el = ELEMENTS[key]; if (!el) return;
+      const item = document.createElement('div');
+      item.className = 'inv-item' + (key === newKey ? ' new-item' : '');
+      item.dataset.key = key;
+      item.title = el.name + ' — двойной клик, чтобы поместить на поле';
+      item.innerHTML = `<div class="inv-icon">${el.icon}</div><div class="inv-label">${el.name}</div>`;
+      item.addEventListener('dblclick', () => spawnToken(key));
+      item.addEventListener('mouseenter', () => { hoverKey = key; showInfo(key); });
+      item.addEventListener('mouseleave', () => { hoverKey = null; });
+      inventory.appendChild(item);
+    });
+    ALL_KEYS.filter(k => !unlocked.has(k)).forEach(key => {
+      const el = ELEMENTS[key];
+      const col = ERA_COLORS[el.era];
+      const fog = document.createElement('div');
+      fog.className = 'inv-item-fog'; fog.title = '???';
+      fog.innerHTML = `<div class="fog-bubble">${el.icon}</div><div class="fog-label">???</div><div class="fog-dot" style="background:${col}55;border:1px solid ${col}88"></div>`;
+      fog.addEventListener('mouseenter', () => showFogInfo(el.era));
+      fog.addEventListener('mouseleave', () => { if (!hoverKey) clearInfo(); });
+      inventory.appendChild(fog);
+    });
+    document.getElementById('statUnlocked').textContent  = unlocked.size;
+    document.getElementById('statTotal').textContent     = TOTAL;
+    document.getElementById('statOnField').textContent   = tokens.length;
+    document.getElementById('statReactions').textContent = reactions;
+  }
+
+  // ═════════════════════════════════════════════════════════
+  //  INFO PANEL
+  // ═════════════════════════════════════════════════════════
+  function showInfo(key) {
+    const el = ELEMENTS[key]; if (!el) return;
+    const pct = Math.round(unlocked.size / TOTAL * 100);
+    panelContent.innerHTML = `
+    <div class="info-icon">${el.icon}</div>
+    <div class="info-era era-${el.era}">${ERA_NAMES[el.era]}</div>
+    <div class="info-name">${el.name}</div>
+    <div class="info-formula">${el.formula}</div>
+    <div class="info-divider"></div>
+    <div class="info-desc">${el.desc}</div>
+    ${(()=>{ const r=RECIPES.find(r=>r.result===key); return r
+      ? `<div class="info-recipe">Получается из:<br><b>${ELEMENTS[r.a].icon} ${ELEMENTS[r.a].name} + ${ELEMENTS[r.b].icon} ${ELEMENTS[r.b].name}</b></div>`
+      : `<div class="info-recipe" style="text-align:center">Первоначало — дано изначально</div>`; })()}
+    <div class="info-progress">
+      <div class="info-progress-label">Прогресс открытий</div>
+      <div class="info-progress-bar-bg"><div class="info-progress-bar-fill" style="width:${pct}%"></div></div>
+      <div class="info-progress-text">${unlocked.size} из ${TOTAL} (${pct}%)</div>
+    </div>`;
+  }
+  function showFogInfo(era) {
+    const col = ERA_COLORS[era];
+    panelContent.innerHTML = `<div class="panel-empty"><div class="panel-empty-icon" style="opacity:0.5">🔮</div><div style="color:${col};font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.15em;margin-bottom:8px">${ERA_NAMES[era].toUpperCase()}</div>Неизвестный элемент.<br>Продолжай экспериментировать!</div>`;
+  }
+  function clearInfo() {
+    panelContent.innerHTML = '<div class="panel-empty"><div class="panel-empty-icon">🔭</div>Наведи курсор на элемент,<br>чтобы узнать о нём</div>';
+  }
+
+  // ═════════════════════════════════════════════════════════
+  //  TOKENS
+  // ═════════════════════════════════════════════════════════
+  function spawnToken(key, x, y) {
+    const rect = field.getBoundingClientRect();
+    if (x == null) { x = 90 + Math.random()*(rect.width-180); y = 80 + Math.random()*(rect.height-160); }
+    const el = ELEMENTS[key]; const id = nextId++;
+    const div = document.createElement('div');
+    div.className = 'token spawn'; div.dataset.id = id; div.dataset.key = key; div.dataset.era = el.era;
+    div.style.left = x+'px'; div.style.top = y+'px';
+    div.innerHTML = `<div class="token-bubble">${el.icon}<div class="token-delete" title="Убрать">✕</div></div><div class="token-label">${el.name}</div>`;
+    div.querySelector('.token-delete').addEventListener('click', e => { e.stopPropagation(); deleteToken(id); });
+    div.addEventListener('mouseenter', () => { hoverKey = key; showInfo(key); });
+    div.addEventListener('mouseleave', () => { hoverKey = null; });
+    makeDraggable(div);
+    field.appendChild(div); tokens.push({id,key,x,y,el:div});
+    fieldHint.classList.add('hidden');
+    document.getElementById('statOnField').textContent = tokens.length;
+    return id;
+  }
+  function deleteToken(id) {
+    const t = tokens.find(t=>t.id===id); if(!t) return;
+    t.el.style.transition='opacity 0.18s,transform 0.18s'; t.el.style.opacity='0'; t.el.style.transform='translate(-50%,-50%) scale(0.5)';
+    setTimeout(()=>{ t.el.remove(); tokens.splice(tokens.indexOf(t),1); document.getElementById('statOnField').textContent=tokens.length; }, 200);
+  }
+  function removeToken(id) {
+    const idx = tokens.findIndex(t=>t.id===id); if(idx===-1) return;
+    tokens[idx].el.remove(); tokens.splice(idx,1);
+  }
+  function clearField() {
+    [...tokens].forEach(t=>t.el.remove()); tokens=[];
+    fieldHint.classList.remove('hidden');
+    document.getElementById('statOnField').textContent=0;
+  }
+
+  // ═════════════════════════════════════════════════════════
+  //  DRAG
+  // ═════════════════════════════════════════════════════════
+  function makeDraggable(el) {
+    let ox,oy,ol,ot,dragging=false,moved=false;
+    el.addEventListener('mousedown', e => {
+      if(e.target.classList.contains('token-delete')) return;
+      e.preventDefault(); dragging=true; moved=false; el.classList.add('dragging');
+      ox=e.clientX; oy=e.clientY; ol=parseFloat(el.style.left); ot=parseFloat(el.style.top); el.style.zIndex=50;
+      const onMove = e => {
+        if(!dragging) return;
+        const dx=e.clientX-ox, dy=e.clientY-oy;
+        if(Math.abs(dx)+Math.abs(dy)>3) moved=true;
+        const nl=ol+dx, nt=ot+dy;
+        el.style.left=nl+'px'; el.style.top=nt+'px';
+        const t=tokens.find(t=>t.el===el); if(t){t.x=nl;t.y=nt;}
+        highlightNear(el);
+      };
+      const onUp = () => {
+        dragging=false; el.classList.remove('dragging'); el.style.zIndex=5;
+        clearNearHighlights(); document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp);
+        if(moved) tryMerge(el);
+      };
+      document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
+    });
+  }
+  const MERGE_DIST = 72;
+  function highlightNear(dragEl) {
+    const d=tokens.find(t=>t.el===dragEl); if(!d) return;
+    tokens.forEach(t=>{ if(t.el===dragEl) return; t.el.classList.toggle('near', Math.hypot(t.x-d.x,t.y-d.y)<MERGE_DIST); });
+  }
+  function clearNearHighlights() { tokens.forEach(t=>t.el.classList.remove('near')); }
+  function tryMerge(dragEl) {
+    const dragged=tokens.find(t=>t.el===dragEl); if(!dragged) return;
+    let closest=null, cd=Infinity;
+    tokens.forEach(t=>{ if(t.el===dragEl) return; const d=Math.hypot(t.x-dragged.x,t.y-dragged.y); if(d<MERGE_DIST&&d<cd){closest=t;cd=d;} });
+    if(!closest) return;
+    const recipe=RECIPES.find(r=>(r.a===dragged.key&&r.b===closest.key)||(r.a===closest.key&&r.b===dragged.key));
+    const cx=(dragged.x+closest.x)/2, cy=(dragged.y+closest.y)/2;
+    if(recipe) reactionSuccess(dragged.id,closest.id,recipe.result,cx,cy);
+    else       reactionFail(dragged.id,closest.id,cx,cy);
+  }
+
+  // ═════════════════════════════════════════════════════════
+  //  REACTIONS
+  // ═════════════════════════════════════════════════════════
+  function reactionSuccess(id1,id2,resultKey,cx,cy) {
+    const el=ELEMENTS[resultKey]; if(!el) return;
+    reactions++; const isNew=!unlocked.has(resultKey);
+    removeToken(id1); removeToken(id2);
+    const col=ERA_COLORS[el.era];
+    const flash=document.createElement('div'); flash.className='reaction-flash';
+    flash.style.cssText=`left:${cx}px;top:${cy}px;width:80px;height:80px;background:radial-gradient(circle,${col}99,transparent)`;
+    field.appendChild(flash); setTimeout(()=>flash.remove(),700);
+    for(let i=0;i<10;i++){
+      const angle=(i/10)*Math.PI*2, r=50+Math.random()*50;
+      const p=document.createElement('div'); p.className='particle-burst'; p.textContent=el.icon;
+      p.style.cssText=`left:${cx}px;top:${cy}px;--dx:${Math.cos(angle)*r}px;--dy:${Math.sin(angle)*r}px`;
+      field.appendChild(p); setTimeout(()=>p.remove(),1000);
+    }
+    unlocked.add(resultKey);
+    setTimeout(()=>{ spawnToken(resultKey,cx,cy); if(isNew){ renderInventory(resultKey); showToast(`✨ Открыто: ${el.name}!`); } else { renderInventory(); } showInfo(resultKey); }, 180);
+  }
+  function reactionFail(id1,id2,cx,cy) {
+    [id1,id2].forEach(id=>{ const t=tokens.find(t=>t.id===id); if(t){t.el.classList.add('shake');setTimeout(()=>t.el.classList.remove('shake'),400);} });
+    const puff=document.createElement('div'); puff.className='fail-cloud'; puff.textContent='💭';
+    puff.style.cssText=`left:${cx}px;top:${cy}px`; field.appendChild(puff); setTimeout(()=>puff.remove(),800);
+  }
+
+  // ═════════════════════════════════════════════════════════
+  //  TOAST & INIT
+  // ═════════════════════════════════════════════════════════
+  let toastTimer;
+  function showToast(msg) {
+    toast.textContent=msg; toast.classList.add('show'); clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>toast.classList.remove('show'),3000);
+  }
+
+  renderInventory();
+</script>
+</body>
+</html>

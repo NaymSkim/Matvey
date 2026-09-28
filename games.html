@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Интерактивные игры по физике для школьников." />
+    <meta name="theme-color" content="#12231a" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2312231a'/%3E%3Cpath d='M18 17v19c0 18 28 18 28 0V17H35v19c0 7-6 7-6 0V17z' fill='%23f2f7f0'/%3E%3Cpath d='M18 17h11v9H18zm17 0h11v9H35z' fill='%23ff6846'/%3E%3C/svg%3E" />
+    <title>Игры · Физика</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Физика — главная">
+        <span class="brand-mark" aria-hidden="true">φ</span>
+        <span><b>Физика</b><small>9 класс</small></span>
+      </a>
+      <nav class="section-tabs" aria-label="Разделы портала">
+        <a class="section-tab" href="./">Задания</a>
+        <a class="section-tab" href="guides.html">Памятки</a>
+        <a class="section-tab active" href="games.html" aria-current="page">Игры</a>
+      </nav>
+      <div class="student-controls">
+        <span class="student-pill" id="games-student" hidden></span>
+      </div>
+    </header>
+
+    <main class="games-main">
+      <section class="games-hero">
+        <p class="eyebrow">Физика в действии</p>
+        <h1 id="games-title">Игры по физике</h1>
+        <p class="lead" id="games-lead">Экспериментируй, запускай механизмы и решай физические головоломки без оценок.</p>
+      </section>
+
+      <section class="game-grid" aria-label="Каталог игр">
+        <article class="game-card" style="--game-accent:#00a8d6;--game-soft:#e8f9ff">
+          <div class="game-art" aria-hidden="true"><span>⊙</span><i>↗</i></div>
+          <div class="game-copy">
+            <p class="game-topic">Магнетизм · 11 уровней</p>
+            <h2>Поле</h2>
+            <p>Управляй током и магнитным полем: уравновешивай платформы, запускай частицы и собирай физические цепочки.</p>
+            <a class="game-link" href="games/field.html">Играть <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="game-card" style="--game-accent:#e28a19;--game-soft:#fff5dc">
+          <div class="game-art" aria-hidden="true"><span>⚙</span><i>●</i></div>
+          <div class="game-copy">
+            <p class="game-topic">Механика · Конструктор</p>
+            <h2>Машина Голдберга</h2>
+            <p>Собирай забавные цепные реакции из рычагов, шаров и механизмов, чтобы запустить всю машину.</p>
+            <a class="game-link" href="games/goldberg.html">Играть <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="game-card" style="--game-accent:#7b4fd0;--game-soft:#f2ecff">
+          <div class="game-art" aria-hidden="true"><span>⚗</span><i>✦</i></div>
+          <div class="game-copy">
+            <p class="game-topic">Величины и формулы</p>
+            <h2>Физическая алхимия</h2>
+            <p>Соединяй физические величины и открывай новые формулы, словно создаёшь элементы в алхимической лаборатории.</p>
+            <a class="game-link" href="games/alchemy.html">Играть <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="game-card" style="--game-accent:#e85d26;--game-soft:#fff0e9">
+          <div class="game-art" aria-hidden="true"><span>⇅</span><i>Pa</i></div>
+          <div class="game-copy">
+            <p class="game-topic">Гидравлика · Закон Паскаля</p>
+            <h2>Дуэль давлений</h2>
+            <p>Настраивай гидравлическую систему, собирай формулы и добивайся равновесия сил на поршнях.</p>
+            <a class="game-link" href="games/pressure-duel.html">Играть <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="game-card game-card-wide" style="--game-accent:#8b2f3d;--game-soft:#f9e9ec">
+          <div class="game-art" aria-hidden="true"><span>⌕</span><i>?</i></div>
+          <div class="game-copy">
+            <p class="game-topic">Расследование · Физические явления</p>
+            <h2>Физический детектив</h2>
+            <p>Изучай улики, проверяй версии и объясняй загадочные происшествия с помощью законов физики. Прогресс сохраняется в браузере.</p>
+            <a class="game-link" href="games/physics-detective.html">Играть <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <p>Игры открываются прямо в браузере и не влияют на оценки.</p>
+      <a href="teacher.html">Кабинет преподавателя</a>
+    </footer>
+
+    <script src="config.js?v=2"></script>
+    <script type="module" src="games.js"></script>
+  </body>
+</html>

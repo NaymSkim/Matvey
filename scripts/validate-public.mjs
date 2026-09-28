@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const forbiddenFiles = ["answers.private.json", ".env", ".env.local"];
-const publicFiles = ["index.html", "guides.html", "teacher.html", "task.html", "portal.js", "guides.js", "teacher.js", "task-page.js", "tracker.js", "config.js", "styles.css", "guides/fizika-9-klass-oge.pdf", "guides/fizika-9-klass-oge-preview.png"];
+const publicFiles = ["index.html", "guides.html", "games.html", "teacher.html", "task.html", "portal.js", "guides.js", "games.js", "teacher.js", "task-page.js", "tracker.js", "config.js", "styles.css", "guides/fizika-9-klass-oge.pdf", "guides/fizika-9-klass-oge-preview.png", "games/field.html", "games/goldberg.html", "games/alchemy.html", "games/pressure-duel.html", "games/physics-detective.html"];
 
 for (const file of forbiddenFiles) {
   if (fs.existsSync(path.join(root, "dist", file))) throw new Error(`Приватный файл попал в dist: ${file}`);

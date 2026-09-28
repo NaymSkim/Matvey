@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Машина Голдберга — Учимся физике!</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fredoka+One&family=Baloo+2:wght@700&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0f1b2d;color:#e8f0ff;font-family:'Nunito',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+    #hdr{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;background:#1a2a40;border-bottom:2px solid rgba(255,255,255,.07);flex-shrink:0}
+    #hdr h1{font-family:'Baloo 2',cursive;font-size:26px;font-weight:700;color:#f5c842;letter-spacing:0.5px}
+    .badge{border-radius:20px;padding:5px 16px;font-size:13px;font-weight:800}
+    .badge-blue{background:rgba(77,166,255,.15);border:1px solid rgba(77,166,255,.4);color:#4da6ff}
+    #main{display:flex;flex:1;overflow:hidden}
+    #left{width:210px;flex-shrink:0;background:#1a2a40;border-right:2px solid rgba(255,255,255,.07);display:flex;flex-direction:column;overflow-y:auto}
+    #cw{flex:1;position:relative;overflow:hidden}
+    #cw canvas{position:absolute;top:0;left:0;display:block}
+    #right{width:224px;flex-shrink:0;background:#1a2a40;border-left:2px solid rgba(255,255,255,.07);display:flex;flex-direction:column;overflow-y:auto}
+    .sec{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .st{font-size:11px;font-weight:800;letter-spacing:1.5px;color:#7a94b8;text-transform:uppercase;margin-bottom:10px}
+    .btn{width:100%;padding:11px;border:none;border-radius:11px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:filter .15s,transform .12s;margin-bottom:7px;display:block}
+    .btn:last-child{margin-bottom:0}
+    .btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+    .btn:active{transform:scale(.97)}
+    .bg{background:#4ecb71;color:#0a2010}
+    .br{background:#ff5f5f;color:#2a0000}
+    .bm{background:#162236;color:#7a94b8;border:1px solid rgba(255,255,255,.1)}
+    .bo{background:#ff8c42;color:#2a1000}
+    .parts-grid{display:flex;flex-direction:column;gap:6px}
+    .pc{background:#162236;border:1.5px solid rgba(255,255,255,.08);border-radius:11px;padding:9px 11px;cursor:grab;display:flex;align-items:center;gap:9px;transition:border-color .15s,transform .12s;user-select:none}
+    .pc:hover{border-color:rgba(255,255,255,.28);transform:translateX(2px)}
+    .pc.dragging{opacity:.3}
+    .pi{font-size:20px;flex-shrink:0}
+    .pn{font-size:13px;font-weight:800;color:#e8f0ff}
+    .pd{font-size:11px;color:#7a94b8}
+    .sc{background:#162236;border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+    .sc:last-child{margin-bottom:0}
+    .sl{font-size:14px;color:#7a94b8;font-weight:600}
+    .sv{font-family:'Fredoka One',cursive;font-size:20px;color:#f5c842}
+    .sv.bl{color:#4da6ff}.sv.gr{color:#4ecb71}
+    .eb{display:flex;flex-direction:column;gap:8px}
+    .er{display:flex;align-items:center;gap:8px}
+    .el{font-size:13px;font-weight:700;width:28px;flex-shrink:0}
+    .et{flex:1;height:10px;background:rgba(255,255,255,.07);border-radius:5px;overflow:hidden}
+    .ef{height:100%;border-radius:5px;width:0%;transition:width .15s ease}
+    .ef.ke{background:#f5c842}.ef.pe{background:#4da6ff}.ef.tot{background:#4ecb71}
+    .ev{font-size:12px;font-family:monospace;color:#c8d8f0;width:34px;text-align:right}
+    .xbox{background:rgba(77,166,255,.08);border:1px solid rgba(77,166,255,.25);border-radius:11px;padding:12px 13px;font-size:14px;color:#c8d8f0;line-height:1.65}
+    .xbox b{color:#4da6ff}
+    .rbox{display:flex;gap:9px;align-items:flex-start;background:rgba(181,123,255,.08);border:1px solid rgba(181,123,255,.25);border-radius:11px;padding:12px 13px;font-size:13px;color:#c8d8f0;line-height:1.6;overflow:hidden;word-break:break-word}
+    .re{font-size:26px;flex-shrink:0}
+    /* Level selector */
+    .lvl-grid{display:flex;flex-direction:column;gap:6px}
+    .lvl-btn{width:100%;padding:10px 12px;border:1.5px solid rgba(255,255,255,.08);border-radius:10px;background:#162236;color:#e8f0ff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:left;transition:border-color .15s,background .15s;display:flex;align-items:center;gap:8px}
+    .lvl-btn:hover{border-color:rgba(255,255,255,.25);background:#1e2e48}
+    .lvl-btn.active{border-color:#f5c842;background:rgba(245,200,66,.08);color:#f5c842}
+    .lvl-btn.done{border-color:#4ecb71;color:#4ecb71}
+    .lvl-num{font-family:'Fredoka One',cursive;font-size:18px;flex-shrink:0;width:26px}
+    /* Win overlay */
+    #win-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,18,30,.88);z-index:100;opacity:0;pointer-events:none;transition:opacity .35s}
+    #win-ov.show{opacity:1;pointer-events:all}
+    #win-card{background:#1a2a40;border:2px solid rgba(255,255,255,.1);border-radius:24px;padding:36px 40px;text-align:center;max-width:440px;transform:scale(.88);transition:transform .35s}
+    #win-ov.show #win-card{transform:scale(1)}
+    .we{font-size:56px;margin-bottom:10px}
+    .wt{font-family:'Fredoka One',cursive;font-size:30px;color:#f5c842;margin-bottom:8px}
+    .ws{font-size:15px;color:#7a94b8;line-height:1.6;margin-bottom:16px}
+    .wf{background:#162236;border-radius:12px;padding:14px;margin-bottom:20px;font-size:13px;line-height:1.6;border-left:3px solid #4da6ff;text-align:left}
+    .wb{background:#f5c842;color:#1a1100;border:none;border-radius:50px;padding:12px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;cursor:pointer;transition:filter .15s,transform .12s}
+    .wb:hover{filter:brightness(1.1);transform:translateY(-2px)}
+    /* confetti canvas */
+    #cfv{position:absolute;inset:0;pointer-events:none;z-index:90}
+    /* del hint */
+    #dh{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(255,95,95,.12);border:1px solid rgba(255,95,95,.3);border-radius:20px;padding:6px 16px;font-size:13px;color:#ff8c8c;font-weight:700;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap}
+    #dh.show{opacity:1}
+    /* kbd */
+    .kl{display:flex;flex-direction:column;gap:6px}
+    .kr{display:flex;align-items:center;gap:9px}
+    .kk{background:#162236;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:3px 9px;font-size:12px;font-family:monospace;color:#f5c842;flex-shrink:0}
+    .kd{font-size:13px;color:#7a94b8}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+
+    /* ── POLISH ── */
+    /* Smoother section hover for part cards */
+    .pc{transition:border-color .18s,transform .15s,box-shadow .18s}
+    .pc:hover{box-shadow:0 4px 18px rgba(0,0,0,.45)}
+
+    /* Pulse animation for goal star glow */
+    @keyframes goalPulse{0%,100%{opacity:.25}50%{opacity:.55}}
+
+    /* Speed number flash when fast */
+    @keyframes flashYellow{0%{color:#f5c842}50%{color:#fff}100%{color:#f5c842}}
+    .flash{animation:flashYellow .35s ease}
+
+    /* Win card entrance */
+    #win-card{box-shadow:0 24px 80px rgba(0,0,0,.6)}
+
+    /* Level done checkmark */
+    .lvl-btn.done::after{content:'✓';margin-left:auto;color:#4ecb71;font-weight:900}
+
+    /* Edu box highlight when active */
+    #edu-box{transition:background .3s,border-color .3s}
+    #edu-box.active{background:rgba(78,203,113,.1);border:1px solid rgba(78,203,113,.3)}
+
+    /* Formula box glow */
+    #formula-box{transition:color .3s}
+
+    /* Gravity button active state */
+    #btn-grav.moon{background:rgba(170,170,204,.15);border-color:rgba(170,170,204,.5);color:#aaaacc}
+    #btn-grav.jupiter{background:rgba(255,140,66,.2);border-color:rgba(255,140,66,.6);color:#ff8c42}
+
+    /* Right panel stat value animate */
+    .sv{transition:color .2s}
+
+    /* Keyboard hint pills */
+    .kk{font-size:11px}
+
+    /* Parts drag ghost cursor */
+    body.dragging-part{cursor:grabbing!important}
+    body.dragging-part *{cursor:grabbing!important}
+  </style>
+</head>
+<body>
+  <a href="../games.html" aria-label="Вернуться к списку игр" style="position:fixed;left:16px;bottom:16px;z-index:9999;padding:10px 14px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:#12231a;color:#fff;font:700 13px/1.2 system-ui,sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.24)">← Все игры</a>
+<div id="hdr">
+  <h1>⚙️ Машина Голдберга</h1>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button id="btn-grav" onclick="toggleGravity()" style="background:rgba(255,140,66,.15);border:1px solid rgba(255,140,66,.4);border-radius:20px;padding:5px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:#ff8c42;cursor:pointer;transition:filter .15s" onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter=''">🌍 Земля — 9.8 м/с²</button>
+  </div>
+</div>
+<div id="main">
+
+  <!-- LEFT -->
+  <div id="left">
+    <div class="sec">
+      <div class="st">Управление</div>
+      <button class="btn bg" id="btn-run" onclick="runSim()">▶ Запуск</button>
+      <button class="btn br" onclick="resetSim()">↺ Сброс</button>
+      <button class="btn bm" onclick="if(!simRunning)clearParts()">🗑 Очистить</button>
+    </div>
+    <div class="sec">
+      <div class="st">Детали</div>
+      <div class="parts-grid" id="pg"></div>
+    </div>
+    <div class="sec">
+      <div class="st">Клавиши</div>
+      <div class="kl">
+        <div class="kr"><span class="kk">Пробел</span><span class="kd">Запуск/стоп</span></div>
+        <div class="kr"><span class="kk">C</span><span class="kd">Очистить</span></div>
+        <div class="kr"><span class="kk">Z</span><span class="kd">Отменить</span></div>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="st">Подсказка</div>
+      <div class="xbox" id="hint-box">Выбери уровень справа и расставь детали!</div>
+    </div>
+    <div class="sec" id="maxparts-sec" style="display:none">
+      <div class="st">✂️ Ограничение</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#162236;border:1px solid rgba(77,166,255,.25);border-radius:11px;padding:10px 13px">
+        <span style="font-size:14px;color:#c8d8f0">Осталось деталей</span>
+        <span id="maxparts-left" style="font-family:'Fredoka One',cursive;font-size:22px;color:#4da6ff">—</span>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="st">Рубик</div>
+      <div class="rbox"><span class="re">🤖</span><span id="robot-txt">Потяни деталь с левой панели на поле. Уже поставленную деталь тоже можно перетащить — просто потяни её!</span></div>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <div id="cw">
+    <canvas id="gc"></canvas>
+    <canvas id="dc"></canvas>
+    <canvas id="cfv"></canvas>
+    <div id="win-ov">
+      <div id="win-card">
+        <div class="we" id="we">🎉</div>
+        <div class="wt" id="wt">Отлично!</div>
+        <div class="ws" id="ws"></div>
+        <div class="wf" id="wf"></div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="wb" id="wb" onclick="nextLevel()">Следующий уровень →</button>
+          <button class="wb" onclick="replayLevel()" style="background:#4da6ff;color:#0a1a2d">↺ Ещё раз</button>
+        </div>
+      </div>
+    </div>
+    <div id="dh">Тащи деталь чтобы переместить  ·  ПКМ чтобы удалить</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div id="right">
+    <div class="sec">
+      <div class="st">Данные шара</div>
+      <div class="sc"><span class="sl">Скорость</span><span class="sv" id="s-spd">0.0 м/с</span></div>
+      <div class="sc"><span class="sl">Высота</span><span class="sv bl" id="s-hgt">— см</span></div>
+      <div class="sc"><span class="sl">Ускорение</span><span class="sv gr" id="s-acc">— м/с²</span></div>
+    </div>
+    <div class="sec">
+      <div class="st">Энергия</div>
+      <div class="eb">
+        <div class="er"><span class="el" style="color:#f5c842">КЭ</span><div class="et"><div class="ef ke" id="bar-ke"></div></div><span class="ev" id="val-ke">0</span></div>
+        <div class="er"><span class="el" style="color:#4da6ff">ПЭ</span><div class="et"><div class="ef pe" id="bar-pe"></div></div><span class="ev" id="val-pe">0</span></div>
+        <div class="er"><span class="el" style="color:#4ecb71">∑</span> <div class="et"><div class="ef tot" id="bar-tot"></div></div><span class="ev" id="val-tot">0</span></div>
+      </div>
+      <div style="margin-top:9px;font-size:13px;color:#7a94b8;line-height:1.6">
+        <b style="color:#f5c842">КЭ</b> — движение &nbsp; <b style="color:#4da6ff">ПЭ</b> — высота &nbsp; <b style="color:#4ecb71">∑</b> — сумма
+      </div>
+    </div>
+    <div class="sec">
+      <div class="st">Физика детали</div>
+      <div class="xbox" id="part-ex">Наведи на деталь!</div>
+    </div>
+    <div class="sec" style="flex:1;overflow-y:auto">
+      <div class="st">Уровни</div>
+      <div class="lvl-grid" id="lvl-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════
+  //  КАТАЛОГ ДЕТАЛЕЙ
+  // ═══════════════════════════════════════════════════
+  const CAT = {
+    shelf:  {name:'Полочка', icon:'🟫', col:'#8B5E3C', desc:'Платформа',     phys:'Горизонтальная платформа. Домино удобно ставить в ряд — они упадут как цепочка!'},
+    ramp_r: {name:'Горка →', icon:'◢', col:'#4da6ff', desc:'Шар катится вправо', phys:'Наклонная плоскость: гравитация тянет вниз, наклон направляет движение вправо. F=mg·sinα'},
+    ramp_l: {name:'Горка ←', icon:'◣', col:'#4da6ff', desc:'Шар катится влево', phys:'Наклонная плоскость, наклонена в другую сторону — шар катится влево!'},
+    domino: {name:'Домино',  icon:'🀱', col:'#ff8c42', desc:'Цепочка',       phys:'Передача импульса! Каждая костяшка толкает следующую — энергия передаётся по цепи.'},
+    spring: {name:'Пружина', icon:'🌀', col:'#4ecb71', desc:'Выстрел вверх', phys:'Шар падает на пружину → она выталкивает его вверх. Закон Гука: F = k·x'},
+    seesaw: {name:'Рычаг',    icon:'⚖️', col:'#b57bff', desc:'Катапульта',   phys:'Рычаг на точке опоры: тяжёлый конец опускается, лёгкий взлетает. Принцип Архимеда!'},
+    cube:   {name:'Кубик',   icon:'🟦', col:'#4da6ff', desc:'Взлетает с рычага', phys:'Лёгкий кубик лежит на конце рычага. Когда шар ударяет по другому концу — кубик взлетает вверх!'},
+    wall:   {name:'Стена',   icon:'🧱', col:'#888',    desc:'Отбойник',     phys:'Шар отскакивает от стены. Закон отражения: угол падения = угол отражения!'},
+  };
+
+  // ═══════════════════════════════════════════════════
+  //  УРОВНИ
+  // ═══════════════════════════════════════════════════
+  const LEVELS = [
+    {
+      id:0, emoji:'🏔️', name:'Первая горка',
+      goal:'Докати шар до звезды с помощью горки',
+      hint:'Что произойдёт, если положить горку под углом прямо под шаром?',
+      robot:'Наклонная плоскость — одна из 6 простых машин! Она не уменьшает работу, но делает её удобнее.',
+      fact:'Чем круче наклон горки, тем быстрее шар. Физика: a = g·sin(α)',
+      parts:{ramp_r:3,ramp_l:3,shelf:0,domino:0,spring:0,seesaw:0,wall:0,cube:0},
+      ballStart:{x:0.1,y:0.12}, goalPos:{x:0.88,y:0.88},
+      statics:[], winE:'🎊', winT:'Физик-новичок!',
+      winS:'Ты узнал как наклонная плоскость направляет силу гравитации!'
+    },
+    {
+      id:1, emoji:'🀱', name:'Цепочка домино',
+      goal:'Разгони шар горкой → он толкнёт первое домино → цепочка дойдёт до звезды!',
+      hint:'Домино падает когда его толкают. А что будет, если поставить их вплотную друг к другу?',
+      robot:'Каждое домино получает кинетическую энергию от предыдущего. Это передача импульса — p = m·v!',
+      fact:'Готфрид Вильгельм Лейбниц открыл закон сохранения энергии: она не исчезает, а передаётся от тела к телу.',
+      parts:{ramp_r:2,ramp_l:2,shelf:0,domino:8,spring:0,seesaw:0,wall:0,cube:0},
+      ballStart:{x:0.08,y:0.08}, goalPos:{x:0.88,y:0.88},
+      statics:[], winE:'🎯', winT:'Мастер домино!',
+      winS:'Ты понял как работает цепная реакция и передача импульса!'
+    },
+    {
+      id:2, emoji:'🌀', name:'Пружина!',
+      goal:'Используй пружину чтобы перебросить шар через стену',
+      hint:'Пружина реагирует на то, что на неё падает. Как бы ты разогнал шар перед ней?',
+      robot:'Пружина работает как батут: сжимается — накапливает энергию, распрямляется — отдаёт её. F=k·x!',
+      fact:'Закон Гука открыл Роберт Гук в 1660 году. Пружины используются везде: в часах, машинах, шариковых ручках!',
+      parts:{ramp_r:2,ramp_l:2,shelf:1,domino:0,spring:2,seesaw:0,wall:1,cube:0},
+      ballStart:{x:0.08,y:0.1}, goalPos:{x:0.88,y:0.88},
+      timeLimit:25,
+      statics:[{type:'wall',rx:0.45,ry:0.5,rw:0.018,rh:0.55}],
+      winE:'🚀', winT:'Пружинный мастер!',
+      winS:'Ты понял как пружина накапливает и отдаёт энергию!'
+    },
+    {
+      id:3, emoji:'⚖️', name:'Качели-катапульта',
+      goal:'Положи кубик на один конец качелей. Шар упадёт на другой конец — кубик взлетит к звезде!',
+      hint:'Качели работают как рычаг — чем дальше кубик от центра, тем выше он взлетит.',
+      robot:'Закон рычага: F₁·L₁ = F₂·L₂. Шар тяжёлый — давит сильно. Кубик лёгкий — взлетает быстро!',
+      fact:'Золотое правило механики: что выигрываем в силе — теряем в расстоянии. Рычаг — одна из 6 простых машин древности.',
+      parts:{ramp_r:3,ramp_l:3,shelf:0,domino:0,spring:0,seesaw:1,wall:0,cube:1},
+      ballStart:{x:0.08,y:0.08}, goalPos:{x:0.75,y:0.10},
+      statics:[
+        {type:'platform',rx:0.5,ry:0.88,rw:1.0,rh:0.025},
+      ],
+      cubeWin:true,
+      winE:'⚖️', winT:'Архимед Jr.!',
+      winS:'Рычаг — одна из древнейших машин. Им пользовались ещё в Древнем Египте для постройки пирамид!'
+    },
+    {
+      id:4, emoji:'🏆', name:'Большая машина',
+      goal:'Соедини все детали в одну цепочку и доведи шар до звезды',
+      hint:'С чего начинается любая цепная реакция? Подумай какая деталь запускает следующую.',
+      robot:'Это и есть настоящая Машина Голдберга — безумно сложный способ решить простую задачу!',
+      fact:'Рубе Голдберг был американским карикатуристом. Он придумал абсурдные машины для простых задач — например, машину для вытирания рта салфеткой!',
+      parts:{ramp_r:3,ramp_l:3,shelf:3,domino:6,spring:2,seesaw:2,wall:2,cube:2},
+      ballStart:{x:0.08,y:0.08}, goalPos:{x:0.88,y:0.75},
+      statics:[
+        {type:'platform',rx:0.28,ry:0.42,rw:0.22,rh:0.022},
+        {type:'platform',rx:0.65,ry:0.6, rw:0.2, rh:0.022},
+      ],
+      winE:'🏆', winT:'Великий Инженер!',
+      winS:'Ты построил настоящую Машину Голдберга используя несколько законов физики!'
+    },
+    {
+      id:5, emoji:'🪃', name:'Лабиринт',
+      goal:'Обойди препятствия — используй горки и стены-отбойники чтобы шар добрался до звезды',
+      hint:'Стены отражают шар как зеркало. Угол падения равен углу отражения — как в бильярде!',
+      robot:'Закон отражения работает для всего: света, звука, и нашего шара. Профессиональные бильярдисты просчитывают до 5 отскоков заранее!',
+      fact:'Закон отражения открыл Евклид около 300 года до н.э. Он работает одинаково для света, звука и механических объектов.',
+      parts:{ramp_r:3,ramp_l:3,shelf:2,domino:0,spring:1,seesaw:0,wall:3,cube:0},
+      ballStart:{x:0.08,y:0.08}, goalPos:{x:0.88,y:0.88},
+      statics:[
+        {type:'wall',rx:0.38,ry:0.35,rw:0.018,rh:0.5},
+        {type:'wall',rx:0.65,ry:0.65,rw:0.018,rh:0.5},
+      ],
+      winE:'🏓', winT:'Мастер отражений!',
+      winS:'Ты использовал закон отражения — то же самое что в бильярде, оптике и акустике!'
+    },
+    {
+      id:6, emoji:'🪜', name:'Каскад горок',
+      goal:'Построй зигзаг из горок — шар должен спуститься этажами и войти в звезду справа сверху',
+      hint:'Чередуй горку-влево и горку-вправо. Звезда закрыта с трёх сторон — войти можно только сверху справа!',
+      robot:'На каждой горке потенциальная энергия превращается в кинетическую. E = mgh — чем выше упал, тем быстрее катится!',
+      fact:'Горки-зигзаги используются в шахтах для спуска породы и на горнолыжных трассах — они экономят место и контролируют скорость.',
+      parts:{ramp_r:4,ramp_l:4,shelf:0,domino:0,spring:0,seesaw:0,wall:0,cube:0},
+      ballStart:{x:0.08,y:0.06}, goalPos:{x:0.75,y:0.80},
+      statics:[
+        // Дно
+        {type:'platform',rx:0.75,ry:0.92,rw:0.50,rh:0.018},
+        // Правая стена — полная
+        {type:'wall',rx:0.995,ry:0.80,rw:0.018,rh:0.44},
+        // Крыша — полная, от левого края коробки до правой стены
+        {type:'platform',rx:0.75,ry:0.68,rw:0.50,rh:0.018},
+      ],
+      winE:'🎿', winT:'Мастер зигзага!',
+      winS:'Ты построил каскад горок — именно так устроены горки в аттракционах и горнолыжные трассы!'
+    },
+    {
+      id:7, emoji:'💥', name:'Через пропасть',
+      goal:'Пружина поможет шару перелететь через широкую пропасть — до звезды на другой стороне',
+      hint:'Разгони шар горкой → он ударит пружину → пружина выстрелит его над пропастью!',
+      robot:'Пружина работает как батут. Чем быстрее шар в неё врезается — тем выше он взлетает. F = k·x — сила пропорциональна сжатию!',
+      fact:'Закон Гука открыл Роберт Гук в 1660 году. Пружины используются в часах, матрасах, автомобилях и даже в атомных часах.',
+      parts:{ramp_r:3,ramp_l:3,shelf:1,domino:0,spring:2,seesaw:0,wall:0,cube:0},
+      ballStart:{x:0.07,y:0.08}, goalPos:{x:0.88,y:0.88},
+      statics:[
+        {type:'wall',rx:0.42,ry:0.72,rw:0.018,rh:0.56},
+        {type:'wall',rx:0.58,ry:0.72,rw:0.018,rh:0.56},
+      ],
+      winE:'🚀', winT:'Прыгун-чемпион!',
+      winS:'Ты использовал пружину как катапульту — именно так работают прыжки на батуте и пружинные трамплины!'
+    },
+    {
+      id:8, emoji:'🏓', name:'Пинг-понг',
+      goal:'Используй боковые пружины чтобы шар перелетал от стенки к стенке и добрался до звезды',
+      hint:'Поставь пружины на полочки у боковых стен — шар будет отскакивать от них горизонтально!',
+      robot:'Пружина может толкать не только вверх! Если шар ударяет сбоку — он летит горизонтально. Это всё тот же закон Гука: F = k·x',
+      fact:'Принцип пружинного толчка используется в пинбол-автоматах, рогатках и даже в механизмах часов — везде где нужен точный повторяемый импульс.',
+      parts:{ramp_r:3,ramp_l:3,shelf:3,domino:0,spring:3,seesaw:0,wall:2,cube:0},
+      ballStart:{x:0.08,y:0.08}, goalPos:{x:0.88,y:0.55},
+      statics:[
+        {type:'platform',rx:0.5,ry:0.88,rw:1.0,rh:0.025},
+        {type:'platform',rx:0.5,ry:0.55,rw:0.3, rh:0.02},
+      ],
+      winE:'🏓', winT:'Пинбол-мастер!',
+      winS:'Ты научился использовать пружины горизонтально — именно так работают пинбол-автоматы!'
+    },
+    {
+      id:9, emoji:'🔍', name:'Найди деталь',
+      goal:'Четыре горки пропущены. Одна лишняя — она не нужна. Разберись!',
+      hint:'Запусти шар и смотри где он теряется. Лишняя горка запутает — думай логично!',
+      robot:'Настоящий инженер не просто чинит — он ещё отличает нужные детали от лишних. Анализируй!',
+      fact:'Метод проб и ошибок — главный инструмент инженера. Томас Эдисон провёл 1000 неудачных опытов прежде чем изобрёл лампочку.',
+      parts:{ramp_r:3,ramp_l:2,shelf:2,domino:3,spring:1,seesaw:0,wall:1,cube:0},
+      ballStart:{x:0.88,y:0.06}, goalPos:{x:0.12,y:0.88},
+      statics:[
+        // Горка ← уже стоит под шаром (шар влево)
+        {type:'ramp_r',rx:0.82,ry:0.18,rw:0.18,rh:0.018},
+        // Полочка 1 — широкая, шар едет влево
+        {type:'platform',rx:0.42,ry:0.30,rw:0.52,rh:0.018},
+        // === ПРОПУЩЕНА горка → у левого края полочки 1 ===
+
+        // Полочка 2 — шар едет вправо
+        {type:'platform',rx:0.62,ry:0.47,rw:0.46,rh:0.018},
+        // === ПРОПУЩЕНА горка ← у правого края полочки 2 ===
+
+        // Полочка 3 — шар едет влево (короткая — сложнее попасть)
+        {type:'platform',rx:0.28,ry:0.63,rw:0.32,rh:0.018},
+        // === ПРОПУЩЕНА горка → у левого края полочки 3 ===
+
+        // Полочка 4 — шар едет вправо (тоже короткая)
+        {type:'platform',rx:0.60,ry:0.78,rw:0.28,rh:0.018},
+        // === ПРОПУЩЕНА горка ← у правого края полочки 4 ===
+
+        // Полочка 5 — финальная, ведёт к звезде слева
+        {type:'platform',rx:0.18,ry:0.88,rw:0.32,rh:0.018},
+      ],
+      winE:'🔍', winT:'Детектив физики!',
+      winS:'Четыре горки на месте, лишняя отброшена — ты мыслишь как настоящий инженер!'
+    },
+    {
+      id:10, emoji:'✂️', name:'Только 7 деталей',
+      goal:'Доведи шар до звезды используя не больше 7 деталей!',
+      hint:'Думай экономно. Каждая деталь должна работать. Лишних нет — только нужные.',
+      robot:'Хороший инженер решает задачу минимумом средств. Это называется принцип бережливости!',
+      fact:'Закон Оккама: не умножай сущности без необходимости. Простое решение лучше сложного.',
+      parts:{ramp_r:5,ramp_l:5,shelf:4,domino:5,spring:3,seesaw:0,wall:3,cube:2},
+      ballStart:{x:0.08,y:0.08}, goalPos:{x:0.88,y:0.88},
+      statics:[
+        {type:'platform',rx:0.5,ry:0.55,rw:0.35,rh:0.018},
+      ],
+      maxParts:7,
+      winE:'✂️', winT:'Мастер минимализма!',
+      winS:'Три детали — и задача решена. Настоящий инженер не тратит лишнего!'
+    },
+    {
+      id:11, emoji:'⚡', name:'Скорость и точность',
+      goal:'Только 5 деталей и 15 секунд — успей довести шар до звезды!',
+      hint:'Сначала думай, потом ставь. Два хода — и запускай немедленно!',
+      robot:'Инженер в реальной жизни всегда ограничен ресурсами — временем, деталями, бюджетом. Вот твой вызов!',
+      fact:'Формула 1: инженеры на пит-стопе меняют 4 колеса за 2 секунды. Скорость + точность = победа.',
+      parts:{ramp_r:5,ramp_l:5,shelf:4,domino:5,spring:3,seesaw:0,wall:3,cube:2},
+      ballStart:{x:0.08,y:0.08}, goalPos:{x:0.88,y:0.88},
+      statics:[
+        {type:'wall',rx:0.5,ry:0.55,rw:0.018,rh:0.55},
+      ],
+      maxParts:5,
+      timeLimit:20,
+      winE:'⚡', winT:'Молния-инженер!',
+      winS:'2 детали, 15 секунд — и ты справился. Это высший класс!'
+    },
+    {
+      id:12, emoji:'🗑', name:'Убери лишнее',
+      goal:'Машина уже собрана — но одна деталь лишняя и мешает шару добраться до звезды. Найди и убери!',
+      hint:'Запусти — посмотри где шар застревает. Убери деталь которая ему мешает. ПКМ — удалить.',
+      robot:'Иногда лишняя деталь вредит больше чем её отсутствие. Инженер умеет не только добавлять, но и убирать!',
+      // fact:'В программировании есть принцип KISS: Keep It Simple, Stupid. Лучшее решение — простейшее.',
+      parts:{ramp_r:0,ramp_l:0,shelf:0,domino:0,spring:0,seesaw:0,wall:0,cube:0},
+      ballStart:{x:0.08,y:0.08}, goalPos:{x:0.88,y:0.88},
+      statics:[
+        {type:'platform',rx:0.5,ry:0.88,rw:1.0,rh:0.025},
+      ],
+      removeOnly:true,
+      preset:[
+        // 1. Горка → под шаром
+        {type:'ramp_l', rx:0.15, ry:0.12},
+        // 2. Горка ← у правого края
+        {type:'ramp_r', rx:0.85, ry:0.24},
+        // 3. Горка → у левого края
+        {type:'ramp_l', rx:0.15, ry:0.36},
+        // 4. Полочка — шар едет вправо
+        {type:'shelf',  rx:0.60, ry:0.49},
+        // 5. Домино на полочке — шар толкает их
+        {type:'domino', rx:0.72, ry:0.47},
+        {type:'domino', rx:0.80, ry:0.47},
+        // 6. Горка ← после домино
+        {type:'ramp_r', rx:0.85, ry:0.47},
+        // 7. Горка → у левого края
+        {type:'ramp_l', rx:0.15, ry:0.62},
+        // 8. Полочка финальная
+        {type:'shelf',  rx:0.65, ry:0.75},
+        // 9. Домино на финальной полочке
+        {type:'domino', rx:0.75, ry:0.73},
+        // 10. ЛИШНЯЯ горка ← посередине — сбрасывает шар
+        {type:'ramp_r', rx:0.48, ry:0.73},
+      ],
+      winE:'🗑', winT:'Хирург деталей!',
+      winS:'Ты нашёл лишнюю деталь! Иногда убрать — важнее чем добавить.'
+    },
+    {
+      id:13, emoji:'🔬', name:'Убери и не сломай',
+      goal:'Машина работает — но одна деталь делает её нестабильной. Убери только ту, которая мешает!',
+      hint:'Запусти и внимательно следи за шаром. Какая деталь явно не нужна в этой цепочке?',
+      robot:'Сложнее всего убрать деталь из работающей системы. Нужно понять что каждая делает!',
+      fact:'Медики называют это принципом "не навреди" — Primum non nocere. Инженеры думают так же.',
+      parts:{ramp_r:0,ramp_l:0,shelf:0,domino:0,spring:0,seesaw:0,wall:0,cube:0},
+      ballStart:{x:0.08,y:0.08}, goalPos:{x:0.88,y:0.55},
+      statics:[
+        {type:'wall',rx:0.88,ry:0.72,rw:0.018,rh:0.55},
+      ],
+      removeOnly:true,
+      preset:[
+        // 1. Горка → под шаром
+        {type:'ramp_l', rx:0.15, ry:0.14},
+        // 2. Полочка — шар едет вправо
+        {type:'shelf',  rx:0.58, ry:0.27},
+        // 3. Домино на полочке
+        {type:'domino', rx:0.68, ry:0.25},
+        {type:'domino', rx:0.76, ry:0.25},
+        // 4. Горка ← у правого края
+        {type:'ramp_r', rx:0.84, ry:0.25},
+        // 5. Горка → у левого края
+        {type:'ramp_l', rx:0.15, ry:0.42},
+        // 6. Горка ← у правого края
+        {type:'ramp_r', rx:0.83, ry:0.57},
+        // 7. ЛИШНЯЯ горка → посередине — уводит шар от пружины
+        {type:'ramp_l', rx:0.45, ry:0.67},
+        // 8. Полочка финальная — ведёт к пружине
+        {type:'shelf',  rx:0.62, ry:0.70},
+        // 9. Домино перед пружиной
+        {type:'domino', rx:0.76, ry:0.68},
+        // 10. Пружина у правой стены
+        {type:'spring', rx:0.87, ry:0.70},
+      ],
+      winE:'🔬', winT:'Системный аналитик!',
+      winS:'Ты разобрался в чужой системе и нашёл лишнее — это высший инженерный навык!'
+    },
+  ];
+
+
+
+  // ═══════════════════════════════════════════════════
+  //  CANVAS + MATTER SETUP
+  // ═══════════════════════════════════════════════════
+  const wrap = document.getElementById('cw');
+  const gc   = document.getElementById('gc');
+  const dc   = document.getElementById('dc');
+  const cfv  = document.getElementById('cfv');
+  let CW = wrap.clientWidth, CH = wrap.clientHeight;
+  gc.width=dc.width=cfv.width=CW; gc.height=dc.height=cfv.height=CH;
+  const dctx = dc.getContext('2d');
+  const cctx = cfv.getContext('2d');
+
+  const {Engine,Render,Runner,Bodies,Body,World,Events,Constraint} = Matter;
+  const engine = Engine.create({gravity:{x:0,y:1.8}});
+  const world  = engine.world;
+
+  // ── ГРАВИТАЦИЯ ────────────────────────────────────
+  const GRAVS=[
+    {label:'🌍 Земля — 9.8 м/с²',   eng:1.8,  cls:'',        col:'#ff8c42'},
+    {label:'🌙 Луна — 1.6 м/с²',    eng:0.29, cls:'moon',    col:'#aaaacc'},
+    {label:'🔴 Марс — 3.7 м/с²',    eng:0.67, cls:'mars',    col:'#c85032'},
+    {label:'🪐 Юпитер — 24.8 м/с²', eng:4.5,  cls:'jupiter', col:'#ff8c42'},
+    {label:'🪨 Меркурий — 3.7 м/с²',eng:0.67, cls:'mercury', col:'#b4a078'},
+    {label:'☀️ Солнце — 274 м/с²',  eng:9.8,  cls:'sun',     col:'#ff6040'},
+  ];
+  let gravIdx=0;
+  function toggleGravity(){
+    if(simRunning) return;
+    gravIdx=(gravIdx+1)%GRAVS.length;
+    const g=GRAVS[gravIdx];
+    engine.gravity.y=g.eng;
+    const btn=document.getElementById('btn-grav');
+    btn.textContent=g.label;
+    btn.style.color=g.col;
+  }
+  const renderer = Render.create({canvas:gc,engine,options:{width:CW,height:CH,wireframes:false,background:'transparent'}});
+  Render.run(renderer);
+  Runner.run(Runner.create(),engine);
+
+  // Невидимые границы
+  const inv={isStatic:true,render:{fillStyle:'transparent',strokeStyle:'transparent',lineWidth:0}};
+  World.add(world,[
+    Bodies.rectangle(CW/2,CH+25,CW,50,inv),
+    Bodies.rectangle(-25,CH/2,50,CH,inv),
+    Bodies.rectangle(CW+25,CH/2,50,CH,inv),
+  ]);
+  // Пол
+  World.add(world,Bodies.rectangle(CW/2,CH-10,CW,20,{
+    isStatic:true,label:'floor',
+    render:{fillStyle:'#243858',strokeStyle:'#3d5a8a',lineWidth:2},
+    friction:0.4,restitution:0.3
+  }));
+
+  // ═══════════════════════════════════════════════════
+  //  STATE
+  // ═══════════════════════════════════════════════════
+  let ball=null, simRunning=false, won=false;
+  let placed=[], prevSpeed=0, maxEnergy=1, frameN=0, trajPts=[];
+  let dragType=null, dragCard=null, mouseX=0, mouseY=0;
+  let lastEduState='', eduPartType=null;
+  let timerLeft=0, timerInterval=null; // таймер уровня
+  // Перемещение уже поставленной детали
+  let movingIdx=-1, movingType=null;
+  let currentLevel=0, completedLevels=new Set();
+  // Пружины: Map body.id -> {x,y,triggered}
+  let springs = new Map();
+  // Статические тела уровня (стены/платформы)
+  let levelStatics = [];
+  // Цель
+  let goalBody = null;
+
+  // ═══════════════════════════════════════════════════
+  //  LOAD LEVEL
+  // ═══════════════════════════════════════════════════
+  function loadLevel(idx, skipPreset=false){
+    currentLevel = idx; won = false;
+    const lv = LEVELS[idx];
+
+    // Очистить мир кроме пола и границ
+    clearParts();
+    springs.clear();
+    levelStatics.forEach(b=>World.remove(world,b)); levelStatics=[];
+    if(goalBody){World.remove(world,goalBody);goalBody=null;}
+
+    // Статические тела уровня
+    lv.statics.forEach(s=>{
+      let b;
+      if(s.type==='wall'){
+        b=Bodies.rectangle(CW*s.rx,CH*s.ry,CW*s.rw,CH*s.rh,{
+          isStatic:true,label:'lvl-wall',
+          render:{fillStyle:'#3a2055',strokeStyle:'#6a3daa',lineWidth:2},
+          friction:0.1,restitution:0.4
+        });
+      } else if(s.type==='ramp_r'){
+        b=Bodies.rectangle(CW*s.rx,CH*s.ry,CW*s.rw,CH*s.rh,{
+          isStatic:true,label:'lvl-plat',angle:-0.38,
+          render:{fillStyle:'#1a3a6a',strokeStyle:'#4da6ff',lineWidth:2},
+          friction:0.25,restitution:0.2
+        });
+      } else if(s.type==='ramp_l'){
+        b=Bodies.rectangle(CW*s.rx,CH*s.ry,CW*s.rw,CH*s.rh,{
+          isStatic:true,label:'lvl-plat',angle:0.38,
+          render:{fillStyle:'#1a3a6a',strokeStyle:'#4da6ff',lineWidth:2},
+          friction:0.25,restitution:0.2
+        });
+      } else {
+        b=Bodies.rectangle(CW*s.rx,CH*s.ry,CW*s.rw,CH*s.rh,{
+          isStatic:true,label:'lvl-plat',
+          render:{fillStyle:'#243858',strokeStyle:'#3d5a8a',lineWidth:2},
+          friction:0.4,restitution:0.2
+        });
+      }
+      World.add(world,b); levelStatics.push(b);
+    });
+
+    // Цель — звезда (сенсор)
+    const gx=CW*lv.goalPos.x, gy=CH*lv.goalPos.y;
+    goalBody=Bodies.circle(gx,gy,26,{
+      isStatic:true,isSensor:true,label:'goal',
+      render:{fillStyle:'rgba(245,200,66,.2)',strokeStyle:'#f5c842',lineWidth:3}
+    });
+    World.add(world,goalBody);
+
+    // Шар
+    spawnBall(CW*lv.ballStart.x, CH*lv.ballStart.y);
+
+    // Пресет — детали расставленные заранее (для режима "убери лишнее")
+    if(lv.preset && !skipPreset){
+      lv.preset.forEach(p=>placePart(p.type, CW*p.rx, CH*p.ry));
+    }
+
+    // UI
+    document.getElementById('hint-box').textContent = lv.hint;
+    document.getElementById('robot-txt').textContent = lv.robot;
+    updateLvlButtons();
+    buildPartCards();
+    updateMaxPartsUI();
+    resetStatUI();
+    lastEduState=''; eduPartType=null;
+    const eb=document.getElementById('edu-box');
+    const fb=document.getElementById('formula-box');
+    const fd=document.getElementById('formula-desc');
+    if(eb) eb.textContent='Запусти шар — и я буду объяснять физику в реальном времени!';
+    if(fb) fb.textContent='—';
+    if(fd) fd.textContent='';
+    simRunning=false;
+    const btn=document.getElementById('btn-run');
+    btn.textContent='▶ Запуск'; btn.style.background='#4ecb71'; btn.style.color='#0a2010';
+    dctx.clearRect(0,0,CW,CH);
+    drawDecorations();
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  BALL
+  // ═══════════════════════════════════════════════════
+  function spawnBall(x,y){
+    if(ball){World.remove(world,ball);}
+    ball=Bodies.circle(x,y,18,{
+      label:'ball',restitution:0.3,friction:0.35,density:0.008,
+      render:{fillStyle:'#dce8ff',strokeStyle:'#8899cc',lineWidth:2}
+    });
+    Body.setStatic(ball,true);
+    World.add(world,ball);
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  SPRING — детектируем в physics loop (не collision event)
+  //  Проверяем расстояние шара до каждой пружины каждый тик
+  // ═══════════════════════════════════════════════════
+  function checkSprings(){
+    if(!ball||!simRunning) return;
+    springs.forEach((sp,id)=>{
+      if(sp.triggered) return;
+      const dx=ball.position.x-sp.x;
+      const dy=ball.position.y-sp.y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<42){
+        sp.triggered=true;
+        sp.animT=8;
+        const vx=ball.velocity.x;
+        const vy=ball.velocity.y;
+        const speed=Math.sqrt(vx*vx+vy*vy);
+        const springForce=Math.max(14, speed*1.2); // сила пружины растёт с инерцией
+        const absDx=Math.abs(dx), absDy=Math.abs(dy);
+        if(absDy>absDx){
+          // Удар сверху/снизу — полностью сохраняем горизонтальную инерцию, добавляем вертикальный импульс
+          const dir=Math.sign(dy);
+          Body.setVelocity(ball,{
+            x: vx,                                 // горизонтальная инерция сохраняется полностью
+            y: dir>0 ? springForce*0.7 : -springForce
+          });
+        } else {
+          // Удар сбоку — толкаем горизонтально, сохраняем вертикальную инерцию
+          const dir=Math.sign(dx);
+          Body.setVelocity(ball,{
+            x: dir * springForce,
+            y: vy * 0.6                            // вертикальная инерция частично сохраняется
+          });
+        }
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  MAKE PART BODIES
+  // ═══════════════════════════════════════════════════
+  function makePartBodies(type,x,y){
+    const bodies=[],constraints=[];
+
+    if(type==='shelf'){
+      bodies.push(Bodies.rectangle(x,y,160,14,{
+        isStatic:true,label:'shelf',
+        render:{fillStyle:'#4a2e10',strokeStyle:'#8B5E3C',lineWidth:2},
+        friction:0.4,restitution:0.2
+      }));
+    }
+    if(type==='ramp_r'){
+      bodies.push(Bodies.rectangle(x,y,150,14,{
+        isStatic:true,label:'ramp',angle:-0.38,
+        render:{fillStyle:'#1a3a6a',strokeStyle:'#4da6ff',lineWidth:2},
+        friction:0.25,restitution:0.3
+      }));
+    }
+    if(type==='ramp_l'){
+      bodies.push(Bodies.rectangle(x,y,150,14,{
+        isStatic:true,label:'ramp',angle:0.38,
+        render:{fillStyle:'#1a3a6a',strokeStyle:'#4da6ff',lineWidth:2},
+        friction:0.25,restitution:0.3
+      }));
+    }
+    if(type==='domino'){
+      bodies.push(Bodies.rectangle(x,y,14,60,{
+        isStatic:true,label:'domino',
+        density:0.0003,friction:0.3,restitution:0.2,
+        render:{fillStyle:'#5a2e08',strokeStyle:'#ff8c42',lineWidth:2}
+      }));
+    }
+    if(type==='spring'){
+      // Просто статичный блок — физика через distance check в loop
+      const b=Bodies.rectangle(x,y,64,16,{
+        isStatic:true,label:'spring',
+        render:{fillStyle:'#0d3018',strokeStyle:'#4ecb71',lineWidth:3},
+        friction:0,restitution:0
+      });
+      // Регистрируем пружину по id тела
+      springs.set(b.id,{x,y,triggered:false,animT:0});
+      bodies.push(b);
+    }
+    if(type==='seesaw'){
+      // Опора — круглая, рычаг балансирует симметрично
+      const pivot=Bodies.circle(x, y+8, 10,{
+        isStatic:true, label:'pivot',
+        render:{fillStyle:'#5020a0',strokeStyle:'#b57bff',lineWidth:2},
+        friction:0, restitution:0
+      });
+      // Доска — горизонтальная, статичная до запуска
+      const board=Bodies.rectangle(x, y, 200, 12,{
+        isStatic:true, label:'seesaw',
+        density:0.004,
+        friction:0.3,
+        restitution:0.05,
+        frictionAir:0.05,
+        render:{fillStyle:'#2a1060',strokeStyle:'#b57bff',lineWidth:2}
+      });
+      // Шарнир через bodyA (pivot статичный, board динамичный после запуска)
+      const pin=Constraint.create({
+        bodyA:pivot, pointA:{x:0,y:-10},
+        bodyB:board, pointB:{x:0,y:0},
+        stiffness:1, length:0,
+        render:{strokeStyle:'rgba(0,0,0,0)',lineWidth:0}
+      });
+      bodies.push(pivot, board);
+      constraints.push(pin);
+    }
+    if(type==='cube'){
+      const b=Bodies.rectangle(x, y, 22, 22,{
+        isStatic:true, label:'cube',
+        density:0.0004,
+        friction:0.8,
+        frictionAir:0.01,
+        restitution:0.2,
+        render:{fillStyle:'#1a3a6a',strokeStyle:'#4da6ff',lineWidth:2}
+      });
+      bodies.push(b);
+    }
+    if(type==='wall'){
+      bodies.push(Bodies.rectangle(x,y,18,110,{
+        isStatic:true,label:'wall',
+        render:{fillStyle:'#3a3a3a',strokeStyle:'#888',lineWidth:2},
+        friction:0.1,restitution:0.5
+      }));
+    }
+    return {bodies,constraints};
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  PLACE / REMOVE
+  // ═══════════════════════════════════════════════════
+  function placePart(type,x,y){
+    // Проверка ограничения деталей
+    const lv=LEVELS[currentLevel];
+    if(lv.maxParts!==undefined && placed.length>=lv.maxParts) return;
+    const {bodies,constraints}=makePartBodies(type,x,y);
+    World.add(world,bodies);
+    constraints.forEach(c=>World.add(world,c));
+    placed.push({type,x,y,bodies,constraints});
+    updateMaxPartsUI();
+    showDelHint();
+    setPartEx(type);
+    drawDecorations();
+  }
+
+  function removePart(idx){
+    const p=placed[idx];
+    p.constraints.forEach(c=>{ try{World.remove(world,c);}catch(e){} });
+    p.bodies.forEach(b=>{
+      springs.delete(b.id);
+      try{World.remove(world,b);}catch(e){}
+    });
+    placed.splice(idx,1);
+    updateMaxPartsUI();
+    drawDecorations();
+  }
+
+  function clearParts(){
+    while(placed.length) removePart(0);
+  }
+
+  function showDelHint(){
+    const h=document.getElementById('dh');
+    h.classList.add('show'); clearTimeout(h._t);
+    h._t=setTimeout(()=>h.classList.remove('show'),3500);
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  DRAG & DROP
+  // ═══════════════════════════════════════════════════
+  function getPos(e){const t=e.touches?.[0]??e.changedTouches?.[0]??e;return{x:t.clientX,y:t.clientY};}
+
+  function updateMaxPartsUI(){
+    const lv=LEVELS[currentLevel];
+    const sec=document.getElementById('maxparts-sec');
+    const el=document.getElementById('maxparts-left');
+    if(!lv.maxParts){ if(sec) sec.style.display='none'; return; }
+    if(sec) sec.style.display='';
+    const left=lv.maxParts-placed.length;
+    if(el){
+      el.textContent=left;
+      el.style.color=left===0?'#ff5f5f':left===1?'#ff8c42':'#4da6ff';
+    }
+    // Блокируем карточки если лимит исчерпан
+    document.querySelectorAll('.pc').forEach(c=>{
+      c.style.opacity=left===0?'0.35':'';
+      c.style.pointerEvents=left===0?'none':'';
+    });
+  }
+
+  function buildPartCards(){
+    const lv=LEVELS[currentLevel];
+    const grid=document.getElementById('pg'); grid.innerHTML='';
+    // Режим "убери лишнее" — показываем специальное сообщение вместо деталей
+    if(lv.removeOnly){
+      grid.innerHTML='<div style="font-size:13px;color:#ff8c42;line-height:1.6;padding:4px 2px">🗑 Убери лишнюю деталь — нажми ПКМ или потяни за пределы поля</div>';
+      return;
+    }
+    Object.entries(CAT).forEach(([type,def])=>{
+      if(!lv.parts[type]) return;
+      const card=document.createElement('div');
+      card.className='pc'; card.dataset.type=type;
+      card.innerHTML=`<span class="pi">${def.icon}</span><div><div class="pn">${def.name}</div><div class="pd">${def.desc}</div></div>`;
+      card.addEventListener('mousedown',e=>startDrag(e,type,card));
+      card.addEventListener('touchstart',e=>startDrag(e,type,card),{passive:true});
+      card.addEventListener('mouseenter',()=>setPartEx(type));
+      grid.appendChild(card);
+    });
+  }
+
+  function startDrag(e,type,card){
+    if(simRunning) return;
+    dragType=type; dragCard=card;
+    card.classList.add('dragging');
+    document.body.classList.add('dragging-part');
+    const p=getPos(e); mouseX=p.x; mouseY=p.y;
+    drawDecorations();
+  }
+
+  document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;drawDecorations();});
+  document.addEventListener('touchmove',e=>{if(!dragType)return;if(e.cancelable)e.preventDefault();const p=getPos(e);mouseX=p.x;mouseY=p.y;drawDecorations();},{passive:false});
+  window.addEventListener('mouseup', e=>endDrag(getPos(e)));
+  window.addEventListener('touchend',e=>endDrag(getPos(e)));
+
+  function endDrag(pos){
+    if(!dragType) return;
+    const _type=dragType, _card=dragCard;
+    dragType=null; dragCard=null; // сбрасываем ПЕРВЫМ — превью пропадает немедленно
+    _card?.classList.remove('dragging');
+    document.body.classList.remove('dragging-part');
+    const rect=wrap.getBoundingClientRect();
+    const cx=pos.x-rect.left, cy=pos.y-rect.top;
+    if(cx>0&&cy>0&&cx<CW&&cy<CH&&!simRunning) placePart(_type,cx,cy);
+    drawDecorations();
+  }
+
+  // ПКМ — удалить деталь
+  window.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    if(simRunning) return;
+    const rect = dc.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    if(cx<0||cy<0||cx>rect.width||cy>rect.height) return;
+    let best=-1, bestD=64;
+    placed.forEach((p,i)=>{
+      let minD=Infinity;
+      p.bodies.forEach(b=>{ const d=Math.hypot(b.position.x-cx,b.position.y-cy); if(d<minD) minD=d; });
+      const d=Math.min(minD, Math.hypot(p.x-cx,p.y-cy));
+      if(d<bestD){bestD=d;best=i;}
+    });
+    if(best>=0) removePart(best);
+  });
+  // mousedown на поле — либо начать перемещение детали, либо перетащить новую
+  dc.addEventListener('mousedown', e => {
+    if(e.button===2) return; // ПКМ обрабатывает contextmenu
+    if (simRunning || dragType) return;
+    const rect = dc.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    let best = -1, bestD = 60;
+    placed.forEach((p, i) => {
+      let minD = Infinity;
+      p.bodies.forEach(b => {
+        const d = Math.hypot(b.position.x - cx, b.position.y - cy);
+        if (d < minD) minD = d;
+      });
+      const dOrig = Math.hypot(p.x - cx, p.y - cy);
+      const d = Math.min(minD, dOrig);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    if (best >= 0) {
+      // Подхватываем деталь: запоминаем тип, удаляем из мира, начинаем тащить как превью
+      movingIdx  = best;
+      movingType = placed[best].type;
+      removePart(best);
+      movingIdx  = -1;
+      dragType   = movingType;
+      mouseX = e.clientX; mouseY = e.clientY;
+      drawDecorations();
+    }
+  });
+
+  dc.addEventListener('touchstart', e => {
+    if (simRunning || dragType) return;
+    const touch = e.touches[0];
+    const rect  = dc.getBoundingClientRect();
+    const cx = touch.clientX - rect.left, cy = touch.clientY - rect.top;
+    let best = -1, bestD = 60;
+    placed.forEach((p, i) => {
+      let minD = Infinity;
+      p.bodies.forEach(b => {
+        const d = Math.hypot(b.position.x - cx, b.position.y - cy);
+        if (d < minD) minD = d;
+      });
+      const dOrig = Math.hypot(p.x - cx, p.y - cy);
+      const d = Math.min(minD, dOrig);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    if (best >= 0) {
+      movingType = placed[best].type;
+      removePart(best);
+      dragType = movingType;
+      mouseX = touch.clientX; mouseY = touch.clientY;
+      drawDecorations();
+    }
+  }, { passive: true });
+
+  // ═══════════════════════════════════════════════════
+  //  SIMULATION
+  // ═══════════════════════════════════════════════════
+  function runSim(){
+    if(simRunning){resetSim();return;}
+    simRunning=true; won=false;
+    // Сбрасываем флаги пружин и рычага
+    springs.forEach(sp=>{sp.triggered=false;});
+    placed.forEach(p=>{
+      if(p.type==='seesaw') p.bodies.forEach(b=>{ if(b.label==='seesaw') b._cubeLaunched=false; });
+    });
+    // Размораживаем: шар, домино, доску рычага, кубик
+    Body.setStatic(ball,false);
+    placed.forEach(p=>{
+      if(p.type==='domino'){
+        p.bodies.forEach(b=>{ if(b.label==='domino') Body.setStatic(b,false); });
+      }
+      if(p.type==='seesaw'){
+        p.bodies.forEach(b=>{
+          if(b.label==='seesaw'){
+            Body.setAngle(b,0);
+            Body.setAngularVelocity(b,0);
+            Body.setStatic(b,false);
+          }
+        });
+      }
+      if(p.type==='cube'){
+        const cb=p; // capture for closure
+        requestAnimationFrame(()=>{
+          cb.bodies.forEach(b=>{
+            if(b.label==='cube') Body.setStatic(b,false);
+          });
+        });
+      }
+    });
+    const h0=Math.max(1,CH-ball.position.y);
+    maxEnergy=ball.mass*9.8*(h0/28)*10;
+    const btn=document.getElementById('btn-run');
+    btn.textContent='⏸ Стоп'; btn.style.background='#ff5f5f'; btn.style.color='#2a0000';
+    clearTimeout(runSim._autoReset);
+    runSim._autoReset=setTimeout(()=>{if(simRunning&&!won)resetSim();},35000);
+
+    // Запускаем таймер если уровень его требует
+    const lv=LEVELS[currentLevel];
+    if(lv.timeLimit){
+      timerLeft=lv.timeLimit;
+      clearInterval(timerInterval);
+      timerInterval=setInterval(()=>{
+        if(!simRunning||won){ clearInterval(timerInterval); return; }
+        timerLeft--;
+        if(timerLeft<=0){ clearInterval(timerInterval); resetSim(); }
+      },1000);
+    }
+  }
+
+  function resetSim(){
+    clearTimeout(runSim._autoReset);
+    clearInterval(timerInterval); timerLeft=0;
+    simRunning=false; won=false; trajPts=[]; prevSpeed=0;
+    springs.forEach(sp=>{sp.triggered=false;});
+
+    const lv=LEVELS[currentLevel];
+    // Сохраняем текущее расположение для восстановления после сброса
+    const snap=placed.map(p=>({type:p.type,x:p.x,y:p.y}));
+
+    // Для всех уровней: восстанавливаем то что было на поле
+    loadLevel(currentLevel, true); // skipPreset=true — не расставляем пресет заново
+    snap.forEach(p=>placePart(p.type,p.x,p.y));
+
+    dctx.clearRect(0,0,CW,CH);
+    drawDecorations();
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  WIN
+  // ═══════════════════════════════════════════════════
+  function checkWin(){
+    if(!ball||!goalBody||won) return;
+    const gx=goalBody.position.x, gy=goalBody.position.y;
+
+    // Шар достиг цели
+    const db=Math.hypot(ball.position.x-gx, ball.position.y-gy);
+    if(db<50){ triggerWin(); return; }
+
+    // Любое домино достигло цели (для уровня с домино)
+    for(const p of placed){
+      if(p.type!=='domino') continue;
+      for(const b of p.bodies){
+        const d=Math.hypot(b.position.x-gx, b.position.y-gy);
+        if(d<55){ triggerWin(); return; }
+      }
+    }
+
+    // Кубик достиг звезды — для уровня с cubeWin
+    if(LEVELS[currentLevel].cubeWin){
+      for(const p of placed){
+        if(p.type!=='cube') continue;
+        for(const b of p.bodies){
+          const d=Math.hypot(b.position.x-gx, b.position.y-gy);
+          if(d<70){ triggerWin(); return; }
+        }
+      }
+    }
+  }
+
+  function triggerWin(){
+    won=true; simRunning=false;
+    completedLevels.add(currentLevel);
+    updateLvlButtons();
+    const lv=LEVELS[currentLevel];
+    document.getElementById('we').textContent=lv.winE;
+    document.getElementById('wt').textContent=lv.winT;
+    document.getElementById('ws').innerHTML=lv.winS+'<br><br><span style="font-size:13px;color:#4ecb71;font-weight:800">Уровень '+(currentLevel+1)+' из '+LEVELS.length+' пройден!</span>';
+    document.getElementById('wf').textContent='🔬 '+lv.fact;
+    const wb=document.getElementById('wb');
+    const isLast=currentLevel===LEVELS.length-1;
+    wb.textContent=isLast?'🏆 Ты великий инженер!':'Следующий уровень →';
+    wb.onclick=isLast?()=>{}:nextLevel;
+    document.getElementById('win-ov').classList.add('show');
+    launchConfetti();
+  }
+
+  function nextLevel(){
+    document.getElementById('win-ov').classList.remove('show');
+    if(currentLevel<LEVELS.length-1) loadLevel(currentLevel+1);
+  }
+  function replayLevel(){
+    document.getElementById('win-ov').classList.remove('show');
+    loadLevel(currentLevel);
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  PHYSICS LOOP
+  // ═══════════════════════════════════════════════════
+  Events.on(engine,'afterUpdate',()=>{
+    frameN++;
+    checkSprings();
+    checkWin();
+
+    // До запуска держим всё на месте (они isStatic — ничего не делаем)
+    // После запуска ограничиваем угол рычага
+    if(simRunning){
+      placed.forEach(p=>{
+        if(p.type!=='seesaw') return;
+        p.bodies.forEach(b=>{
+          if(b.label!=='seesaw') return;
+          const MAX=Math.PI*0.39;
+          if(Math.abs(b.angle)>MAX){
+            Body.setAngle(b, Math.sign(b.angle)*MAX);
+            Body.setAngularVelocity(b, b.angularVelocity*-0.1);
+          }
+          // Запуск кубика — один раз когда доска резко вращается
+          const angV=Math.abs(b.angularVelocity);
+          if(angV>0.12 && !b._cubeLaunched){
+            b._cubeLaunched=true;
+            placed.forEach(pc=>{
+              if(pc.type!=='cube') return;
+              pc.bodies.forEach(cb=>{
+                if(cb.label!=='cube'||cb.isStatic) return;
+                const relX=cb.position.x-b.position.x;
+                // Кубик на поднимающемся конце
+                if(Math.sign(relX)!==Math.sign(b.angularVelocity) && Math.abs(relX)>15){
+                  const power=Math.min(angV*60, 35);
+                  Body.setVelocity(cb,{x:relX*0.05*power, y:-power});
+                }
+              });
+            });
+          }
+        });
+      });
+    }
+
+    if(!ball||!simRunning) return;
+    const vx=ball.velocity.x,vy=ball.velocity.y;
+    const speed=Math.sqrt(vx*vx+vy*vy);
+    // Ограничение скорости — не даём шару разогнаться бесконечно
+    const MAX_SPEED=18;
+    if(speed>MAX_SPEED){
+      const scale=MAX_SPEED/speed;
+      Body.setVelocity(ball,{x:vx*scale,y:vy*scale});
+    }
+    const height=Math.max(0,CH-30-ball.position.y);
+    if(frameN%8===0) updateEdu(speed,height,vy,vx);
+    const accel=Math.abs(speed-prevSpeed)*60; prevSpeed=speed;
+    const m=ball.mass;
+    const ke=0.5*m*speed*speed;
+    const pe=m*engine.gravity.y*(height/28);
+    const total=ke+pe;
+    if(total>maxEnergy) maxEnergy=total*1.1;
+    if(frameN%3===0 && speed>0.5){
+      trajPts.push({x:ball.position.x,y:ball.position.y});
+      if(trajPts.length>120) trajPts.shift();
+    }
+    updateStatUI(speed,height,accel,ke,pe,total);
+    drawDecorations();
+  });
+
+  // ═══════════════════════════════════════════════════
+  //  DECORATIONS
+  // ═══════════════════════════════════════════════════
+  function drawPreview(type,cx,cy){
+    dctx.save(); dctx.globalAlpha=0.6;
+    const def=CAT[type];
+    if(type==='shelf'){
+      dctx.fillStyle='rgba(74,46,16,.7)';dctx.strokeStyle='#8B5E3C';dctx.lineWidth=3;
+      dctx.beginPath();dctx.roundRect(cx-80,cy-7,160,14,4);dctx.fill();dctx.stroke();
+    } else if(type==='ramp_r'){
+      dctx.translate(cx,cy);dctx.rotate(-0.38);
+      dctx.fillStyle='rgba(26,58,106,.7)';dctx.strokeStyle='#4da6ff';dctx.lineWidth=3;
+      dctx.beginPath();dctx.roundRect(-75,-7,150,14,4);dctx.fill();dctx.stroke();
+    } else if(type==='ramp_l'){
+      dctx.translate(cx,cy);dctx.rotate(0.38);
+      dctx.fillStyle='rgba(26,58,106,.7)';dctx.strokeStyle='#4da6ff';dctx.lineWidth=3;
+      dctx.beginPath();dctx.roundRect(-75,-7,150,14,4);dctx.fill();dctx.stroke();
+    } else if(type==='domino'){
+      dctx.fillStyle='rgba(90,46,8,.7)';dctx.strokeStyle='#ff8c42';dctx.lineWidth=3;
+      dctx.beginPath();dctx.roundRect(cx-7,cy-30,14,60,3);dctx.fill();dctx.stroke();
+    } else if(type==='spring'){
+      dctx.fillStyle='rgba(13,48,24,.7)';dctx.strokeStyle='#4ecb71';dctx.lineWidth=3;
+      dctx.beginPath();dctx.roundRect(cx-32,cy-8,64,16,4);dctx.fill();dctx.stroke();
+      dctx.globalAlpha=0.9;dctx.strokeStyle='#4ecb71';dctx.lineWidth=2.5;
+      for(let i=0;i<4;i++){
+        dctx.beginPath();dctx.moveTo(cx-24,cy-12-i*9);
+        dctx.bezierCurveTo(cx-24,cy-21-i*9,cx+24,cy-21-i*9,cx+24,cy-12-i*9);dctx.stroke();
+      }
+    } else if(type==='seesaw'){
+      dctx.fillStyle='rgba(80,32,160,.7)';dctx.strokeStyle='#b57bff';dctx.lineWidth=3;
+      dctx.beginPath();dctx.arc(cx,cy+4,9,0,Math.PI*2);dctx.fill();dctx.stroke();
+      dctx.fillStyle='rgba(42,16,96,.7)';
+      dctx.beginPath();dctx.roundRect(cx-90,cy-12,180,13,4);dctx.fill();dctx.stroke();
+    } else if(type==='wall'){
+      dctx.fillStyle='rgba(58,58,58,.7)';dctx.strokeStyle='#888';dctx.lineWidth=3;
+      dctx.beginPath();dctx.roundRect(cx-9,cy-55,18,110,3);dctx.fill();dctx.stroke();
+    } else if(type==='cube'){
+      dctx.fillStyle='rgba(26,58,106,.7)';dctx.strokeStyle='#4da6ff';dctx.lineWidth=3;
+      dctx.beginPath();dctx.roundRect(cx-14,cy-14,28,28,4);dctx.fill();dctx.stroke();
+    }
+    dctx.restore();
+    // Название
+    dctx.save(); dctx.globalAlpha=0.9;
+    dctx.font='700 12px Nunito'; dctx.textAlign='center';
+    dctx.fillStyle='#fff';
+    dctx.fillText(def.name,cx,cy-62);
+    dctx.restore();
+  }
+
+  function drawSprings(){
+    const t = Date.now() / 300;
+    springs.forEach((sp,id)=>{
+      // При срабатывании — сжатие/разжатие, иначе — мягкая пульсация
+      const pulse = sp.animT > 0
+        ? (sp.animT > 4 ? -5 : 4)          // бросок: сначала сжатие, потом разжатие
+        : Math.sin(t + sp.x * 0.01) * 2.5; // спокойное покачивание
+      if(sp.animT > 0) sp.animT--;
+
+      dctx.save();
+      dctx.strokeStyle = sp.triggered ? 'rgba(78,203,113,0.4)' : '#4ecb71';
+      dctx.lineWidth = 2.5;
+      dctx.globalAlpha = sp.triggered ? 0.4 : 0.9;
+      for(let i = 0; i < 5; i++){
+        const yBase = sp.y - 8 - i * 8 + pulse;
+        dctx.beginPath();
+        dctx.moveTo(sp.x - 24, yBase);
+        dctx.bezierCurveTo(sp.x - 24, yBase - 9, sp.x + 24, yBase - 9, sp.x + 24, yBase);
+        dctx.stroke();
+      }
+      dctx.restore();
+    });
+  }
+
+  function drawGoal(){
+    if(!goalBody) return;
+    const gx=goalBody.position.x, gy=goalBody.position.y;
+    const t=Date.now()/400;
+    const pulse=1+0.08*Math.sin(t);
+    const r=26*pulse;
+    dctx.save();
+    // Свечение
+    const grd=dctx.createRadialGradient(gx,gy,4,gx,gy,r*2);
+    grd.addColorStop(0,'rgba(245,200,66,0.3)');
+    grd.addColorStop(1,'rgba(245,200,66,0)');
+    dctx.fillStyle=grd;
+    dctx.beginPath();dctx.arc(gx,gy,r*2,0,Math.PI*2);dctx.fill();
+    // Звезда
+    dctx.font=`${Math.round(36*pulse)}px serif`;
+    dctx.textAlign='center'; dctx.textBaseline='middle';
+    dctx.fillText('⭐',gx,gy);
+    dctx.restore();
+  }
+
+  function drawDecorations(){
+    dctx.clearRect(0,0,CW,CH);
+    // Точки-сетка
+    // Фоновые звёзды (генерируются один раз)
+    if(!drawDecorations._stars){
+      drawDecorations._stars=[];
+      for(let i=0;i<55;i++) drawDecorations._stars.push({
+        x:Math.random()*2000,y:Math.random()*1200,
+        r:Math.random()*1.2+0.3,a:Math.random()*.3+.05
+      });
+    }
+    drawDecorations._stars.forEach(s=>{
+      dctx.fillStyle=`rgba(255,255,255,${s.a})`;
+      dctx.beginPath();dctx.arc(s.x%CW,s.y%CH,s.r,0,Math.PI*2);dctx.fill();
+    });
+    // Сетка-точки
+    dctx.fillStyle='rgba(255,255,255,.025)';
+    for(let x=40;x<CW;x+=40) for(let y=40;y<CH;y+=40){
+      dctx.beginPath();dctx.arc(x,y,1.2,0,Math.PI*2);dctx.fill();
+    }
+    // Звезда и пружины — всегда поверх
+    drawGoal();
+    drawSprings();
+
+    // Таймер обратного отсчёта
+    if(simRunning && LEVELS[currentLevel].timeLimit && timerLeft>0){
+      const urgent = timerLeft<=5;
+      const flash  = urgent && Math.floor(Date.now()/400)%2===0;
+      dctx.save();
+      dctx.font='bold 28px Nunito';
+      dctx.textAlign='right';
+      dctx.textBaseline='top';
+      const col = urgent ? '#ff5f5f' : '#f5c842';
+      if(flash){ dctx.fillStyle='rgba(255,95,95,0.15)'; dctx.fillRect(CW-110,6,104,38); }
+      dctx.fillStyle=col;
+      dctx.fillText('⏱ '+timerLeft+'с', CW-10, 10);
+      dctx.restore();
+    }
+    // Подсветка детали под курсором (только в режиме редактирования)
+    if (!simRunning && !dragType) {
+      const rect = wrap.getBoundingClientRect();
+      const hx = mouseX - rect.left, hy = mouseY - rect.top;
+      let hovered = -1, hbestD = 60;
+      placed.forEach((p, i) => {
+        const d = Math.hypot(p.x - hx, p.y - hy);
+        if (d < hbestD) { hbestD = d; hovered = i; }
+      });
+      if (hovered >= 0) {
+        const hp = placed[hovered];
+        dctx.save();
+        dctx.strokeStyle = 'rgba(245,200,66,0.7)';
+        dctx.lineWidth = 2;
+        dctx.setLineDash([5, 4]);
+        dctx.beginPath(); dctx.arc(hp.x, hp.y, 36, 0, Math.PI * 2); dctx.stroke();
+        dctx.setLineDash([]);
+        dctx.fillStyle = 'rgba(245,200,66,0.85)';
+        dctx.font = '700 11px Nunito'; dctx.textAlign = 'center';
+        dctx.fillText('тащи · ПКМ удалить', hp.x, hp.y - 44);
+        dctx.restore();
+      }
+    }
+    // Превью перетаскивания
+    if(dragType){
+      const rect=wrap.getBoundingClientRect();
+      const cx=mouseX-rect.left, cy=mouseY-rect.top;
+      if(cx>0&&cy>0&&cx<CW&&cy<CH) drawPreview(dragType,cx,cy);
+    }
+    if(!ball) return;
+    const bx=ball.position.x,by=ball.position.y;
+    // СТАРТ — рисуем но НЕ делаем return, чтобы звезда была всегда видна
+    if(!simRunning){
+      dctx.save();
+      dctx.strokeStyle='rgba(78,203,113,.55)';dctx.lineWidth=1.5;dctx.setLineDash([5,5]);
+      dctx.beginPath();dctx.arc(bx,by,24,0,Math.PI*2);dctx.stroke();
+      dctx.setLineDash([]);
+      dctx.fillStyle='rgba(78,203,113,.75)';dctx.font='700 11px Nunito';dctx.textAlign='center';
+      dctx.fillText('СТАРТ',bx,by-32);
+      dctx.restore();
+      return;
+    }
+    // Траектория — разрываем путь если точки далеко друг от друга (после сброса/прыжка)
+    if(trajPts.length>1){
+      dctx.save();
+      dctx.lineWidth=1.5;
+      dctx.lineCap='round';
+      for(let i=1;i<trajPts.length;i++){
+        const dx=trajPts[i].x-trajPts[i-1].x, dy=trajPts[i].y-trajPts[i-1].y;
+        if(Math.sqrt(dx*dx+dy*dy)>60) continue; // разрыв — пропускаем отрезок
+        const a=i/trajPts.length;
+        dctx.strokeStyle=`rgba(245,200,66,${a*0.55})`;
+        dctx.beginPath();
+        dctx.moveTo(trajPts[i-1].x,trajPts[i-1].y);
+        dctx.lineTo(trajPts[i].x,trajPts[i].y);
+        dctx.stroke();
+      }
+      dctx.restore();
+    }
+    // Вектор
+    const vx=ball.velocity.x,vy=ball.velocity.y,speed=Math.sqrt(vx*vx+vy*vy);
+    if(speed>0.3){
+      const sc=Math.min(speed*5,80),nx=vx/speed,ny=vy/speed;
+      const ex=bx+nx*sc,ey=by+ny*sc,ang=Math.atan2(ny,nx),aL=11;
+      dctx.save();
+      dctx.strokeStyle='#f5c842';dctx.lineWidth=2.5;dctx.lineCap='round';
+      dctx.beginPath();dctx.moveTo(bx,by);dctx.lineTo(ex,ey);dctx.stroke();
+      dctx.fillStyle='#f5c842';
+      dctx.beginPath();dctx.moveTo(ex,ey);
+      dctx.lineTo(ex-aL*Math.cos(ang-.45),ey-aL*Math.sin(ang-.45));
+      dctx.lineTo(ex-aL*Math.cos(ang+.45),ey-aL*Math.sin(ang+.45));
+      dctx.closePath();dctx.fill();dctx.restore();
+      dctx.fillStyle='rgba(245,200,66,.9)';dctx.font='bold 12px monospace';dctx.textAlign='center';
+      dctx.fillText((speed*.8).toFixed(1)+' м/с',bx,by-30);
+    }
+    // Красивый шар с градиентом поверх Matter-шара
+    const grad=dctx.createRadialGradient(bx-5,by-5,2,bx,by,18);
+    grad.addColorStop(0,'rgba(255,255,255,.9)');
+    grad.addColorStop(.4,'rgba(200,220,255,.7)');
+    grad.addColorStop(1,'rgba(80,120,200,.3)');
+    dctx.save();
+    dctx.beginPath();dctx.arc(bx,by,18,0,Math.PI*2);
+    dctx.fillStyle=grad;dctx.fill();
+    dctx.strokeStyle='rgba(150,180,255,.6)';dctx.lineWidth=1.5;dctx.stroke();
+    dctx.restore();
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  CONFETTI
+  // ═══════════════════════════════════════════════════
+  let confParts=[];
+  function launchConfetti(){
+    confParts=[];
+    const cols=['#f5c842','#4ecb71','#4da6ff','#ff8c42','#b57bff','#ff6b9d'];
+    for(let i=0;i<120;i++) confParts.push({
+      x:Math.random()*CW,y:-20,
+      vx:(Math.random()-.5)*7,vy:2+Math.random()*5,
+      size:5+Math.random()*9,rot:Math.random()*Math.PI*2,
+      rotV:(Math.random()-.5)*.2,
+      col:cols[Math.floor(Math.random()*cols.length)],
+      shape:Math.random()>.5?'r':'c'
+    });
+    animConfetti();
+  }
+  function animConfetti(){
+    cctx.clearRect(0,0,CW,CH);
+    confParts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotV;p.vy+=0.09;
+      cctx.save();cctx.translate(p.x,p.y);cctx.rotate(p.rot);
+      cctx.fillStyle=p.col;cctx.globalAlpha=Math.max(0,1-p.y/(CH+80));
+      if(p.shape==='r') cctx.fillRect(-p.size/2,-p.size/4,p.size,p.size/2);
+      else{cctx.beginPath();cctx.arc(0,0,p.size/2,0,Math.PI*2);cctx.fill();}
+      cctx.restore();
+    });
+    confParts=confParts.filter(p=>p.y<CH+60);
+    if(confParts.length>0) requestAnimationFrame(animConfetti);
+    else cctx.clearRect(0,0,CW,CH);
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  LEVEL BUTTONS
+  // ═══════════════════════════════════════════════════
+  function buildLvlButtons(){
+    const grid=document.getElementById('lvl-grid'); grid.innerHTML='';
+    LEVELS.forEach((lv,i)=>{
+      const btn=document.createElement('button');
+      btn.className='lvl-btn'+(i===currentLevel?' active':completedLevels.has(i)?' done':'');
+      btn.innerHTML=`<span class="lvl-num">${lv.emoji}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${lv.name}</span>${lv.timeLimit?`<span style="margin-left:auto;font-size:11px;color:#ff8c42;flex-shrink:0">⏱${lv.timeLimit}с</span>`:''}${lv.maxParts?`<span style="margin-left:auto;font-size:11px;color:#4da6ff;flex-shrink:0">✂️${lv.maxParts}</span>`:''}`;
+      btn.onclick=()=>{
+        document.getElementById('win-ov').classList.remove('show');
+        loadLevel(i);
+      };
+      btn.id='lvlbtn-'+i;
+      grid.appendChild(btn);
+    });
+  }
+  function updateLvlButtons(){
+    LEVELS.forEach((lv,i)=>{
+      const btn=document.getElementById('lvlbtn-'+i);
+      if(!btn) return;
+      btn.className='lvl-btn'+(i===currentLevel?' active':completedLevels.has(i)?' done':'');
+    });
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  STAT UI
+  // ═══════════════════════════════════════════════════
+  function updateStatUI(speed,height,accel,ke,pe,total){
+    const spdEl=document.getElementById('s-spd');
+    spdEl.textContent=(speed*.8).toFixed(1)+' м/с';
+    if(speed>10){ spdEl.classList.add('flash'); setTimeout(()=>spdEl.classList.remove('flash'),350); }
+    document.getElementById('s-hgt').textContent=(height*.5).toFixed(0)+' см';
+    document.getElementById('s-acc').textContent=accel.toFixed(1)+' м/с²';
+    const kp=Math.min(100,ke/maxEnergy*100),pp=Math.min(100,pe/maxEnergy*100),tp=Math.min(100,total/maxEnergy*100);
+    document.getElementById('bar-ke').style.width=kp+'%';
+    document.getElementById('bar-pe').style.width=pp+'%';
+    document.getElementById('bar-tot').style.width=tp+'%';
+    document.getElementById('val-ke').textContent=ke.toFixed(1);
+    document.getElementById('val-pe').textContent=pe.toFixed(1);
+    document.getElementById('val-tot').textContent=total.toFixed(1);
+  }
+  function resetStatUI(){
+    document.getElementById('s-spd').textContent='0.0 м/с';
+    document.getElementById('s-hgt').textContent='— см';
+    document.getElementById('s-acc').textContent='— м/с²';
+    ['bar-ke','bar-pe','bar-tot'].forEach(id=>document.getElementById(id).style.width='0%');
+    ['val-ke','val-pe','val-tot'].forEach(id=>document.getElementById(id).textContent='0');
+  }
+  function setPartEx(type){
+    const d=CAT[type];
+    document.getElementById('part-ex').innerHTML=`<b style="color:${d.col}">${d.icon} ${d.name}</b><br>${d.phys}`;
+    // Показываем формулу этой детали в edu-панели
+    const e=EDU[type];
+    if(e && !simRunning){
+      const fb=document.getElementById('formula-box');
+      const fd=document.getElementById('formula-desc');
+      if(fb) fb.textContent=e.formula;
+      if(fd) fd.textContent=e.desc;
+      const eb=document.getElementById('edu-box');
+      if(eb) eb.textContent=d.phys;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════
+  //  KEYBOARD
+  // ═══════════════════════════════════════════════════
+  window.addEventListener('keydown',e=>{
+    if(document.activeElement?.tagName==='INPUT') return;
+    if(e.code==='Space'){e.preventDefault();runSim();}
+    if(e.code==='KeyC'){e.preventDefault();if(!simRunning)clearParts();}
+    if(e.code==='KeyZ'){e.preventDefault();if(!simRunning&&placed.length>0)removePart(placed.length-1);}
+  });
+
+  // ═══════════════════════════════════════════════════
+  //  RESIZE
+  // ═══════════════════════════════════════════════════
+  window.addEventListener('resize',()=>{
+    CW=wrap.clientWidth;CH=wrap.clientHeight;
+    gc.width=dc.width=cfv.width=CW;gc.height=dc.height=cfv.height=CH;
+    renderer.options.width=CW;renderer.options.height=CH;
+    renderer.canvas.width=CW;renderer.canvas.height=CH;
+    loadLevel(currentLevel);
+  });
+
+  // ═══════════════════════════════════════════════════
+  //  START
+  // ═══════════════════════════════════════════════════
+  buildLvlButtons();
+  loadLevel(0);
+
+  // Анимационный loop для пульсации звезды и пружин пока не запущено
+
+  // ═══════════════════════════════════════════════════
+  //  ЭТАП 4 — ОБРАЗОВАТЕЛЬНЫЙ СЛОЙ
+  // ═══════════════════════════════════════════════════
+
+  // Конфигурация: для каждого типа детали — объяснение + формула
+  const EDU = {
+    ramp_r: {
+      formula:'a = g · sin(α)',
+      desc:'a — ускорение шара, g — 9.8 м/с², α — угол горки. Чем круче горка — тем больше ускорение!'
+    },
+    ramp_l: {
+      formula:'a = g · sin(α)',
+      desc:'a — ускорение шара, g — 9.8 м/с², α — угол горки. Чем круче горка — тем больше ускорение!'
+    },
+    spring: {
+      formula:'F = k · x',
+      desc:'F — сила пружины, k — жёсткость, x — сжатие. Сильнее сжал → сильнее выброс!'
+    },
+    seesaw: {
+      formula:'F₁ · L₁ = F₂ · L₂',
+      desc:'Закон рычага: сила × плечо одинаковы с обеих сторон. Длинное плечо → меньшая сила, но больше скорость!'
+    },
+    domino: {
+      formula:'p = m · v',
+      desc:'p — импульс, m — масса, v — скорость. Каждое домино передаёт импульс следующему!'
+    },
+    cube: {
+      formula:'E = ½mv²',
+      desc:'Кинетическая энергия кубика зависит от скорости в квадрате. Вдвое быстрее → вчетверо больше энергии!'
+    },
+    wall: {
+      formula:'θ₁ = θ₂',
+      desc:'Угол падения равен углу отражения. Это работает для света, звука и нашего шара!'
+    },
+  };
+
+  // Физические состояния шара для текстовых объяснений
+  const PHY_STATES = {
+    freefall: {
+      text:'Шар в свободном падении — только гравитация! Скорость растёт на 9.8 м/с каждую секунду.',
+      formula:'v = g · t',
+      desc:'v — скорость, g — ускорение свободного падения, t — время'
+    },
+    rolling: {
+      text:'Шар катится по наклонной — горка превращает потенциальную энергию в кинетическую.',
+      formula:'E_п = m · g · h',
+      desc:'Потенциальная энергия зависит от высоты h. Чем выше упал — тем быстрее катится!'
+    },
+    slow: {
+      text:'Шар замедляется — трение поглощает кинетическую энергию, превращая её в тепло.',
+      formula:'Q = F_тр · s',
+      desc:'Тепло Q = сила трения × путь. Именно из-за трения вечный двигатель невозможен!'
+    },
+    fast: {
+      text:'Шар разогнался! Кинетическая энергия растёт пропорционально квадрату скорости.',
+      formula:'E_к = ½ · m · v²',
+      desc:'Вдвое быстрее → вчетверо больше энергии. Поэтому скорость так важна!'
+    },
+    bounce: {
+      text:'Удар! Часть энергии передаётся поверхности, часть уходит в тепло и звук.',
+      formula:'e = v₂ / v₁',
+      desc:'e — коэффициент упругости (0–1). 1 = идеальный отскок, 0 = пластичный удар'
+    },
+    high: {
+      text:'Шар высоко — у него большая потенциальная энергия. При падении она перейдёт в скорость!',
+      formula:'E_п = m · g · h',
+      desc:'h — высота над полом. Чем выше — тем больше запасённой энергии.'
+    },
+  };
+
+
+
+  function setEduState(key) {
+    if (key === lastEduState) return;
+    lastEduState = key;
+    const s = PHY_STATES[key];
+    if (!s) return;
+    const box = document.getElementById('edu-box');
+    const fbox = document.getElementById('formula-box');
+    const fdesc = document.getElementById('formula-desc');
+    if (box){ box.textContent = s.text; box.classList.add('active'); setTimeout(()=>box.classList.remove('active'),600); }
+    if (fbox) fbox.textContent = s.formula;
+    if (fdesc) fdesc.textContent = s.desc;
+  }
+
+  function setEduPart(type) {
+    if (!type || type === eduPartType) return;
+    eduPartType = type;
+    const e = EDU[type];
+    if (!e) return;
+    const fbox  = document.getElementById('formula-box');
+    const fdesc = document.getElementById('formula-desc');
+    if (fbox)  fbox.textContent  = e.formula;
+    if (fdesc) fdesc.textContent = e.desc;
+  }
+
+  function updateEdu(speed, height, vy, vx) {
+    if (!simRunning) return;
+
+    // Определяем ближайшую деталь к шару
+    let closestType = null, closestD = 120;
+    placed.forEach(p => {
+      p.bodies.forEach(b => {
+        const d = Math.hypot(b.position.x - ball.position.x, b.position.y - ball.position.y);
+        if (d < closestD) { closestD = d; closestType = p.type; }
+      });
+    });
+    if (closestType) setEduPart(closestType);
+
+    // Текстовое объяснение по состоянию шара
+    if (speed < 0.5) {
+      setEduState('slow');
+    } else if (vy < -2 && speed > 3) {
+      setEduState('bounce');
+    } else if (Math.abs(vy) < 1.5 && Math.abs(vx) > 1) {
+      setEduState('rolling');
+    } else if (height > CH * 0.35) {
+      setEduState('high');
+    } else if (speed > 8) {
+      setEduState('fast');
+    } else {
+      setEduState('freefall');
+    }
+  }
+
+  // Сбрасываем при старте/стопе
+  const _origRunSim = runSim;
+  // Хук в afterUpdate — вызываем updateEdu из physics loop
+  // (добавляется ниже через Events.on)
+
+  (function animLoop(){
+    requestAnimationFrame(animLoop);
+    drawDecorations();
+  })();
+</script>
+</body>
+</html>

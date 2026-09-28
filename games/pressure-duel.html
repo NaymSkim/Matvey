@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дуэль Давлений</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #faf9f6;
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px; padding: 32px 16px;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, #c8c4bb 1px, transparent 1px);
+      background-size: 28px 28px; opacity: 0.45; pointer-events: none;
+    }
+
+    .header { text-align: center; position: relative; z-index: 1; }
+    .title { font-size: 1.8rem; font-weight: 800; color: #1a1814; letter-spacing: -0.02em; line-height: 1; }
+    .title em { font-style: italic; color: #e85d26; }
+    .subtitle { font-size: 0.65rem; font-weight: 600; color: #a09a90; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 5px; }
+
+    .level-bar { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+    .level-pip { width: 20px; height: 8px; border-radius: 4px; background: #e8e4dc; transition: background 0.4s, opacity 0.3s; }
+    .level-pip:hover { filter: brightness(0.85); }
+    .level-pip.done   { background: #16a34a; }
+    .level-pip.active { background: #e85d26; }
+    .level-label { font-size: 0.65rem; font-weight: 700; color: #a09a90; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    .duel-badge {
+      display: none; align-items: center; gap: 6px;
+      background: #fef3c7; border: 1.5px solid #fcd34d; border-radius: 20px;
+      padding: 4px 14px; font-size: 0.65rem; font-weight: 700; color: #92400e;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .duel-badge.show { display: inline-flex; }
+    .duel-badge-dot { width:6px;height:6px;border-radius:50%;background:#f59e0b; }
+
+    #gameArea {
+      display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%;
+      position: relative; z-index: 1;
+    }
+
+    .main-row { display: flex; gap: 16px; align-items: center; }
+
+    .game-wrap {
+      background: #fff; border-radius: 20px;
+      border: 1.5px solid #e8e4dc; padding: 28px 40px 22px;
+      box-shadow: 0 2px 0 #e0dbd2, 0 4px 0 #d5d0c8; flex-shrink: 0;
+    }
+
+    .formula-panel { width: 240px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+    .fp-title { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #b0aa9f; }
+
+    .fcard { background: #fff; border: 1.5px solid #e8e4dc; border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 0 #e0dbd2; display: flex; flex-direction: column; gap: 10px; }
+    .fcard-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #b0aa9f; }
+    .fline { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ftext { font-size: 0.9rem; font-weight: 700; color: #1a1814; }
+
+    .fslot {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 52px; height: 30px; padding: 0 8px;
+      border: 2px dashed #d4d0ca; border-radius: 8px;
+      background: #faf9f6; cursor: pointer;
+      font-size: 0.82rem; font-weight: 700; color: #c0bbb3;
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+    .fslot.dragover  { border-color: #3b7dd8; background: #dbeafe; }
+    .fslot.filled    { border-style: solid; border-color: #93c5fd; background: #eff6ff; color: #1d4ed8; cursor: grab; }
+    .fslot.correct   { border-color: #86efac; background: #f0fdf4; color: #15803d; }
+    .fslot.wrong     { border-color: #fca5a5; background: #fef2f2; color: #dc2626; }
+
+    .fslot-result {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 64px; height: 30px; padding: 0 8px;
+      border: 2px dashed #d4d0ca; border-radius: 8px;
+      background: #faf9f6; font-size: 0.82rem; font-weight: 700; color: #c0bbb3;
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+    .fslot-result.dragover { border-color: #3b7dd8; background: #dbeafe; }
+    .fslot-result.filled   { border-style: solid; border-color: #93c5fd; background: #eff6ff; color: #1d4ed8; cursor: grab; }
+    .fslot-result.correct  { border-color: #86efac; background: #f0fdf4; color: #15803d; }
+    .fslot-result.wrong    { border-color: #fca5a5; background: #fef2f2; color: #dc2626; }
+
+    .foptions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .fchip {
+      padding: 4px 10px; border-radius: 20px;
+      border: 1.5px solid #e8e4dc; background: #faf9f6;
+      font-size: 0.75rem; font-weight: 700; color: #6b6760;
+      cursor: grab; transition: all 0.15s; user-select: none;
+    }
+    .fchip:active { cursor: grabbing; }
+    .fchip:hover  { border-color: #93c5fd; background: #eff6ff; color: #1d4ed8; }
+    .fchip.used   { opacity: 0.35; pointer-events: none; }
+    .fchip.dragging { opacity: 0.4; }
+
+    .fcheck {
+      align-self: flex-start; padding: 5px 14px;
+      border: 1.5px solid #e8e4dc; border-radius: 8px;
+      background: #faf9f6; color: #6b6760;
+      font-family: 'Montserrat', sans-serif; font-size: 0.68rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .fcheck:hover { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+
+    .bottom-area { width: 856px; display: flex; flex-direction: column; gap: 20px; }
+
+    .slider-panel {
+      background: #fff; border: 1.5px solid #e8e4dc; border-radius: 16px;
+      padding: 20px 28px; box-shadow: 0 2px 0 #e0dbd2;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .slider-header { display: flex; align-items: center; justify-content: space-between; }
+    .slider-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #a09a90; }
+    .force-display { display: flex; align-items: baseline; gap: 6px; }
+    .force-number { font-size: 2rem; font-weight: 800; color: #3b7dd8; line-height: 1; transition: color 0.2s; }
+    .force-unit   { font-size: 0.8rem; font-weight: 600; color: #a09a90; }
+
+    input[type=range] {
+      -webkit-appearance: none; width: 100%; height: 6px;
+      background: #e8e4dc; border-radius: 3px; outline: none; cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: #3b7dd8; border: 3px solid #fff;
+      box-shadow: 0 0 0 2px #3b7dd8; cursor: pointer; transition: transform 0.1s;
+    }
+    input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
+
+    .physics-row { display: flex; gap: 10px; }
+    .phys-card {
+      flex: 1; border-radius: 10px; border: 1.5px solid #e8e4dc;
+      padding: 10px 14px; background: #faf9f6; transition: border-color 0.25s, background 0.25s;
+    }
+    .phys-card .plbl { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #b0aa9f; margin-bottom: 3px; }
+    .phys-card .pval { font-size: 0.95rem; font-weight: 700; color: #1a1814; transition: color 0.2s; }
+    .phys-card .pval small { font-size: 0.6rem; font-weight: 500; color: #a09a90; }
+    .phys-card.state-low  { border-color: #bfdbfe; background: #eff6ff; }
+    .phys-card.state-low .pval { color: #3b7dd8; }
+    .phys-card.state-ok   { border-color: #86efac; background: #f0fdf4; }
+    .phys-card.state-ok .pval { color: #16a34a; }
+    .phys-card.state-over { border-color: #fca5a5; background: #fef2f2; }
+    .phys-card.state-over .pval { color: #dc2626; }
+
+    .info-row { display: flex; gap: 10px; }
+    .card { flex: 1; background: #fff; border: 1.5px solid #e8e4dc; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 0 #e0dbd2; }
+    .card .lbl { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #b0aa9f; margin-bottom: 3px; }
+    .card .val { font-size: 0.9rem; font-weight: 700; color: #1a1814; }
+    .card .val sub { font-size: 0.62rem; font-weight: 500; color: #a09a90; vertical-align: baseline; }
+    .card.task { text-align: center; background: #fff8f5; border-color: #fbc9b3; }
+    .card.task .lbl { color: #e85d26; }
+    .card.task .val { color: #e85d26; }
+
+    .attempts-row { display: flex; align-items: center; gap: 6px; font-size: 0.65rem; font-weight: 600; color: #b0aa9f; text-transform: uppercase; letter-spacing: 0.1em; }
+    .attempt-dot { width: 8px; height: 8px; border-radius: 50%; background: #e8e4dc; transition: background 0.3s; }
+    .attempt-dot.used { background: #fca5a5; }
+    .attempt-dot.ok   { background: #86efac; }
+
+    .result-banner {
+      border-radius: 12px; padding: 12px 24px; font-size: 0.8rem; font-weight: 700;
+      text-align: center; opacity: 0; transform: translateY(6px);
+      transition: opacity 0.3s, transform 0.3s; pointer-events: none;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+    }
+    .result-banner.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .result-banner.low  { background: #eff6ff; color: #1d4ed8; border: 1.5px solid #bfdbfe; }
+    .result-banner.ok   { background: #f0fdf4; color: #15803d; border: 1.5px solid #86efac; }
+    .result-banner.over { background: #fef2f2; color: #b91c1c; border: 1.5px solid #fca5a5; }
+
+    .btn-next {
+      padding: 6px 16px; border-radius: 8px; border: none;
+      background: #16a34a; color: #fff;
+      font-family: 'Montserrat', sans-serif; font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; white-space: nowrap; transition: background 0.15s;
+    }
+    .btn-next:hover { background: #15803d; }
+
+    .btn-apply {
+      width: 100%; padding: 12px; background: #3b7dd8; color: #fff;
+      border: none; border-radius: 10px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.05em; cursor: pointer; transition: background 0.15s, transform 0.1s;
+    }
+    .btn-apply:hover { background: #2563eb; }
+    .btn-apply:active { transform: scale(0.98); }
+    .btn-apply.disabled { background: #d4d0ca; cursor: not-allowed; }
+
+    /* ── DUEL PANEL ── */
+    .duel-panel {
+      background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 16px;
+      padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .duel-header { display: flex; align-items: center; justify-content: space-between; }
+    .duel-opponent { display: flex; align-items: center; gap: 12px; }
+    .do-emoji { font-size: 2rem; line-height: 1; }
+    .do-name  { font-size: 1rem; font-weight: 800; color: #1a1814; }
+    .do-desc  { font-size: 0.65rem; font-weight: 500; color: #a09a90; margin-top: 2px; }
+    .duel-score-board { display: flex; gap: 10px; }
+    .dsb-cell { background: #fff; border: 1.5px solid #fcd34d; border-radius: 10px; padding: 8px 16px; text-align: center; }
+    .dsb-lbl  { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #b0aa9f; }
+    .dsb-val  { font-size: 1.2rem; font-weight: 800; color: #1a1814; line-height: 1.2; }
+
+    .duel-input-row { display: flex; align-items: flex-end; gap: 12px; }
+    .duel-input-wrap { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+    .duel-input-lbl  { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #92400e; }
+    .duel-input-inner { display: flex; align-items: center; gap: 8px; }
+    .duel-input {
+      width: 110px; padding: 10px 14px;
+      border: 2px solid #fcd34d; border-radius: 10px;
+      font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 800;
+      color: #1a1814; background: #fff; outline: none; text-align: center;
+      transition: border-color 0.2s;
+    }
+    .duel-input:focus { border-color: #f59e0b; }
+    .duel-input-unit { font-size: 0.8rem; font-weight: 700; color: #a09a90; }
+
+    .btn-duel {
+      padding: 12px 20px; background: #f59e0b; color: #fff;
+      border: none; border-radius: 10px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s, transform 0.1s; white-space: nowrap;
+    }
+    .btn-duel:hover { background: #d97706; }
+    .btn-duel:active { transform: scale(0.98); }
+    .btn-duel.disabled { background: #d4d0ca; cursor: not-allowed; pointer-events: none; }
+
+    .cpu-thinking { display: flex; flex-direction: column; gap: 6px; }
+    .cpu-thinking-lbl { font-size: 0.7rem; font-weight: 700; color: #6b6760; }
+    .cpu-bar-wrap { height: 6px; background: #e8e4dc; border-radius: 3px; overflow: hidden; }
+    .cpu-bar { height: 100%; width: 0%; background: #e85d26; border-radius: 3px; transition: width 0.1s linear; }
+
+    .duel-result-row { display: flex; gap: 10px; }
+    .duel-result-card { flex: 1; border-radius: 10px; padding: 10px 12px; border: 1.5px solid #e8e4dc; background: #faf9f6; }
+    .drc-lbl { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #b0aa9f; margin-bottom: 3px; }
+    .drc-val { font-size: 0.95rem; font-weight: 800; color: #1a1814; }
+    .duel-result-card.win  { border-color: #86efac; background: #f0fdf4; }
+    .duel-result-card.win  .drc-val { color: #15803d; }
+    .duel-result-card.lose { border-color: #fca5a5; background: #fef2f2; }
+    .duel-result-card.lose .drc-val { color: #dc2626; }
+    .duel-result-card.draw { border-color: #fcd34d; background: #fffbeb; }
+    .duel-result-card.draw .drc-val { color: #92400e; }
+
+    .btn-duel-next {
+      align-self: flex-end; padding: 10px 22px;
+      background: #16a34a; color: #fff; border: none; border-radius: 10px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .btn-duel-next:hover { background: #15803d; }
+
+    /* ── FINAL ── */
+    .final-screen {
+      display: none; flex-direction: column; align-items: center; gap: 20px;
+      position: relative; z-index: 1; background: #fff; border-radius: 20px;
+      border: 1.5px solid #e8e4dc; padding: 48px 60px;
+      box-shadow: 0 2px 0 #e0dbd2, 0 4px 0 #d5d0c8; text-align: center; width: 600px;
+    }
+    .final-screen.show { display: flex; }
+    .final-icon  { font-size: 3rem; line-height: 1; }
+    .final-title { font-size: 1.6rem; font-weight: 800; color: #1a1814; }
+    .final-title em { font-style: italic; color: #e85d26; }
+    .final-sub   { font-size: 0.8rem; color: #a09a90; font-weight: 500; line-height: 1.6; max-width: 380px; }
+    .final-stats { display: flex; gap: 12px; width: 100%; }
+    .stat-card { flex: 1; background: #faf9f6; border: 1.5px solid #e8e4dc; border-radius: 12px; padding: 12px; }
+    .stat-card .slbl { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #b0aa9f; margin-bottom: 4px; }
+    .stat-card .sval { font-size: 1.2rem; font-weight: 800; color: #1a1814; }
+    .stat-card.green  .sval { color: #16a34a; }
+    .stat-card.orange .sval { color: #e85d26; }
+    .btn-restart {
+      padding: 12px 32px; background: #e85d26; color: #fff; border: none; border-radius: 10px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .btn-restart:hover { background: #c94d1e; }
+
+
+    .duel-timer-wrap { display:flex; flex-direction:column; align-items:center; gap:2px; }
+    .duel-timer-lbl  { font-size:0.55rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#b0aa9f; }
+    .duel-timer-val  { font-size:1.3rem; font-weight:800; color:#e85d26; line-height:1; min-width:32px; text-align:center; }
+    .duel-timer-val.urgent { color:#dc2626; }
+
+
+    @keyframes cargo-flash {
+      0%   { filter: brightness(1); }
+      30%  { filter: brightness(2) saturate(0) sepia(1) hue-rotate(80deg); }
+      60%  { filter: brightness(1.5) saturate(2); }
+      100% { filter: brightness(1); }
+    }
+    .cargo-success { animation: cargo-flash 0.6s ease-out; }
+
+
+    .type-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 16px; padding: 3px 10px;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .type-badge.findF2  { background:#e0f2fe; color:#075985; border:1.5px solid #7dd3fc; }
+    .type-badge.reverse { background:#fef3c7; color:#92400e; border:1.5px solid #fcd34d; }
+    .type-badge.findS1  { background:#ede9fe; color:#5b21b6; border:1.5px solid #c4b5fd; }
+    .type-badge.split   { background:#ecfdf5; color:#065f46; border:1.5px solid #6ee7b7; }
+    .type-badge.leak    { background:#fef2f2; color:#991b1b; border:1.5px solid #fca5a5; }
+
+    @keyframes liq-pulse { 0%,100%{opacity:.9}50%{opacity:1} }
+    .liq { animation: liq-pulse 2.8s ease-in-out infinite; }
+    @keyframes arrow-bounce { 0%,100%{transform:translateY(0)}50%{transform:translateY(4px)} }
+    .force-arrow { animation: arrow-bounce 1.8s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <a href="../games.html" aria-label="Вернуться к списку игр" style="position:fixed;left:16px;bottom:16px;z-index:9999;padding:10px 14px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:#12231a;color:#fff;font:700 13px/1.2 system-ui,sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.24)">← Все игры</a>
+
+<div class="level-bar">
+  <span class="level-label" id="levelLabel">Уровень 1 из 9</span>
+  <div class="level-pip active" id="pip0"></div>
+  <div class="level-pip" id="pip1"></div>
+  <div class="level-pip" id="pip2"></div>
+  <div class="level-pip" id="pip3"></div>
+  <div class="level-pip" id="pip4"></div>
+  <div class="level-pip" id="pip5"></div>
+  <div class="level-pip" id="pip6"></div>
+  <div class="level-pip" id="pip7"></div>
+  <div class="level-pip" id="pip8"></div>
+  <span class="duel-badge" id="duelBadge"><span class="duel-badge-dot"></span>Дуэль!</span>
+</div>
+
+<div class="header">
+  <div class="title">Дуэль <em>давлений</em></div>
+  <div class="subtitle">Закон Паскаля · Гидравлика</div>
+</div>
+
+<div id="gameArea">
+
+  <div class="main-row">
+    <div class="game-wrap">
+      <svg id="scene" width="600" height="320" viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="liq" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#6ab0f5"/><stop offset="100%" stop-color="#2563eb"/>
+          </linearGradient>
+          <linearGradient id="liqH" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#2563eb"/><stop offset="50%" stop-color="#4f8ef7"/><stop offset="100%" stop-color="#2563eb"/>
+          </linearGradient>
+          <linearGradient id="met" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d4d0ca"/><stop offset="40%" stop-color="#ffffff"/><stop offset="100%" stop-color="#b0aca4"/>
+          </linearGradient>
+          <linearGradient id="cylInner" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#d4d0ca" stop-opacity="0.6"/>
+            <stop offset="12%" stop-color="transparent"/>
+            <stop offset="88%" stop-color="transparent"/>
+            <stop offset="100%" stop-color="#d4d0ca" stop-opacity="0.6"/>
+          </linearGradient>
+          <linearGradient id="cargoG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/>
+          </linearGradient>
+          <marker id="arr" markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" orient="auto">
+            <path d="M0,0 L9,4.5 L0,9 L2.5,4.5 Z" fill="#3b7dd8"/>
+          </marker>
+          <filter id="sh" x="-20%" y="-20%" width="140%" height="180%">
+            <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#00000020"/>
+          </filter>
+          <clipPath id="clL"><rect x="100" y="92" width="64" height="186"/></clipPath>
+          <clipPath id="clR"><rect x="403" y="56" width="114" height="230"/></clipPath>
+        </defs>
+
+        <rect x="40" y="308" width="520" height="10" rx="5" fill="#e8e4dc"/>
+        <line x1="60" y1="315" x2="80" y2="315" stroke="#d5d0c8" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="100" y1="315" x2="120" y2="315" stroke="#d5d0c8" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="430" y1="315" x2="450" y2="315" stroke="#d5d0c8" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="470" y1="315" x2="490" y2="315" stroke="#d5d0c8" stroke-width="1.5" stroke-linecap="round"/>
+
+        <path d="M122 278 Q122 302 148 302 L452 302 Q478 302 478 278" fill="none" stroke="#e0dbd2" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M122 278 Q122 302 148 302 L452 302 Q478 302 478 278" fill="none" stroke="url(#liqH)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" class="liq"/>
+        <path d="M122 278 Q122 302 148 302 L452 302 Q478 302 478 278" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <rect x="88" y="86" width="88" height="196" rx="5" fill="#f0ede8" stroke="#d4d0ca" stroke-width="2"/>
+        <rect id="liqL" x="102" y="210" width="60" height="68" rx="2" fill="url(#liq)" class="liq" clip-path="url(#clL)"/>
+        <ellipse id="menL" cx="132" cy="210" rx="30" ry="5" fill="#6ab0f5" class="liq"/>
+        <rect x="100" y="92" width="64" height="190" rx="3" fill="url(#cylInner)"/>
+        <rect x="82" y="80" width="100" height="14" rx="4" fill="#e0dbd2" stroke="#c8c3ba" stroke-width="1.5"/>
+        <text id="labelS1" x="132" y="72" text-anchor="middle" font-family="Montserrat" font-size="10" font-weight="700" fill="#a09a90">S₁ = 10 см²</text>
+
+        <g id="pistonL">
+          <rect x="125" y="0" width="14" height="162" rx="4" fill="#c8c3ba"/>
+          <rect x="129" y="0" width="6"  height="162" rx="3" fill="#e0dbd2"/>
+          <rect id="pLH" x="101" y="160" width="62" height="52" rx="4" fill="url(#met)" stroke="#c0bbb3" stroke-width="1.5"/>
+          <line id="g1L" x1="105" y1="174" x2="159" y2="174" stroke="#c8c3ba" stroke-width="1" opacity="0.7"/>
+          <line id="g2L" x1="105" y1="182" x2="159" y2="182" stroke="#c8c3ba" stroke-width="1" opacity="0.7"/>
+          <line id="g3L" x1="105" y1="190" x2="159" y2="190" stroke="#c8c3ba" stroke-width="1" opacity="0.7"/>
+          <rect x="107" y="164" width="48" height="8" rx="2" fill="rgba(255,255,255,0.6)"/>
+        </g>
+        <g class="force-arrow">
+          <line x1="132" y1="0" x2="132" y2="32" stroke="#3b7dd8" stroke-width="2.5" marker-end="url(#arr)"/>
+          <text x="148" y="18" font-family="Montserrat" font-size="13" font-weight="800" fill="#3b7dd8">F₁</text>
+        </g>
+
+        <rect x="390" y="50" width="140" height="232" rx="5" fill="#f0ede8" stroke="#d4d0ca" stroke-width="2"/>
+        <rect id="liqR" x="403" y="178" width="114" height="100" rx="2" fill="url(#liq)" class="liq" clip-path="url(#clR)"/>
+        <ellipse id="menR" cx="460" cy="178" rx="57" ry="6" fill="#6ab0f5" class="liq"/>
+        <rect x="401" y="56" width="118" height="226" rx="3" fill="url(#cylInner)"/>
+        <rect x="383" y="44" width="154" height="14" rx="4" fill="#e0dbd2" stroke="#c8c3ba" stroke-width="1.5"/>
+        <text id="labelS2" x="460" y="36" text-anchor="middle" font-family="Montserrat" font-size="10" font-weight="700" fill="#a09a90">S₂ = 40 см²</text>
+
+        <g id="pistonR">
+          <rect id="pRRod" x="453" y="0" width="14" height="142" rx="4" fill="#c8c3ba"/>
+          <rect id="pRRS"  x="457" y="0" width="6"  height="142" rx="3" fill="#e0dbd2"/>
+          <rect id="pRH"   x="403" y="140" width="114" height="38" rx="4" fill="url(#met)" stroke="#c0bbb3" stroke-width="1.5"/>
+          <line id="g1R" x1="408" y1="152" x2="513" y2="152" stroke="#c8c3ba" stroke-width="1" opacity="0.7"/>
+          <line id="g2R" x1="408" y1="160" x2="513" y2="160" stroke="#c8c3ba" stroke-width="1" opacity="0.7"/>
+          <rect x="410" y="144" width="98" height="6" rx="2" fill="rgba(255,255,255,0.6)"/>
+        </g>
+
+        <line x1="383" y1="20" x2="537" y2="20" stroke="#e85d26" stroke-width="1.5" stroke-dasharray="6,5" opacity="0.55"/>
+        <rect x="538" y="12" width="36" height="16" rx="4" fill="#fff4f0"/>
+        <text x="556" y="23" text-anchor="middle" font-family="Montserrat" font-size="9" font-weight="700" fill="#e85d26">цель</text>
+
+        <!-- Second cargo (shown only on split level) -->
+        <g id="cargo2Group" transform="translate(0,100)" style="display:none;">
+          <g filter="url(#sh)">
+            <rect x="424" y="-28" width="72" height="20" rx="5" fill="url(#cargoG)" stroke="#b45309" stroke-width="1.5"/>
+            <rect x="428" y="-25" width="64" height="5" rx="2" fill="rgba(255,255,255,0.25)"/>
+            <circle cx="432" cy="-18" r="2.5" fill="#b45309"/>
+            <circle cx="488" cy="-18" r="2.5" fill="#b45309"/>
+          </g>
+          <text x="460" y="-14" text-anchor="middle" font-family="Montserrat" font-size="10" font-weight="800" fill="white" id="cargo2Label">50 Н</text>
+          <!-- connector between two cargos -->
+          <line x1="460" y1="-8" x2="460" y2="0" stroke="#c8a050" stroke-width="2"/>
+        </g>
+
+        <g id="cargoGroup" transform="translate(0,100)">
+          <line x1="460" y1="6" x2="460" y2="4" stroke="#c8a050" stroke-width="2"/>
+          <g filter="url(#sh)">
+            <rect x="424" y="0" width="72" height="20" rx="5" fill="url(#cargoG)" stroke="#b45309" stroke-width="1.5"/>
+            <rect x="428" y="3" width="64" height="5" rx="2" fill="rgba(255,255,255,0.25)"/>
+            <circle cx="432" cy="10" r="2.5" fill="#b45309"/>
+            <circle cx="488" cy="10" r="2.5" fill="#b45309"/>
+          </g>
+          <text id="cargoLabel" x="460" y="14" text-anchor="middle" font-family="Montserrat" font-size="10" font-weight="800" fill="white">100 Н</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="formula-panel">
+      <div class="fp-title">Твои вычисления</div>
+      <div class="fcard">
+        <div class="fcard-label" id="fcard1lbl">Шаг 1 — Давление</div>
+        <div class="fline">
+          <span class="ftext" id="flhs1">P =</span>
+          <span class="fslot" id="slot_F2" data-card="1" data-pos="F2">?</span>
+          <span class="ftext" id="fop1">/</span>
+          <span class="fslot" id="slot_S2" data-card="1" data-pos="S2">?</span>
+        </div>
+        <div class="fline">
+          <span class="ftext" id="fres1lbl">P =</span>
+          <span class="fslot-result" id="slot_P_res" data-card="1" data-pos="P_res">? Па</span>
+        </div>
+        <div class="foptions" id="opts1"></div>
+        <button class="fcheck" onclick="checkCard(1)">Проверить</button>
+      </div>
+      <div class="fcard">
+        <div class="fcard-label" id="fcard2lbl">Шаг 2 — Нужная сила</div>
+        <div class="fline">
+          <span class="ftext" id="flhs2">F₁ =</span>
+          <span class="fslot" id="slot_P" data-card="2" data-pos="P">?</span>
+          <span class="ftext" id="fop2">×</span>
+          <span class="fslot" id="slot_S1" data-card="2" data-pos="S1">?</span>
+        </div>
+        <div class="fline">
+          <span class="ftext" id="fres2lbl">F₁ =</span>
+          <span class="fslot-result" id="slot_F1_res" data-card="2" data-pos="F1_res">? Н</span>
+        </div>
+        <div class="foptions" id="opts2"></div>
+        <button class="fcheck" onclick="checkCard(2)">Проверить</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-area">
+    <div class="slider-panel">
+      <div class="slider-header">
+        <div class="slider-label">Сила на малый поршень F₁</div>
+        <div class="force-display">
+          <span class="force-number" id="forceNum">0</span>
+          <span class="force-unit">Н</span>
+        </div>
+      </div>
+      <input type="range" id="forceSlider" min="0" max="60" value="0" step="1">
+      <div class="physics-row">
+        <div class="phys-card" id="cardP"><div class="plbl">Давление P</div><div class="pval" id="valP">— <small>Па</small></div></div>
+        <div class="phys-card" id="cardF2"><div class="plbl">Сила на груз F₂</div><div class="pval" id="valF2">— <small>Н</small></div></div>
+        <div class="phys-card" id="cardDelta"><div class="plbl">До цели</div><div class="pval" id="valDelta">— <small>Н</small></div></div>
+      </div>
+      <button class="btn-apply" id="btnApply">Нажать поршень →</button>
+    </div>
+
+    <!-- DUEL PANEL -->
+    <div class="duel-panel" id="duelPanel" style="display:none;">
+      <div class="duel-header">
+        <div class="duel-opponent">
+          <span class="do-emoji" id="duelEmoji">🐇</span>
+          <div>
+            <div class="do-name" id="duelName">Торопыга</div>
+            <div class="do-desc" id="duelDesc">Спешит, часто ошибается</div>
+          </div>
+        </div>
+        <div class="duel-score-board">
+          <div class="dsb-cell"><div class="dsb-lbl">Раунд</div><div class="dsb-val" id="duelRoundLbl">1 / 3</div></div>
+          <div class="dsb-cell"><div class="dsb-lbl">Очки</div><div class="dsb-val" id="duelScoreLbl">0</div></div>
+        </div>
+      </div>
+
+      <div class="duel-input-row">
+        <div class="duel-input-wrap">
+          <div class="duel-input-lbl">Введи F₁ (Н) — сила на малый поршень</div>
+          <div class="duel-input-inner">
+            <input type="number" id="duelInput" class="duel-input" placeholder="?" min="0" max="999" autocomplete="off">
+            <span class="duel-input-unit">Н</span>
+          </div>
+        </div>
+        <div class="duel-timer-wrap" id="duelTimerWrap" style="display:none;">
+          <div class="duel-timer-lbl" id="duelTimerLbl">Раунд</div>
+          <div class="duel-timer-val" id="duelTimerVal">30</div>
+          <svg width="44" height="44" viewBox="0 0 44 44">
+            <circle cx="22" cy="22" r="18" fill="none" stroke="#e8e4dc" stroke-width="3"/>
+            <circle id="duelTimerArc" cx="22" cy="22" r="18" fill="none" stroke="#e85d26" stroke-width="3"
+                    stroke-dasharray="113.1" stroke-dashoffset="0" stroke-linecap="round"
+                    transform="rotate(-90 22 22)"/>
+          </svg>
+        </div>
+        <button class="btn-duel" id="btnDuel">Принять ответ →</button>
+      </div>
+
+      <div class="cpu-thinking" id="cpuThinking" style="display:none;">
+        <div class="cpu-thinking-lbl" id="cpuThinkingLbl">🐇 думает...</div>
+        <div class="cpu-bar-wrap"><div class="cpu-bar" id="cpuBar"></div></div>
+      </div>
+
+      <div class="duel-result-row" id="duelResultRow" style="display:none;">
+        <div class="duel-result-card" id="duelResPlayer"><div class="drc-lbl">Твоя F₂</div><div class="drc-val" id="duelResPlayerVal">—</div></div>
+        <div class="duel-result-card" id="duelResCpu"><div class="drc-lbl">F₂ противника</div><div class="drc-val" id="duelResCpuVal">—</div></div>
+        <div class="duel-result-card" id="duelResPoints"><div class="drc-lbl">Очки</div><div class="drc-val" id="duelResPointsVal">+0</div></div>
+        <div class="duel-result-card" id="duelResWinner"><div class="drc-lbl">Итог раунда</div><div class="drc-val" id="duelResWinnerVal">—</div></div>
+      </div>
+
+      <button class="btn-duel-next" id="btnDuelNext" style="display:none;">Следующий раунд →</button>
+    </div>
+
+    <div class="info-row">
+      <div class="card" id="cardS1"><div class="lbl">Малый поршень</div><div class="val" id="infoS1">S₁ = 10 <sub>см²</sub></div></div>
+      <div class="card task"><div class="lbl">Задача</div><div class="val" id="infoTask">Подними груз 100 Н</div><div id="typeBadge" style="margin-top:4px;display:none;"></div></div>
+      <div class="card" style="text-align:right"><div class="lbl">Большой поршень</div><div class="val" id="infoS2">S₂ = 40 <sub>см²</sub></div></div>
+    </div>
+
+    <div class="attempts-row">
+      <span>Попытки:</span>
+      <div class="attempt-dot" id="dot0"></div>
+      <div class="attempt-dot" id="dot1"></div>
+      <div class="attempt-dot" id="dot2"></div>
+    </div>
+
+    <div class="result-banner" id="banner"></div>
+  </div>
+
+</div><!-- gameArea -->
+
+<div class="final-screen" id="finalScreen">
+  <div class="final-icon">🏆</div>
+  <div class="final-title">Все уровни <em>пройдены!</em></div>
+  <div class="final-sub" id="finalSub">Ты освоил закон Паскаля и гидравлику. Давление передаётся одинаково — но сила зависит от площади поршня.</div>
+  <div class="final-stats">
+    <div class="stat-card green"><div class="slbl">Уровней</div><div class="sval">9 / 9</div></div>
+    <div class="stat-card orange"><div class="slbl">Попыток</div><div class="sval" id="statAttempts">—</div></div>
+    <div class="stat-card"><div class="slbl">С первого раза</div><div class="sval" id="statFirst">—</div></div>
+    <div class="stat-card orange"><div class="slbl">Дуэль</div><div class="sval" id="statDuel" style="font-size:0.85rem;">—</div></div>
+  </div>
+  <button class="btn-restart" id="btnRestart">Играть снова</button>
+</div>
+
+<script>
+  // ── LEVELS ──
+  const LEVELS = [
+    { s1:10, s2:40, target:100, maxF:60,  type:'normal'  },
+    { s1:10, s2:50, target:150, maxF:70,  type:'normal'  },
+    { s1:15, s2:60, target:120, maxF:50,  type:'normal'  },
+    { s1: 8, s2:40, target:200, maxF:60,  type:'normal'  },
+    // Уровень 5: дана F1, найти F2
+    { s1:12, s2:36, target:180, maxF:80,  type:'findF2', givenF1:60 },
+    // Уровень 6: выбери S1 из вариантов (задана F1, нужно найти S1)
+    { s1:20, s2:60, target:240, maxF:100, type:'findS1'  },
+    // Уровень 7: разветвлённая — один поршень, два груза (F2 делится на 2)
+    { s1:10, s2:40, target:50,  maxF:60,  type:'split'   },
+    // Уровень 8: утечка 20% — нужно умножить силу на 1.25
+    { s1:10, s2:40, target:100, maxF:80,  type:'leak', leak:0.20 },
+    { s1:12, s2:48, target:240, maxF:80,  type:'normal', duel:true },
+  ];
+
+  // ── DUEL OPPONENTS (3 rounds) ──
+  const OPPONENTS = [
+    { name:'Зануда',   emoji:'🦉', desc:'Думает долго, часто ошибается', timeMin:12, timeMax:18, errPct:0.18, minErr:0.08, s1:10, s2:40, target:100, playerTime:30 },
+    { name:'Торопыга', emoji:'🐇', desc:'Спешит — и всё равно ошибается', timeMin:4,  timeMax:7,  errPct:0.12, minErr:0.05, s1:15, s2:45, target:135, playerTime:15 },
+    { name:'Читер',    emoji:'⚡', desc:'Быстрый, но не идеальный',       timeMin:8,  timeMax:12, errPct:0.06, minErr:0.03, s1:8,  s2:32, target:160, playerTime:7  },
+  ];
+
+  const TOL = 6;
+  const BASE = {
+    pLH:160, pLHH:52,
+    liqLY:210, liqLH:68,
+    liqRY:178, liqRH:100, liqRBottom:278,
+    pRHY:140, pRHH:38, pRRodH:142,
+    MAX_DL:38, MAX_DR:100,
+  };
+
+  let lvl=0, attempts=0, totalAttempts=0, firstTries=0, animating=false;
+  let completedLevels=new Set(); // levels that have been passed
+  let selectedChip={1:null,2:null}, filledSlots={1:{},2:{}};
+  let duelRound=0, duelScore=0, duelPhase='idle';
+  let playerTimerInterval=null, playerTimeLeft=0;
+  let activeParams=null; // null = use LEVELS[lvl], set to opp during duel
+  let cpuBarInterval=null, cpuAnswerTimeout=null;
+
+  // ── DOM ──
+  const slider    = document.getElementById('forceSlider');
+  const forceNum  = document.getElementById('forceNum');
+  const cardP     = document.getElementById('cardP');
+  const cardF2el  = document.getElementById('cardF2');
+  const cardDelta = document.getElementById('cardDelta');
+  const valP      = document.getElementById('valP');
+  const valF2     = document.getElementById('valF2');
+  const valDelta  = document.getElementById('valDelta');
+  const banner    = document.getElementById('banner');
+  const btnApply  = document.getElementById('btnApply');
+  const gameArea  = document.getElementById('gameArea');
+  const finalScreen = document.getElementById('finalScreen');
+  const pistonL   = document.getElementById('pistonL');
+  const liqL      = document.getElementById('liqL');
+  const menL      = document.getElementById('menL');
+  const pRH       = document.getElementById('pRH');
+  const pRRod     = document.getElementById('pRRod');
+  const pRRS      = document.getElementById('pRRS');
+  const g1R       = document.getElementById('g1R');
+  const g2R       = document.getElementById('g2R');
+  const liqR      = document.getElementById('liqR');
+  const menR      = document.getElementById('menR');
+  const cargoGroup= document.getElementById('cargoGroup');
+  const cargoLabel= document.getElementById('cargoLabel');
+  const labelS1   = document.getElementById('labelS1');
+  const labelS2   = document.getElementById('labelS2');
+  const infoS1    = document.getElementById('infoS1');
+  const infoS2    = document.getElementById('infoS2');
+  const infoTask  = document.getElementById('infoTask');
+  const levelLabel= document.getElementById('levelLabel');
+  const duelBadge = document.getElementById('duelBadge');
+  const duelPanel = document.getElementById('duelPanel');
+  const duelInput = document.getElementById('duelInput');
+  const btnDuel   = document.getElementById('btnDuel');
+  const btnDuelNext = document.getElementById('btnDuelNext');
+  const cpuThinking = document.getElementById('cpuThinking');
+  const cpuThinkingLbl = document.getElementById('cpuThinkingLbl');
+  const cpuBar    = document.getElementById('cpuBar');
+  const duelResultRow = document.getElementById('duelResultRow');
+
+  function sy(el,a,v){ el.setAttribute(a,v); }
+
+  // ── PIPS ──
+  function updatePips(){
+    for(let i=0;i<9;i++){
+      const p=document.getElementById('pip'+i);
+      if(!p) continue;
+      const isDone    = completedLevels.has(i);
+      const isCurrent = i===lvl;
+      const isAccessible = isDone || isCurrent || i<=lvl;
+      p.className='level-pip'+(isDone?' done':isCurrent?' active':'');
+      p.style.cursor = isAccessible ? 'pointer' : 'default';
+      p.style.opacity = isAccessible ? '1' : '0.4';
+      p.onclick = isAccessible ? ()=>{ if(i!==lvl){ lvl=i; loadLevel(); } } : null;
+      p.title = isAccessible ? `Уровень ${i+1}` : `Сначала пройди уровень ${i}`;
+    }
+    levelLabel.textContent=`Уровень ${lvl+1} из 9`;
+  }
+
+  function updateDots(idx,state){
+    for(let i=0;i<3;i++){
+      const d=document.getElementById('dot'+i);
+      d.className='attempt-dot'+(i<idx?' used':i===idx&&state?' '+state:'');
+    }
+  }
+
+  // ── PHYSICS ──
+  function calcPhysics(F1){
+    const lv=LEVELS[lvl];
+    return { P:F1/lv.s1, F2:(F1/lv.s1)*lv.s2 };
+  }
+
+  function getState(F2){
+    if(F2<=0) return 'neutral';
+    const lv=LEVELS[lvl];
+    let t=lv.target;
+    let F2check=F2;
+    if(lv.type==='split') t=lv.target*2;
+    if(lv.type==='leak') F2check=F2*(1-lv.leak); // effective F2 after leak
+    if(F2check>=t-TOL&&F2check<=t+TOL) return 'ok';
+    return F2check>t+TOL?'over':'low';
+  }
+
+  // ── SCENE ──
+  function updateScene(F1){
+    const lv=LEVELS[lvl];
+    const r=F1/lv.maxF;
+    const dL=r*BASE.MAX_DL;
+    pistonL.setAttribute('transform',`translate(0,${dL})`);
+    const newLiqLY=BASE.pLH+dL+BASE.pLHH;
+    sy(liqL,'y',newLiqLY); sy(liqL,'height',Math.max(278-newLiqLY,0)); sy(menL,'cy',newLiqLY);
+    const {F2}=calcPhysics(F1);
+    const effTarget = lv.type==='split' ? lv.target*2 : lv.target;
+    const F2forDR = lv.type==='leak' ? F2*(1-lv.leak) : F2;
+    const dR=Math.min(F2forDR/effTarget,1.4)*BASE.MAX_DR;
+    const newLiqRY=BASE.liqRY-dR;
+    sy(liqR,'y',newLiqRY); sy(liqR,'height',BASE.liqRBottom-newLiqRY); sy(menR,'cy',newLiqRY);
+    const newPRHY=newLiqRY-BASE.pRHH;
+    sy(pRH,'y',newPRHY);
+    [g1R,g2R].forEach((g,i)=>{const o=12+i*8;g.setAttribute('y1',newPRHY+o);g.setAttribute('y2',newPRHY+o);});
+    sy(pRRod,'height',Math.max(newPRHY-2,0)); sy(pRRS,'height',Math.max(newPRHY-2,0));
+    cargoGroup.setAttribute('transform',`translate(0,${100-(BASE.pRHY-newPRHY)})`);
+    const c2g=document.getElementById('cargo2Group');
+    if(c2g && c2g.style.display!=='none') c2g.setAttribute('transform',`translate(0,${100-(BASE.pRHY-newPRHY)})`);
+  }
+
+  function resetScene(){
+    pistonL.setAttribute('transform','translate(0,0)');
+    sy(liqL,'y',BASE.liqLY); sy(liqL,'height',BASE.liqLH); sy(menL,'cy',BASE.liqLY);
+    sy(liqR,'y',BASE.liqRY); sy(liqR,'height',BASE.liqRH); sy(menR,'cy',BASE.liqRY);
+    sy(pRH,'y',BASE.pRHY);
+    [g1R,g2R].forEach((g,i)=>{const o=12+i*8;g.setAttribute('y1',BASE.pRHY+o);g.setAttribute('y2',BASE.pRHY+o);});
+    sy(pRRod,'height',BASE.pRRodH); sy(pRRS,'height',BASE.pRRodH);
+    cargoGroup.setAttribute('transform','translate(0,100)');
+    const c2gr=document.getElementById('cargo2Group');
+    if(c2gr) c2gr.setAttribute('transform','translate(0,100)');
+  }
+
+  // ── READOUT ──
+  function updateReadout(F1){
+    forceNum.textContent=F1;
+    if(F1===0){
+      valP.innerHTML='— <small>Па</small>'; valF2.innerHTML='— <small>Н</small>'; valDelta.innerHTML='— <small>Н</small>';
+      applyCardState('neutral'); return;
+    }
+    const {P,F2}=calcPhysics(F1);
+    const state=getState(F2);
+    const lv2=LEVELS[lvl]; const t=lv2.type==='split'?lv2.target*2:lv2.target; const F2adj=lv2.type==='leak'?(LEVELS[lvl].s2/LEVELS[lvl].s1*+slider.value)*(1-lv2.leak):null;
+    valP.innerHTML=P.toFixed(1)+' <small>Па</small>';
+    valF2.innerHTML=F2.toFixed(1)+' <small>Н</small>';
+    valDelta.innerHTML=state==='ok'?'≈ 0 <small>Н</small>':state==='low'?'−'+(t-F2).toFixed(1)+' <small>Н</small>':'+'+(F2-t).toFixed(1)+' <small>Н</small>';
+    applyCardState(state);
+  }
+
+  function applyCardState(state){
+    [cardP,cardF2el,cardDelta].forEach(c=>{
+      c.classList.remove('state-low','state-ok','state-over');
+      if(state!=='neutral') c.classList.add('state-'+state);
+    });
+    forceNum.style.color=state==='ok'?'#16a34a':state==='over'?'#dc2626':'#3b7dd8';
+  }
+
+  function updateTrack(F1){
+    const pct=(F1/LEVELS[lvl].maxF)*100;
+    slider.style.background=`linear-gradient(to right,#3b7dd8 ${pct}%,#e8e4dc ${pct}%)`;
+  }
+
+  // ── FORMULA DnD ──
+  function buildOptions(params){
+    const lv=params||LEVELS[lvl];
+    const t=lv.type||'normal';
+    const Pc=lv.target/lv.s2;
+    let F1c=Pc*lv.s1;
+    if(t==='leak') F1c=F1c*(1/(1-lv.leak)); // compensate for leak
+    if(t==='split') { /* F2 split between 2 pistons, target is each */ }
+
+    // card labels update
+    const c1lbl=document.getElementById('fcard1lbl');
+    const c2lbl=document.getElementById('fcard2lbl');
+
+    let opts1,opts2;
+
+    if(t==='findF2'){
+      // Given: F1=givenF1, S1, S2. Find: P then F2
+      const F1given = lv.givenF1;
+      const Pgiven  = F1given / lv.s1;
+      const F2res   = Pgiven * lv.s2;
+      if(c1lbl) c1lbl.textContent='Шаг 1 — Найди давление P';
+      if(c2lbl) c2lbl.textContent='Шаг 2 — Найди силу F₂';
+      opts1=shuffle([
+        {label:F1given+' Н',val:F1given,type:'F2'},
+        {label:lv.s1+' см²',val:lv.s1,type:'S2'},
+        {label:Pgiven.toFixed(1)+' Па',val:Pgiven,type:'P_res'},
+        {label:(F1given+15)+' Н',val:null,type:'d'},
+        {label:(lv.s1+8)+' см²',val:null,type:'d'},
+      ]);
+      opts2=shuffle([
+        {label:Pgiven.toFixed(1)+' Па',val:Pgiven,type:'P'},
+        {label:lv.s2+' см²',val:lv.s2,type:'S1'},
+        {label:F2res.toFixed(1)+' Н',val:F2res,type:'F1_res'},
+        {label:(lv.s2+10)+' см²',val:null,type:'d'},
+        {label:(F2res+20).toFixed(1)+' Н',val:null,type:'d'},
+      ]);
+    } else if(t==='reverse'){
+      // Given: F2=target, S2, S1. Find: P then F1
+      if(c1lbl) c1lbl.textContent='Шаг 1 — Давление';
+      if(c2lbl) c2lbl.textContent='Шаг 2 — Нужная F₁';
+      opts1=shuffle([
+        {label:lv.target+' Н',val:lv.target,type:'F2'},
+        {label:lv.s2+' см²',val:lv.s2,type:'S2'},
+        {label:Pc.toFixed(1)+' Па',val:Pc,type:'P_res'},
+        {label:(lv.target+30)+' Н',val:null,type:'d'},
+        {label:(lv.s2+15)+' см²',val:null,type:'d'},
+      ]);
+      opts2=shuffle([
+        {label:Pc.toFixed(1)+' Па',val:Pc,type:'P'},
+        {label:lv.s1+' см²',val:lv.s1,type:'S1'},
+        {label:F1c.toFixed(1)+' Н',val:F1c,type:'F1_res'},
+        {label:(lv.s1+8)+' см²',val:null,type:'d'},
+        {label:(F1c+15).toFixed(1)+' Н',val:null,type:'d'},
+      ]);
+    } else if(t==='findS1'){
+      // Card1: P = F2/S2 (find pressure from known load)
+      // Card2: S1 = F1/P (given F1, find S1)
+      const F1given=(lv.target/lv.s2)*lv.s1; // known F1
+      const S1correct=lv.s1;                   // answer
+      if(c1lbl) c1lbl.textContent='Шаг 1 — Найди давление P';
+      if(c2lbl) c2lbl.textContent='Шаг 2 — Найди площадь S₁';
+      opts1=shuffle([
+        {label:lv.target+' Н',val:lv.target,type:'F2'},
+        {label:lv.s2+' см²',val:lv.s2,type:'S2'},
+        {label:Pc.toFixed(1)+' Па',val:Pc,type:'P_res'},
+        {label:(lv.target+40)+' Н',val:null,type:'d'},
+        {label:(lv.s2+20)+' см²',val:null,type:'d'},
+      ]);
+      // Card 2: slot_P = F1given, slot_S1 = P, result = S1
+      opts2=shuffle([
+        {label:F1given.toFixed(0)+' Н',val:F1given,type:'P'},   // F1 goes in numerator slot
+        {label:Pc.toFixed(1)+' Па',val:Pc,type:'S1'},           // P goes in denominator slot
+        {label:S1correct+' см²',val:S1correct,type:'F1_res'},   // S1 is the result
+        {label:(S1correct+8)+' см²',val:null,type:'d'},
+        {label:(F1given+10).toFixed(0)+' Н',val:null,type:'d'},
+      ]);
+    } else if(t==='split'){
+      // Two loads of lv.target each → total F2 = target*2
+      const totalF2=lv.target*2;
+      const Psplit=totalF2/lv.s2;
+      const F1split=Psplit*lv.s1;
+      if(c1lbl) c1lbl.textContent='Шаг 1 — Найди давление P';
+      if(c2lbl) c2lbl.textContent='Шаг 2 — Найди силу F₁';
+      // Card1: P = (2×F₂each) / S₂  i.e. total / S2
+      opts1=shuffle([
+        {label:totalF2+' Н',val:totalF2,type:'F2'},
+        {label:lv.s2+' см²',val:lv.s2,type:'S2'},
+        {label:Psplit.toFixed(1)+' Па',val:Psplit,type:'P_res'},
+        {label:lv.target+' Н',val:null,type:'d'},
+        {label:(lv.s2+10)+' см²',val:null,type:'d'},
+      ]);
+      opts2=shuffle([
+        {label:Psplit.toFixed(1)+' Па',val:Psplit,type:'P'},
+        {label:lv.s1+' см²',val:lv.s1,type:'S1'},
+        {label:F1split.toFixed(1)+' Н',val:F1split,type:'F1_res'},
+        {label:(lv.s1+5)+' см²',val:null,type:'d'},
+        {label:(F1split+10).toFixed(1)+' Н',val:null,type:'d'},
+      ]);
+    } else if(t==='leak'){
+      // Pressure leaks 20% — need F1 * 1/(1-0.2) = F1*1.25
+      const F1leak=F1c; // already computed above with leak factor
+      if(c1lbl) c1lbl.textContent='Шаг 1 — Давление (с запасом)';
+      if(c2lbl) c2lbl.textContent='Шаг 2 — Сила F₁ (компенсация)';
+      opts1=shuffle([
+        {label:lv.target+' Н',val:lv.target,type:'F2'},
+        {label:lv.s2+' см²',val:lv.s2,type:'S2'},
+        {label:Pc.toFixed(1)+' Па',val:Pc,type:'P_res'},
+        {label:(lv.target-20)+' Н',val:null,type:'d'},
+        {label:(lv.s2+10)+' см²',val:null,type:'d'},
+      ]);
+      opts2=shuffle([
+        {label:Pc.toFixed(1)+' Па',val:Pc,type:'P'},
+        {label:lv.s1+' см²',val:lv.s1,type:'S1'},
+        {label:F1leak.toFixed(1)+' Н',val:F1leak,type:'F1_res'},
+        {label:(F1c-5).toFixed(1)+' Н',val:null,type:'d'},
+        {label:(F1c+8).toFixed(1)+' Н',val:null,type:'d'},
+      ]);
+    } else {
+      // Normal
+      if(c1lbl) c1lbl.textContent='Шаг 1 — Давление';
+      if(c2lbl) c2lbl.textContent='Шаг 2 — Нужная сила';
+      opts1=shuffle([
+        {label:lv.target+' Н',val:lv.target,type:'F2'},
+        {label:lv.s2+' см²',val:lv.s2,type:'S2'},
+        {label:Pc.toFixed(1)+' Па',val:Pc,type:'P_res'},
+        {label:(lv.target+20)+' Н',val:null,type:'d'},
+        {label:(lv.s2+10)+' см²',val:null,type:'d'},
+      ]);
+      opts2=shuffle([
+        {label:Pc.toFixed(1)+' Па',val:Pc,type:'P'},
+        {label:lv.s1+' см²',val:lv.s1,type:'S1'},
+        {label:F1c.toFixed(1)+' Н',val:F1c,type:'F1_res'},
+        {label:(lv.s1+5)+' см²',val:null,type:'d'},
+        {label:(F1c+10).toFixed(1)+' Н',val:null,type:'d'},
+      ]);
+    }
+    buildChips('opts1',opts1,1);
+    buildChips('opts2',opts2,2);
+  }
+
+  function buildChips(cid,opts,cn){
+    const c=document.getElementById(cid); c.innerHTML='';
+    opts.forEach((opt,idx)=>{
+      const chip=document.createElement('span');
+      chip.className='fchip';
+      chip.textContent=opt.label;
+      chip.draggable=true;
+      chip.dataset.val=opt.val!==null?opt.val:'';
+      chip.dataset.card=cn; chip.dataset.idx=idx;
+      chip.addEventListener('dragstart',e=>{
+        if(chip.classList.contains('used')){e.preventDefault();return;}
+        e.dataTransfer.setData('text/plain',JSON.stringify({val:chip.dataset.val,label:chip.textContent,card:cn,idx:chip.dataset.idx}));
+        chip.classList.add('dragging');
+      });
+      chip.addEventListener('dragend',()=>chip.classList.remove('dragging'));
+      c.appendChild(chip);
+    });
+  }
+
+  function setupSlotDnD(slot,cn){
+    slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('dragover');});
+    slot.addEventListener('dragleave',()=>slot.classList.remove('dragover'));
+    slot.addEventListener('drop',e=>{
+      e.preventDefault(); slot.classList.remove('dragover');
+      let data; try{data=JSON.parse(e.dataTransfer.getData('text/plain'));}catch{return;}
+      const chip=document.querySelector(`#opts${data.card} .fchip[data-idx="${data.idx}"]`);
+      if(!chip) return;
+      fillSlot(slot,chip,cn);
+    });
+    slot.addEventListener('click',()=>{if(slot.classList.contains('filled')) clearSlot(slot,cn);});
+  }
+
+  function fillSlot(slot,chip,cn){
+    const pos=slot.dataset.pos;
+    if(filledSlots[cn][pos]){
+      const old=document.querySelector(`#opts${cn} .fchip[data-idx="${filledSlots[cn][pos].chipIdx}"]`);
+      if(old) old.classList.remove('used');
+    }
+    filledSlots[cn][pos]={val:chip.dataset.val,chipIdx:chip.dataset.idx};
+    slot.textContent=chip.textContent;
+    slot.classList.add('filled'); slot.classList.remove('correct','wrong');
+    chip.classList.add('used'); chip.classList.remove('dragging');
+  }
+
+  function clearSlot(slot,cn){
+    const pos=slot.dataset.pos;
+    if(!filledSlots[cn][pos]) return;
+    const chip=document.querySelector(`#opts${cn} .fchip[data-idx="${filledSlots[cn][pos].chipIdx}"]`);
+    if(chip) chip.classList.remove('used');
+    delete filledSlots[cn][pos];
+    const def={'F2':'?','S2':'?','P_res':'? Па','P':'?','S1':'?','F1_res':'? Н'};
+    slot.textContent=def[pos]||'?';
+    slot.classList.remove('filled','correct','wrong');
+  }
+
+  function getCardSlots(cn){
+    if(cn===1) return ['slot_F2','slot_S2','slot_P_res'].map(id=>document.getElementById(id));
+    return ['slot_P','slot_S1','slot_F1_res'].map(id=>document.getElementById(id));
+  }
+
+  function checkCard(cn){
+    const lv=activeParams||LEVELS[lvl];
+    const t=lv.type||'normal';
+    const Pc=lv.target/lv.s2;
+    let F1c=Pc*lv.s1;
+    if(t==='leak') F1c=F1c*(1/(1-lv.leak));
+    const Psplit=lv.target/lv.s2, F1split=Psplit*lv.s1;
+    let Pval,S1val,F2slot,S2slot,P_resVal,F1_resVal;
+    if(t==='findF2'){
+      // Card1: P = F1/S1,  Card2: F2 = P*S2
+      Pval=lv.givenF1/lv.s1; S1val=lv.s2;
+      F2slot=lv.givenF1; S2slot=lv.s1;
+      P_resVal=Pval; F1_resVal=Pval*lv.s2;
+    } else if(t==='findS1'){
+      // Card1: P = F2/S2,  Card2: S1 = F1/P
+      const F1given=(lv.target/lv.s2)*lv.s1;
+      Pval=Pc; S1val=Pc; // slot_P=F1given, slot_S1=P
+      F2slot=lv.target; S2slot=lv.s2;
+      P_resVal=Pc; F1_resVal=lv.s1; // result is S1
+      // override correct for card2: slot_P=F1given, slot_S1=Pc, result=S1
+      const correctOverride={
+        1:{F2:lv.target,S2:lv.s2,P_res:Pc},
+        2:{P:F1given,S1:Pc,F1_res:lv.s1}
+      };
+      getCardSlots(cn).forEach(slot=>{
+        const pos=slot.dataset.pos;
+        const filled=filledSlots[cn][pos];
+        if(!filled){slot.classList.add('wrong');return;}
+        const ok=Math.abs(parseFloat(filled.val)-correctOverride[cn][pos])<0.6;
+        slot.classList.remove('correct','wrong');
+        slot.classList.add(ok?'correct':'wrong');
+      });
+      return;
+    } else if(t==='split'){
+      const totalF2s=lv.target*2; Pval=totalF2s/lv.s2; S1val=lv.s1;
+      F2slot=totalF2s; S2slot=lv.s2; P_resVal=Pval; F1_resVal=Pval*lv.s1;
+    } else {
+      Pval=Pc; S1val=lv.s1; F2slot=lv.target; S2slot=lv.s2;
+      P_resVal=Pc; F1_resVal=F1c;
+    }
+    const correct={
+      1:{ F2:F2slot, S2:S2slot, P_res:P_resVal },
+      2:{ P:Pval, S1:S1val, F1_res:F1_resVal }
+    };
+    // For card 2, slots P and S1 are commutative (multiplication)
+    // Check if values are swapped and still correct
+    const slots2 = getCardSlots(2);
+    const filled_P  = filledSlots[2]['P'];
+    const filled_S1 = filledSlots[2]['S1'];
+    let swapped = false;
+    if(cn===2 && filled_P && filled_S1){
+      const vP  = parseFloat(filled_P.val);
+      const vS1 = parseFloat(filled_S1.val);
+      // swapped: P slot has S1 value and S1 slot has P value
+      if(Math.abs(vP - S1val)<0.6 && Math.abs(vS1 - Pval)<0.6) swapped=true;
+    }
+    getCardSlots(cn).forEach(slot=>{
+      const pos=slot.dataset.pos;
+      const filled=filledSlots[cn][pos];
+      if(!filled){slot.classList.add('wrong');return;}
+      let ok=false;
+      if(cn===2 && swapped && (pos==='P'||pos==='S1')){
+        ok=true; // commutative — both orderings accepted
+      } else {
+        ok=Math.abs(parseFloat(filled.val)-correct[cn][pos])<0.6;
+      }
+      slot.classList.remove('correct','wrong');
+      slot.classList.add(ok?'correct':'wrong');
+    });
+  }
+
+  function resetFormulas(){
+    selectedChip={1:null,2:null}; filledSlots={1:{},2:{}};
+    const defs=[
+      {id:'slot_F2',text:'?',card:1},{id:'slot_S2',text:'?',card:1},{id:'slot_P_res',text:'? Па',card:1},
+      {id:'slot_P',text:'?',card:2},{id:'slot_S1',text:'?',card:2},{id:'slot_F1_res',text:'? Н',card:2},
+    ];
+    defs.forEach(({id,text,card})=>{
+      const el=document.getElementById(id);
+      el.textContent=text; el.classList.remove('filled','correct','wrong');
+      const fresh=el.cloneNode(true);
+      el.parentNode.replaceChild(fresh,el);
+      setupSlotDnD(fresh,card);
+    });
+    buildOptions(activeParams);
+  }
+
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+    return arr;
+  }
+
+
+  function updateFormulaDisplay(lv){
+    const t = lv ? (lv.type||'normal') : (LEVELS[lvl].type||'normal');
+    const L = lv || LEVELS[lvl];
+
+    // card 1 line 1 operator text (between slot_F2 and slot_S2)
+    const op1 = document.getElementById('fop1');   // operator between slots
+    const lbl_slot_F2  = document.getElementById('slot_F2');
+    const lbl_slot_S2  = document.getElementById('slot_S2');
+    const lbl_slot_P_res = document.getElementById('slot_P_res');
+    const lhs1 = document.getElementById('flhs1');  // left-hand side label "P ="
+    const lhs2 = document.getElementById('flhs2');
+    const op2  = document.getElementById('fop2');
+    const lbl_slot_P   = document.getElementById('slot_P');
+    const lbl_slot_S1  = document.getElementById('slot_S1');
+    const lbl_slot_F1_res = document.getElementById('slot_F1_res');
+    const res1lbl = document.getElementById('fres1lbl'); // "P =" before result slot
+    const res2lbl = document.getElementById('fres2lbl'); // "F₁ =" before result slot
+
+    if(t === 'findF2'){
+      // Card 1: P = F₁ / S₁  → P = ?
+      if(lhs1)  lhs1.textContent = 'P =';
+      if(op1)   op1.textContent  = '/';
+      if(lbl_slot_F2) { lbl_slot_F2.dataset.pos='F2'; }
+      if(lbl_slot_S2) { lbl_slot_S2.dataset.pos='S2'; }
+      if(res1lbl) res1lbl.textContent = 'P =';
+      if(lbl_slot_P_res) { lbl_slot_P_res.textContent='? Па'; lbl_slot_P_res.dataset.pos='P_res'; }
+      // Card 2: F₂ = P × S₂  → F₂ = ?
+      if(lhs2)  lhs2.textContent = 'F₂ =';
+      if(op2)   op2.textContent  = '×';
+      if(res2lbl) res2lbl.textContent = 'F₂ =';
+      if(lbl_slot_F1_res) { lbl_slot_F1_res.textContent='? Н'; lbl_slot_F1_res.dataset.pos='F1_res'; }
+    } else if(t === 'findS1'){
+      // Card 1: P = F₂ / S₂ (normal)
+      if(lhs1)  lhs1.textContent = 'P =';
+      if(op1)   op1.textContent  = '/';
+      if(res1lbl) res1lbl.textContent = 'P =';
+      if(lbl_slot_P_res) { lbl_slot_P_res.textContent='? Па'; }
+      // Card 2: S₁ = F₁ / P  (find S1!)
+      if(lhs2)  lhs2.textContent = 'S₁ =';
+      if(op2)   op2.textContent  = '/';
+      if(res2lbl) res2lbl.textContent = 'S₁ =';
+      if(lbl_slot_F1_res) { lbl_slot_F1_res.textContent='? см²'; }
+      if(lbl_slot_F1_res) { lbl_slot_F1_res.textContent='? см²'; }
+    } else {
+      // Normal / reverse / split / leak
+      if(lhs1)  lhs1.textContent = 'P =';
+      if(op1)   op1.textContent  = '/';
+      if(res1lbl) res1lbl.textContent = 'P =';
+      if(lbl_slot_P_res) { if(!lbl_slot_P_res.classList.contains('filled')) lbl_slot_P_res.textContent='? Па'; }
+      if(lhs2)  lhs2.textContent = 'F₁ =';
+      if(op2)   op2.textContent  = '×';
+      if(res2lbl) res2lbl.textContent = 'F₁ =';
+      if(lbl_slot_F1_res) { if(!lbl_slot_F1_res.classList.contains('filled')) lbl_slot_F1_res.textContent='? Н'; }
+    }
+  }
+
+  // ── LOAD LEVEL ──
+  function loadLevel(){
+    const lv=LEVELS[lvl];
+    attempts=0;
+    slider.value=0; slider.max=lv.maxF;
+    updateTrack(0); updateReadout(0); resetScene();
+    updatePips(); updateDots(0,null);
+    labelS1.textContent=`S₁ = ${lv.s1} см²`;
+    labelS2.textContent=`S₂ = ${lv.s2} см²`;
+    infoS2.innerHTML=`S₂ = ${lv.s2} <sub>см²</sub>`;
+    const cardS1el=document.getElementById('cardS1');
+    if(lv.type==='findS1'){
+      // S1 is unknown — hide it, show ? instead
+      if(cardS1el) cardS1el.style.opacity='0.3';
+      infoS1.innerHTML='S₁ = <b>?</b>';
+      labelS1.textContent='S₁ = ?';
+    } else {
+      if(cardS1el) cardS1el.style.opacity='1';
+      infoS1.innerHTML=`S₁ = ${lv.s1} <sub>см²</sub>`;
+    }
+    const taskTexts = {
+      normal:  `Подними груз ${lv.target} Н`,
+      findF2:  `Дана F₁ = ${lv.givenF1} Н — найди силу F₂ на большом поршне`,
+      reverse: `Груз ${lv.target} Н уже на поршне — найди нужную F₁`,
+      findS1:  `Найди S₁ чтобы поднять груз ${lv.target} Н силой F₁=${(lv.target/lv.s2*lv.s1).toFixed(0)} Н`,
+      split:   `Подними два груза по ${lv.target} Н каждый`,
+      leak:    `Утечка ${(lv.leak*100).toFixed(0)}% — подними груз ${lv.target} Н`,
+    };
+    infoTask.textContent = taskTexts[lv.type] || `Подними груз ${lv.target} Н`;
+    const cargo2Group = document.getElementById('cargo2Group');
+    const cargo2Label = document.getElementById('cargo2Label');
+    if(lv.type==='findF2'){
+      cargoGroup.style.opacity='0';
+      if(cargo2Group) cargo2Group.style.display='none';
+    } else if(lv.type==='split'){
+      cargoGroup.style.opacity='1';
+      cargoLabel.textContent=`${lv.target} Н`;
+      if(cargo2Group){ cargo2Group.style.display=''; cargo2Group.setAttribute('transform','translate(0,100)'); }
+      if(cargo2Label) cargo2Label.textContent=`${lv.target} Н`;
+    } else {
+      cargoGroup.style.opacity='1';
+      cargoLabel.textContent=`${lv.target} Н`;
+      if(cargo2Group) cargo2Group.style.display='none';
+    }
+    banner.className='result-banner';
+    btnApply.textContent='Нажать поршень →';
+    btnApply.classList.remove('disabled');
+    animating=false;
+    resetFormulas();
+    updateFormulaDisplay(lv);
+
+    // type badge
+    const typeBadge = document.getElementById('typeBadge');
+    const typeLabels = {
+      findF2:  ['findF2','→ Найди F₂'],
+      reverse: ['reverse','⟵ Обратная задача'],
+      findS1:  ['findS1','🔍 Найди площадь'],
+      split:   ['split','⑂ Два груза'],
+      leak:    ['leak','💧 Утечка 20%'],
+    };
+    if(lv.type && typeLabels[lv.type]){
+      const [cls,lbl] = typeLabels[lv.type];
+      typeBadge.className='type-badge '+cls;
+      typeBadge.textContent=lbl;
+      typeBadge.style.display='';
+    } else {
+      typeBadge.style.display='none';
+    }
+
+    if(lv.duel){
+      activeParams=null;
+      duelBadge.classList.add('show');
+      duelPanel.style.display='';
+      btnApply.style.display='none';
+      slider.closest('.slider-panel').style.display='none';
+      duelRound=0; duelScore=0;
+      startDuelRound();
+    } else {
+      activeParams=null;
+      duelBadge.classList.remove('show');
+      duelPanel.style.display='none';
+      btnApply.style.display='';
+      slider.closest('.slider-panel').style.display='';
+    }
+  }
+
+  // ── DUEL ──
+  function startDuelRound(){
+    const opp=OPPONENTS[duelRound];
+    activeParams=opp;
+    duelPhase='player';
+    document.getElementById('duelEmoji').textContent=opp.emoji;
+    document.getElementById('duelName').textContent=opp.name;
+    document.getElementById('duelDesc').textContent=opp.desc;
+    document.getElementById('duelRoundLbl').textContent=`${duelRound+1} / 3`;
+    document.getElementById('duelScoreLbl').textContent=duelScore;
+    // update scene labels for this round
+    labelS1.textContent=`S₁ = ${opp.s1} см²`;
+    labelS2.textContent=`S₂ = ${opp.s2} см²`;
+    infoS1.innerHTML=`S₁ = ${opp.s1} <sub>см²</sub>`;
+    infoS2.innerHTML=`S₂ = ${opp.s2} <sub>см²</sub>`;
+    infoTask.textContent=`Подними груз ${opp.target} Н`;
+    cargoLabel.textContent=`${opp.target} Н`;
+    // update task labels for this round
+    document.getElementById('infoS1').innerHTML='S₁ = '+opp.s1+' <sub>см²</sub>';
+    document.getElementById('infoS2').innerHTML='S₂ = '+opp.s2+' <sub>см²</sub>';
+    document.getElementById('infoTask').textContent='Подними груз '+opp.target+' Н';
+    document.getElementById('cargoLabel').textContent=opp.target+' Н';
+    document.getElementById('labelS1').textContent='S₁ = '+opp.s1+' см²';
+    document.getElementById('labelS2').textContent='S₂ = '+opp.s2+' см²';
+    resetFormulas();
+    updateFormulaDisplay(opp);
+    duelInput.value=''; duelInput.disabled=false;
+
+    // start player countdown
+    clearInterval(playerTimerInterval);
+    const PTIME = opp.playerTime;
+    playerTimeLeft = PTIME;
+    const timerWrap = document.getElementById('duelTimerWrap');
+    const timerVal  = document.getElementById('duelTimerVal');
+    const timerArc  = document.getElementById('duelTimerArc');
+    const ARC_LEN   = 113.1;
+    timerWrap.style.display = '';
+    timerVal.textContent = playerTimeLeft;
+    timerVal.className = 'duel-timer-val';
+    timerArc.setAttribute('stroke-dashoffset', '0');
+
+    playerTimerInterval = setInterval(() => {
+      playerTimeLeft--;
+      timerVal.textContent = playerTimeLeft;
+      timerArc.setAttribute('stroke-dashoffset', ARC_LEN * (1 - playerTimeLeft / PTIME));
+      if (playerTimeLeft <= 5) { timerVal.className = 'duel-timer-val urgent'; sndUrgent(); }
+      else { sndTick(); }
+      if (playerTimeLeft <= 0) {
+        clearInterval(playerTimerInterval);
+        submitDuelAnswer(); // auto-submit with whatever is in the field
+      }
+    }, 1000);
+
+    duelInput.focus();
+    duelResultRow.style.display='none';
+    cpuThinking.style.display='none';
+    btnDuelNext.style.display='none';
+    btnDuel.textContent='Принять ответ →';
+    btnDuel.classList.remove('disabled');
+  }
+
+  function updateSceneDuel(F1, opp){
+    const F1correct=(opp.target/opp.s2)*opp.s1;
+    const r=Math.min(F1/(F1correct*1.4),1);
+    const dL=r*BASE.MAX_DL;
+    pistonL.setAttribute('transform',`translate(0,${dL})`);
+    const newLiqLY=BASE.pLH+dL+BASE.pLHH;
+    sy(liqL,'y',newLiqLY); sy(liqL,'height',Math.max(278-newLiqLY,0)); sy(menL,'cy',newLiqLY);
+    const F2=(F1/opp.s1)*opp.s2;
+    const dR=Math.min(F2/opp.target,1.4)*BASE.MAX_DR;
+    const newLiqRY=BASE.liqRY-dR;
+    sy(liqR,'y',newLiqRY); sy(liqR,'height',BASE.liqRBottom-newLiqRY); sy(menR,'cy',newLiqRY);
+    const newPRHY=newLiqRY-BASE.pRHH;
+    sy(pRH,'y',newPRHY);
+    [g1R,g2R].forEach((g,i)=>{const o=12+i*8;g.setAttribute('y1',newPRHY+o);g.setAttribute('y2',newPRHY+o);});
+    sy(pRRod,'height',Math.max(newPRHY-2,0)); sy(pRRS,'height',Math.max(newPRHY-2,0));
+    cargoGroup.setAttribute('transform',`translate(0,${100-(BASE.pRHY-newPRHY)})`);
+  }
+
+  function submitDuelAnswer(){
+    if(duelPhase!=='player') return;
+    const opp=OPPONENTS[duelRound];
+    const F1=parseFloat(duelInput.value);
+    if(isNaN(F1)||F1<=0){ duelInput.focus(); return; }
+
+    duelPhase='result';
+    clearInterval(playerTimerInterval);
+    clearTimeout(cpuAnswerTimeout);
+    document.getElementById('duelTimerWrap').style.display='none';
+    duelInput.disabled=true;
+    btnDuel.classList.add('disabled');
+
+    const F2=(F1/opp.s1)*opp.s2;
+    const playerOk=Math.abs(F2-opp.target)<=TOL;
+    const playerCenter=Math.abs(F2-opp.target)<=1;
+
+    // animate scene
+    {
+      const r=Math.min(F1/((opp.target/opp.s2)*opp.s1*1.4),1);
+      const dL=r*BASE.MAX_DL;
+      pistonL.setAttribute('transform',`translate(0,${dL})`);
+      const newLiqLY=BASE.pLH+dL+BASE.pLHH;
+      sy(liqL,'y',newLiqLY); sy(liqL,'height',Math.max(278-newLiqLY,0)); sy(menL,'cy',newLiqLY);
+      const dR=Math.min(F2/opp.target,1.4)*BASE.MAX_DR;
+      const newLiqRY=BASE.liqRY-dR;
+      sy(liqR,'y',newLiqRY); sy(liqR,'height',BASE.liqRBottom-newLiqRY); sy(menR,'cy',newLiqRY);
+      const newPRHY=newLiqRY-BASE.pRHH;
+      sy(pRH,'y',newPRHY);
+      [g1R,g2R].forEach((g,i)=>{const o=12+i*8;g.setAttribute('y1',newPRHY+o);g.setAttribute('y2',newPRHY+o);});
+      sy(pRRod,'height',Math.max(newPRHY-2,0)); sy(pRRS,'height',Math.max(newPRHY-2,0));
+      cargoGroup.setAttribute('transform',`translate(0,${100-(BASE.pRHY-newPRHY)})`);
+    }
+
+    // use precomputed CPU answer
+    const F1cpu = opp._F1cpu || (opp.target/opp.s2)*opp.s1;
+    const F2cpu = (F1cpu/opp.s1)*opp.s2;
+    const cpuOk = Math.abs(F2cpu-opp.target)<=TOL;
+
+    // reveal both results at once
+    duelResultRow.style.display='';
+    document.getElementById('duelResPlayerVal').textContent=F2.toFixed(1)+' Н';
+    document.getElementById('duelResPlayer').className='duel-result-card '+(playerOk?'win':'lose');
+    document.getElementById('duelResCpuVal').textContent=F2cpu.toFixed(1)+' Н';
+    document.getElementById('duelResCpu').className='duel-result-card '+(cpuOk?'win':'lose');
+
+    // scoring
+    let pts=0,txt='',cls='draw';
+    if(playerOk&&!cpuOk){
+      pts=playerCenter?5:3;
+      txt=playerCenter?'🎯 Точно! +'+pts:'🏆 Победа! +'+pts; cls='win'; sndWin();
+    } else if(playerOk&&cpuOk){
+      pts=1; txt='🤝 Оба попали! +1'; cls='draw';
+    } else if(!playerOk&&cpuOk){
+      txt='🤖 Победил '+opp.name; cls='lose'; sndFail();
+    } else {
+      txt='😬 Оба промахнулись'; cls='draw';
+    }
+
+    duelScore+=pts;
+    document.getElementById('duelScoreLbl').textContent=duelScore;
+    document.getElementById('duelResPointsVal').textContent='+'+pts;
+    document.getElementById('duelResPoints').className='duel-result-card '+(pts>0?'win':cls==='draw'&&playerOk?'draw':'lose');
+    document.getElementById('duelResWinnerVal').textContent=txt;
+    document.getElementById('duelResWinner').className='duel-result-card '+cls;
+
+    const isLast=duelRound===2;
+    btnDuelNext.textContent=isLast?'Завершить дуэль →':'Следующий раунд →';
+    btnDuelNext.style.display='';
+    btnDuelNext.onclick=()=>{
+      if(isLast){ sndDuelWin(); showFinal(); }
+      else { sndNext(); duelRound++; resetScene(); startDuelRound(); }
+    };
+  }
+
+  btnDuel.addEventListener('click', submitDuelAnswer);
+  duelInput.addEventListener('keydown', e=>{ if(e.key==='Enter') submitDuelAnswer(); });
+
+  // ── BANNER ──
+  function showBanner(state,F2,isLast){
+    banner.className='result-banner';
+    void banner.offsetWidth;
+    if(state==='ok'){
+      sndSuccess();
+      cargoGroup.classList.add('cargo-success');
+      setTimeout(()=>cargoGroup.classList.remove('cargo-success'),700);
+      banner.className='result-banner show ok';
+      const btn=document.createElement('button');
+      btn.className='btn-next';
+      btn.textContent=isLast?'Завершить →':'Следующий →';
+      btn.onclick=()=>{ banner.className='result-banner'; completedLevels.add(lvl); updatePips(); if(isLast) showFinal(); else{ sndNext(); lvl++;loadLevel();} };
+      banner.innerHTML=`✓ Отлично! F₂ = ${F2.toFixed(0)} Н — груз поднят! `;
+      banner.appendChild(btn);
+    } else {
+      sndFail();
+      banner.className='result-banner show '+(state==='low'?'low':'over');
+      banner.innerHTML=state==='low'?'↑ Маловато. Нужно больше силы.':'✕ Перебор!';
+      setTimeout(()=>{banner.className='result-banner';},2500);
+    }
+  }
+
+  function showFinal(){
+    gameArea.style.display='none';
+    finalScreen.classList.add('show');
+    document.getElementById('statAttempts').textContent=totalAttempts;
+    document.getElementById('statFirst').textContent=firstTries+' / 8';
+    const rank = duelScore>=9 ? '🏆 Мастер давления' : duelScore>=4 ? '🔬 Физик' : '📚 Ученик';
+    document.getElementById('statDuel').textContent = duelScore + ' очков — ' + rank;
+    document.getElementById('finalSub').textContent =
+      duelScore>=9 ? 'Блестяще! Ты обогнал даже Читера. Мастер гидравлики!' :
+        duelScore>=4 ? 'Отличная работа! Закон Паскаля тебе покорился.' :
+          'Хорошее начало! Потренируйся ещё — и обгонишь всех противников.';
+  }
+
+  document.getElementById('btnRestart').onclick=()=>{
+    lvl=0; totalAttempts=0; firstTries=0; duelScore=0; duelRound=0; completedLevels=new Set();
+    clearInterval(cpuBarInterval); clearTimeout(cpuAnswerTimeout);
+    finalScreen.classList.remove('show');
+    gameArea.style.display='flex';
+    slider.closest('.slider-panel').style.display='';
+    loadLevel();
+  };
+
+  slider.addEventListener('input',()=>{
+    if(animating) return;
+    const F1=+slider.value;
+    updateTrack(F1); updateReadout(F1); updateScene(F1);
+  });
+
+  btnApply.addEventListener('click',()=>{
+    if(animating) return;
+    const F1=+slider.value;
+    if(F1===0) return;
+    animating=true;
+    btnApply.classList.add('disabled'); btnApply.textContent='...';
+    const {F2}=calcPhysics(F1);
+    const state=getState(F2);
+    const isLast=lvl===LEVELS.length-1;
+    totalAttempts++; attempts++;
+    if(state==='ok'){updateDots(attempts-1,'ok');if(attempts===1)firstTries++;}
+    else updateDots(attempts-1,'used');
+    showBanner(state,F2,isLast);
+    if(state!=='ok'){
+      setTimeout(()=>{
+        slider.value=0; updateTrack(0); updateReadout(0); resetScene();
+        animating=false; btnApply.classList.remove('disabled'); btnApply.textContent='Нажать поршень →';
+      },2200);
+    } else { animating=false; btnApply.classList.add('disabled'); }
+  });
+
+
+  // ── SOUND ENGINE ────────────────────────────────────────
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let actx = null;
+  function getACtx() { if (!actx) actx = new AudioCtx(); return actx; }
+
+  function playTone(freq, type, duration, gainVal, fadeOut) {
+    try {
+      const ctx = getACtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+      if (fadeOut) gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.start(); osc.stop(ctx.currentTime + duration);
+    } catch(e) {}
+  }
+
+  function sndSuccess() {
+    playTone(440, 'sine', 0.12, 0.3, true);
+    setTimeout(() => playTone(554, 'sine', 0.12, 0.3, true), 100);
+    setTimeout(() => playTone(659, 'sine', 0.25, 0.35, true), 200);
+  }
+
+  function sndWin() {
+    [523, 659, 784, 1046].forEach((f, i) =>
+      setTimeout(() => playTone(f, 'sine', 0.18, 0.3, true), i * 110)
+    );
+  }
+
+  function sndFail() {
+    playTone(300, 'sawtooth', 0.08, 0.15, true);
+    setTimeout(() => playTone(220, 'sawtooth', 0.15, 0.15, true), 80);
+  }
+
+  function sndTick() {
+    playTone(880, 'square', 0.04, 0.06, true);
+  }
+
+  function sndUrgent() {
+    playTone(660, 'square', 0.05, 0.1, true);
+  }
+
+  function sndNext() {
+    playTone(392, 'sine', 0.1, 0.2, true);
+    setTimeout(() => playTone(523, 'sine', 0.15, 0.2, true), 90);
+  }
+
+  function sndDuelWin() {
+    [392, 523, 659, 784, 1046].forEach((f, i) =>
+      setTimeout(() => playTone(f, 'triangle', 0.2, 0.3, true), i * 90)
+    );
+  }
+
+  loadLevel();
+</script>
+</body>
+</html>
