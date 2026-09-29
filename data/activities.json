@@ -188,7 +188,7 @@
       "id": "accelerated-motion",
       "title": "Прямолинейное равноускоренное движение",
       "subject": "Тренажёры",
-      "description": "6 модулей подготовки к ОГЭ: числовой ответ, полное решение, СИ, формулы и проверка.",
+      "description": "12 интерактивных задач на скорость, ускорение, путь и перемещение.",
       "url": "tasks/accelerated-motion.html",
       "questionCount": 12,
       "maxPoints": 0,
@@ -198,6 +198,21 @@
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
       "order": 55
+    },
+    {
+      "id": "accelerated-motion-oge",
+      "title": "Равноускоренное движение: алгоритм ОГЭ",
+      "subject": "Тренажёры",
+      "description": "6 модулей подготовки к ОГЭ: числовой ответ, полное решение, СИ, формулы и проверка.",
+      "url": "tasks/accelerated-motion-oge.html",
+      "questionCount": 12,
+      "maxPoints": 0,
+      "difficulty": "Тренировка",
+      "verificationMode": "visit-only",
+      "cardState": "Тренажёр",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 56
     },
     {
       "id": "curvilinear-motion",
@@ -212,7 +227,7 @@
       "cardState": "Тренажёр",
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
-      "order": 56
+      "order": 57
     },
     {
       "id": "olympiad-physics",

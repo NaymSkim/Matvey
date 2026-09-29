@@ -3,301 +3,840 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Тренажёр ОГЭ по физике: пошаговое решение задач на равноускоренное движение без преждевременного показа ответов.">
-  <title>ОГЭ по физике · Равноускоренное движение</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2317335c'/%3E%3Cpath d='M12 44c10-18 22-25 40-24' fill='none' stroke='%23ffd166' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='15' cy='44' r='5' fill='%235dd0b1'/%3E%3C/svg%3E">
+  <meta name="description" content="Интерактивный тренажёр по равноускоренному движению для 9 класса со статистикой попыток ученика.">
+  <title>Физика · Равноускоренное движение</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2317335c'/%3E%3Cpath d='M13 43c10-19 20-25 38-23' fill='none' stroke='%23ffd166' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='43' r='5' fill='%235dd0b1'/%3E%3Ccircle cx='50' cy='20' r='7' fill='%23ff715b'/%3E%3C/svg%3E">
   <style>
-    :root{--ink:#13233a;--navy:#17335c;--blue:#3478f6;--blue-soft:#eaf2ff;--paper:#f3f7fd;--line:#cfdbeb;--muted:#60748c;--mint:#1fa982;--mint-soft:#e7f9f3;--coral:#d85b49;--coral-soft:#fff0ed;--violet:#7657d5;--violet-soft:#f1edff;--amber:#b97809;--amber-soft:#fff5d7;--shadow:0 14px 38px rgba(31,61,103,.11)}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;color:var(--ink);background:radial-gradient(circle at 8% 4%,rgba(52,120,246,.14),transparent 25rem),radial-gradient(circle at 92% 18%,rgba(118,87,213,.11),transparent 24rem),linear-gradient(rgba(45,91,150,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(45,91,150,.04) 1px,transparent 1px),var(--paper);background-size:auto,auto,28px 28px,28px 28px,auto;font:16px/1.55 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    button,input,select{font:inherit}button{touch-action:manipulation}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid rgba(52,120,246,.32);outline-offset:3px}[hidden]{display:none!important}
-    .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;min-height:68px;padding:10px max(18px,calc((100vw - 1180px)/2));border-bottom:1px solid rgba(193,208,228,.9);background:rgba(255,255,255,.94);backdrop-filter:blur(14px);box-shadow:0 4px 22px rgba(30,65,110,.07)}
-    .brand{display:flex;align-items:center;gap:10px;color:var(--navy);font-weight:850;white-space:nowrap}.brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;color:#fff2ad;background:linear-gradient(145deg,#3478f6,#7657d5);font:24px Georgia,serif}.top-progress{flex:1;min-width:120px}.progress-meta{display:flex;justify-content:space-between;gap:12px;margin-bottom:5px;color:var(--muted);font-size:.8rem;font-weight:760}.progress-track{height:9px;overflow:hidden;border:1px solid #d7e1ee;border-radius:99px;background:#eaf0f7}.progress-fill{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#3478f6,#7657d5,#d75e9e,#f2a333,#28b992);transition:width .35s}.icon-btn{border:1px solid #cbd9ea;border-radius:11px;padding:9px 12px;background:#fff;color:var(--navy);cursor:pointer;font-weight:760}
-    .shell{display:grid;grid-template-columns:260px minmax(0,1fr);gap:28px;width:min(1180px,calc(100% - 36px));margin:28px auto 72px}.side-inner{position:sticky;top:94px;display:grid;gap:14px}.student-card,.module-nav{border:1px solid var(--line);border-radius:19px;background:rgba(255,255,255,.96);box-shadow:0 9px 26px rgba(31,68,116,.08)}.student-card{padding:18px}.eyebrow{margin:0 0 5px;color:var(--blue);font-size:.74rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.student-card strong{display:block;color:var(--navy);overflow-wrap:anywhere}.student-card p{margin:7px 0 0;color:var(--muted);font-size:.83rem}.module-nav{display:grid;gap:5px;padding:8px}.module-link{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:9px;width:100%;border:0;border-radius:12px;padding:10px;background:transparent;color:var(--ink);text-align:left;cursor:pointer}.module-link:hover:not(:disabled){background:#f0f5fc}.module-link.active{background:var(--navy);color:#fff}.module-link:disabled{cursor:not-allowed;opacity:.5}.module-num{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--blue-soft);color:var(--blue);font-weight:850}.module-link.active .module-num{background:rgba(255,255,255,.16);color:#fff}.module-name{font-size:.82rem;font-weight:780;line-height:1.25}
-    main{min-width:0}.hero{position:relative;overflow:hidden;margin-bottom:22px;border-radius:28px;padding:clamp(27px,5vw,48px);color:#fff;background:radial-gradient(circle at 88% 12%,rgba(255,209,102,.37),transparent 13rem),radial-gradient(circle at 78% 110%,rgba(40,203,164,.35),transparent 16rem),linear-gradient(125deg,#17345b,#3152a4 52%,#713e9d);box-shadow:0 22px 55px rgba(38,56,130,.22)}.hero:after{content:"8";position:absolute;right:20px;bottom:-76px;color:rgba(255,255,255,.1);font:240px/1 Georgia,serif}.hero .eyebrow{color:#ffe594}.hero h1{position:relative;z-index:1;max-width:780px;margin:0;font-size:clamp(2rem,5.2vw,4.2rem);line-height:1;letter-spacing:-.05em}.hero h1 span{display:block;margin-top:8px;color:#a7f0dc;font-family:Georgia,serif;font-weight:500}.hero>p:not(.eyebrow){position:relative;z-index:1;max-width:740px;margin:18px 0 0;color:#e3ebfa}.algorithm-strip{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:7px;margin-top:21px}.algorithm-strip span{border:1px solid rgba(255,255,255,.22);border-radius:99px;padding:6px 10px;background:rgba(255,255,255,.1);font-size:.78rem;font-weight:720}
-    .notice,.storage-warning{margin-bottom:18px;border-radius:16px;padding:14px 16px}.notice{border:1px solid #d6c9f1;color:#4b3c72;background:var(--violet-soft)}.storage-warning{border:1px solid #e5bd61;color:#74510b;background:#fff8df}.module-panel{display:grid;gap:18px}.module-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;border:1px solid var(--line);border-radius:21px;padding:22px;background:#fff;box-shadow:var(--shadow)}.module-head h2{margin:2px 0 6px;color:var(--navy);font-size:clamp(1.35rem,3vw,1.85rem)}.module-head p{margin:0;color:var(--muted)}.module-badge{flex:0 0 auto;border-radius:99px;padding:7px 11px;color:#245a9d;background:var(--blue-soft);font-size:.78rem;font-weight:800}.exam-label{display:inline-block;margin-bottom:8px;border-radius:7px;padding:4px 8px;color:#fff;background:var(--navy);font-size:.72rem;font-weight:850;letter-spacing:.04em;text-transform:uppercase}.exam-instruction{margin:10px 0 0;color:#48617d;font-size:.86rem}.answer-blank{display:inline-flex;align-items:flex-end;gap:7px;margin-top:11px;color:var(--navy);font-weight:800}.answer-blank span{display:inline-block;min-width:92px;height:1.4em;border-bottom:2px solid #8ea5c2}
-    .phase-card{overflow:hidden;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.98);box-shadow:var(--shadow)}.phase-head{display:flex;align-items:flex-start;gap:13px;padding:20px 22px;border-bottom:1px solid #dbe4ef;background:linear-gradient(120deg,#fff,#f4f7ff)}.phase-icon{display:grid;place-items:center;width:43px;height:43px;flex:0 0 auto;border-radius:14px;color:#fff;background:var(--violet);font-weight:900}.practice-card .phase-icon{background:var(--blue)}.phase-head h3{margin:0;color:var(--navy);font-size:1.12rem}.phase-head p{margin:3px 0 0;color:var(--muted);font-size:.88rem}.phase-body{padding:22px}.problem{margin:0 0 18px;border-left:5px solid var(--blue);border-radius:0 13px 13px 0;padding:14px 16px;background:#f0f6ff}.problem strong{display:block;margin-bottom:4px;color:var(--navy)}
-    .stage-map{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin-bottom:18px}.stage-dot{display:grid;place-items:center;min-height:39px;border:1px solid #d2deec;border-radius:10px;color:var(--muted);background:#f7f9fc;font-size:.75rem;font-weight:820}.stage-dot.current{border-color:var(--blue);color:var(--blue);background:var(--blue-soft);box-shadow:inset 0 0 0 1px var(--blue)}.stage-dot.self{border-color:#8dd6c0;color:#147158;background:var(--mint-soft)}.stage-dot.assisted{border-color:#e7c271;color:#845b0f;background:var(--amber-soft)}
-    .stage-card{border:1px solid #d5e0ed;border-radius:17px;padding:19px;background:#fff}.stage-kicker{margin:0 0 4px;color:var(--blue);font-size:.74rem;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.stage-card h4{margin:0 0 7px;color:var(--navy);font-size:1.16rem}.stage-copy{margin:0 0 14px;color:#40536b}.controls{display:grid;gap:9px}.choice{display:flex;align-items:flex-start;gap:10px;width:100%;border:1px solid #cbd8e8;border-radius:12px;padding:11px 13px;color:var(--ink);background:#fff;text-align:left;cursor:pointer}.choice:hover{border-color:var(--blue);background:#f4f8ff}.choice.selected{border-color:var(--blue);background:var(--blue-soft);box-shadow:inset 0 0 0 1px var(--blue)}.choice input{margin-top:4px;accent-color:var(--blue)}.choice-letter{display:grid;place-items:center;width:26px;height:26px;flex:0 0 auto;border-radius:8px;color:var(--navy);background:#edf3fb;font-size:.78rem;font-weight:850}
-    .field-grid{display:grid;gap:10px}.field-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(150px,1.4fr);align-items:center;gap:12px}.field-row label{color:#344961;font-weight:730}.text-input,.select-input{width:100%;border:1px solid #bdcde1;border-radius:11px;padding:10px 12px;color:var(--ink);background:#fff}.number-wrap{display:flex;align-items:center;gap:9px}.number-wrap .text-input{min-width:0}.unit{flex:0 0 auto;color:var(--muted);font-weight:750}.order-row{display:grid;grid-template-columns:34px 1fr;align-items:center;gap:9px}.order-num{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;color:#fff;background:var(--violet);font-weight:850}
-    .actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:15px}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:12px;padding:10px 15px;cursor:pointer;font-weight:790;text-decoration:none}.btn-primary{color:#fff;background:linear-gradient(135deg,#3478f6,#6f59df);box-shadow:0 7px 18px rgba(52,120,246,.22)}.btn:disabled{cursor:default;opacity:.58}.feedback{margin-top:13px;border-radius:13px;padding:12px 14px}.feedback.good{border:1px solid #91d8c2;color:#145f4b;background:var(--mint-soft)}.feedback.bad{border:1px solid #efb1a7;color:#8d362a;background:var(--coral-soft)}.feedback.help{border:1px solid #e8c472;color:#74510b;background:var(--amber-soft)}.status-note{color:var(--muted);font-size:.82rem}.phase-locked{border:1px dashed #c9d6e5;border-radius:17px;padding:24px;color:var(--muted);background:#f8fafc;text-align:center}
-    .module-complete{border:1px solid #91d8c2;border-radius:22px;padding:24px;color:#155e4b;background:linear-gradient(135deg,#edfbf7,#f7fffc);box-shadow:var(--shadow)}.module-complete h3{margin:0 0 7px}.completion{border-radius:25px;padding:28px;color:#fff;background:linear-gradient(130deg,#153255,#285599 56%,#543e9d);box-shadow:var(--shadow)}.completion h2{margin:0 0 8px}.completion p{color:#dfebfa}.memory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.memory div{border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:10px 12px;background:rgba(255,255,255,.09)}.memory strong{color:#ffe594}
-    .gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 15% 15%,rgba(52,120,246,.26),transparent 25rem),radial-gradient(circle at 85% 80%,rgba(39,199,157,.22),transparent 25rem),linear-gradient(135deg,#eef5ff,#f9f5ff)}.gate-card{width:min(540px,100%);border:1px solid #c8d7ea;border-radius:27px;padding:clamp(27px,6vw,43px);background:rgba(255,255,255,.97);box-shadow:0 26px 70px rgba(29,57,97,.2)}.gate-mark{display:grid;place-items:center;width:62px;height:62px;margin-bottom:19px;border-radius:20px;color:#fff2ad;background:linear-gradient(145deg,#3478f6,#7657d5);font:33px Georgia,serif}.gate h1{margin:0;color:var(--navy);font-size:clamp(1.8rem,7vw,2.7rem);line-height:1.06}.gate p{color:var(--muted)}.gate label{display:block;margin-bottom:6px;color:var(--navy);font-weight:780}.gate input{width:100%;border:1px solid #bdcde1;border-radius:12px;padding:11px 13px}.gate .btn{width:100%;margin-top:11px}.gate-note{font-size:.8rem}
-    @media(max-width:900px){.shell{grid-template-columns:1fr}.side-inner{position:static}.student-card{display:none}.module-nav{display:flex;overflow-x:auto}.module-link{flex:0 0 205px}}@media(max-width:640px){.brand span:last-child{display:none}.topbar .icon-btn{padding:8px;font-size:.76rem}.shell{width:calc(100% - 22px);margin-top:16px}.hero,.module-head,.phase-body{padding:19px}.module-head{display:block}.module-badge{display:inline-block;margin-top:12px}.stage-map{grid-template-columns:repeat(4,1fr)}.field-row{grid-template-columns:1fr;gap:5px}.memory{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+    :root {
+      --ink: #10233b;
+      --navy: #17335c;
+      --blue: #3478f6;
+      --paper: #f2f7ff;
+      --card: #ffffff;
+      --line: #d5e1f1;
+      --muted: #60748c;
+      --yellow: #ffd166;
+      --yellow-soft: #fff8d8;
+      --mint: #27c79d;
+      --mint-soft: #e6fbf5;
+      --coral: #ff715b;
+      --coral-soft: #fff0ed;
+      --violet: #8b5cf6;
+      --violet-soft: #f2edff;
+      --cyan: #18a9c3;
+      --shadow: 0 16px 42px rgba(29, 57, 97, .12);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 8% 4%, rgba(50, 118, 245, .16), transparent 24rem),
+        radial-gradient(circle at 93% 17%, rgba(236, 95, 162, .12), transparent 22rem),
+        radial-gradient(circle at 84% 82%, rgba(40, 203, 164, .12), transparent 26rem),
+        linear-gradient(rgba(39, 87, 150, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(39, 87, 150, .045) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, auto, auto, 28px 28px, 28px 28px, auto;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    button, input { font: inherit; }
+    button { touch-action: manipulation; }
+    button:focus-visible, input:focus-visible, a:focus-visible {
+      outline: 3px solid rgba(52, 120, 246, .32);
+      outline-offset: 3px;
+    }
+    [hidden] { display: none !important; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-height: 66px;
+      padding: 9px max(18px, calc((100vw - 1120px) / 2));
+      background: linear-gradient(90deg, rgba(255,255,255,.96), rgba(244,248,255,.94), rgba(255,247,252,.94));
+      border-bottom: 1px solid rgba(185, 204, 229, .9);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 4px 22px rgba(30, 65, 110, .07);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; white-space: nowrap; font-weight: 850; letter-spacing: -.02em; color: var(--navy); }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      background: linear-gradient(145deg, #3276f5, #7754e9 58%, #ec5fa2);
+      color: #fff4bf;
+      font-family: Georgia, serif;
+      font-size: 23px;
+      box-shadow: 0 8px 20px rgba(82, 79, 213, .3);
+      transform: rotate(-4deg);
+    }
+    .top-progress { flex: 1; min-width: 120px; }
+    .progress-meta { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 5px; color: var(--muted); font-size: .82rem; font-weight: 750; }
+    .progress-track { overflow: hidden; height: 9px; border: 1px solid #d9e4f2; background: #eaf0f8; border-radius: 99px; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #3276f5, #8b5cf6, #ec5fa2, #ff9f43, #28cba4); transition: width .35s ease; }
+    .top-actions { display: flex; gap: 8px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 12px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-weight: 780;
+      text-decoration: none;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn:disabled { cursor: default; opacity: .62; }
+    .btn-primary { background: linear-gradient(135deg, #3478f6, #6e5ce7); color: #fff; box-shadow: 0 7px 18px rgba(52, 120, 246, .24); }
+    .btn-secondary { border: 1px solid #c9d9ed; background: linear-gradient(135deg, #fff, #edf4ff); color: var(--navy); }
+    .btn-danger { border: 1px solid #f1b9b0; background: #fff7f5; color: #a53b2d; }
+
+    .shell { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 28px; width: min(1120px, calc(100% - 36px)); margin: 28px auto 80px; }
+    .side-inner { position: sticky; top: 94px; display: grid; gap: 14px; }
+    .student-note, .topic-nav { background: rgba(255,255,255,.95); border: 1px solid #cedcf0; border-radius: 18px; box-shadow: 0 10px 28px rgba(31,68,116,.09); }
+    .student-note { position: relative; overflow: hidden; padding: 20px 16px 16px; background: linear-gradient(145deg, #fff, #f2f6ff 55%, #fff2f8); }
+    .student-note::before { content: ""; position: absolute; inset: 0 0 auto; height: 6px; background: linear-gradient(90deg, #3276f5 0 25%, #8b5cf6 25% 50%, #ec5fa2 50% 75%, #ffb33c 75%); }
+    .eyebrow { margin: 0 0 5px; color: var(--blue); font-size: .76rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    .student-note strong { display: block; font-size: 1.08rem; line-height: 1.35; overflow-wrap: anywhere; }
+    .student-note p { margin: 7px 0 0; color: var(--muted); font-size: .86rem; line-height: 1.5; }
+    .topic-nav { overflow: hidden; padding: 9px; }
+    .topic-link { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 9px; width: 100%; border: 0; border-radius: 12px; padding: 10px; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+    .topic-link:hover { background: var(--topic-soft); transform: translateX(2px); }
+    .topic-link.active { background: var(--topic-color); color: #fff; box-shadow: 0 7px 18px color-mix(in srgb, var(--topic-color) 25%, transparent); }
+    .topic-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: var(--topic-soft); color: var(--topic-color); font-size: 1.08rem; }
+    .topic-link.active .topic-icon { background: rgba(255,255,255,.2); color: #fff; }
+    .topic-name { font-size: .85rem; font-weight: 780; line-height: 1.25; }
+    .topic-score { color: var(--muted); font-size: .78rem; font-weight: 800; }
+    .topic-link.active .topic-score { color: rgba(255,255,255,.92); }
+
+    main { min-width: 0; }
+    .intro { position: relative; overflow: hidden; margin-bottom: 24px; border-radius: 28px; padding: clamp(26px, 5vw, 46px); background: radial-gradient(circle at 92% 15%, rgba(255,209,102,.38), transparent 13rem), radial-gradient(circle at 78% 106%, rgba(40,203,164,.35), transparent 17rem), linear-gradient(125deg, #17345b 0%, #3152a4 48%, #713e9d 100%); color: #fff; box-shadow: 0 22px 55px rgba(38,56,130,.24); }
+    .intro::after { content: "a"; position: absolute; right: 14px; bottom: -66px; color: rgba(255,240,181,.15); font-family: Georgia, serif; font-size: 220px; line-height: 1; pointer-events: none; }
+    .intro .eyebrow { color: #ffe594; }
+    .intro h1 { position: relative; z-index: 1; max-width: 720px; margin: 0; font-size: clamp(2rem, 5.4vw, 4.3rem); line-height: .98; letter-spacing: -.055em; }
+    .intro h1 em { display: block; margin-top: 10px; color: #9ef0dc; font-family: Georgia, serif; font-weight: 500; }
+    .intro-copy { position: relative; z-index: 1; max-width: 700px; margin: 20px 0 0; color: #e2ebfb; font-size: 1.03rem; }
+    .formula-strip { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 9px; margin-top: 22px; }
+    .formula-chip { border: 1px solid rgba(255,255,255,.22); border-radius: 99px; padding: 7px 12px; background: rgba(255,255,255,.1); color: #fff; font-family: Georgia, serif; font-size: 1rem; backdrop-filter: blur(4px); }
+
+    .topic-section { scroll-margin-top: 90px; margin: 0 0 28px; }
+    .topic-heading { display: flex; align-items: center; gap: 14px; margin: 0 0 14px; padding: 18px 20px; border: 1px solid #d2dfef; border-left: 7px solid var(--topic-color); border-radius: 18px; background: linear-gradient(120deg, #fff, var(--topic-soft)); box-shadow: 0 9px 24px rgba(34,68,110,.08); }
+    .topic-heading-icon { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 auto; border-radius: 15px; background: var(--topic-color); color: #fff; font-size: 1.35rem; box-shadow: 0 8px 18px color-mix(in srgb, var(--topic-color) 25%, transparent); }
+    .topic-heading h2 { margin: 0; color: var(--navy); font-size: 1.25rem; line-height: 1.25; }
+    .topic-heading p { margin: 3px 0 0; color: var(--muted); font-size: .9rem; }
+
+    .task-grid { display: grid; gap: 15px; }
+    .task-card { position: relative; overflow: hidden; border: 1px solid #cfdded; border-radius: var(--radius); background: rgba(255,255,255,.97); box-shadow: 0 10px 26px rgba(29,57,97,.08); transition: border-color .2s ease, box-shadow .2s ease; }
+    .task-card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--topic-color); }
+    .task-card.done { border-color: #8edbc6; box-shadow: 0 11px 28px rgba(39,199,157,.12); }
+    .task-body { padding: 22px 22px 22px 26px; }
+    .task-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 13px; }
+    .task-kicker { margin: 0 0 4px; color: var(--topic-color); font-size: .75rem; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; }
+    .task-title { margin: 0; color: var(--navy); font-size: 1.1rem; line-height: 1.32; }
+    .task-status { flex: 0 0 auto; border-radius: 99px; padding: 5px 10px; background: var(--topic-soft); color: var(--topic-color); font-size: .75rem; font-weight: 800; }
+    .task-card.done .task-status { background: var(--mint-soft); color: #137e61; }
+    .problem { margin: 0 0 17px; font-size: 1rem; }
+    .answer-zone { display: grid; gap: 12px; }
+    .choices { display: grid; gap: 8px; }
+    .choice { display: flex; align-items: flex-start; gap: 10px; width: 100%; border: 1px solid #ccd9e9; border-radius: 12px; padding: 11px 13px; background: #fff; color: var(--ink); text-align: left; cursor: pointer; }
+    .choice:hover:not(:disabled) { border-color: var(--blue); background: #f4f8ff; }
+    .choice.selected { border-color: var(--blue); background: #eaf2ff; box-shadow: inset 0 0 0 1px var(--blue); }
+    .choice.wrong { border-color: var(--coral); background: var(--coral-soft); }
+    .choice.correct { border-color: var(--mint); background: var(--mint-soft); }
+    .choice-letter { display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 auto; border-radius: 8px; background: #edf3fb; color: var(--navy); font-size: .8rem; font-weight: 850; }
+    .answer-line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .answer-input { width: min(230px, 100%); border: 1px solid #bdcde1; border-radius: 12px; padding: 11px 13px; background: #fff; color: var(--ink); }
+    .answer-input:focus { border-color: var(--blue); }
+    .answer-input:disabled { background: #f3f7fa; opacity: 1; }
+    .unit { color: var(--muted); font-weight: 750; }
+    .task-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+    .attempt-count { color: var(--muted); font-size: .83rem; }
+    .feedback, .solution { display: none; border-radius: 13px; padding: 13px 15px; }
+    .feedback.show, .solution.show { display: block; animation: rise .22s ease both; }
+    .feedback.good { border: 1px solid #9edfc9; background: var(--mint-soft); color: #145f4b; }
+    .feedback.bad { border: 1px solid #f1b2a8; background: var(--coral-soft); color: #8e3528; }
+    .feedback.info { border: 1px solid #bed2ef; background: #eef5ff; color: #315b88; }
+    .solution { border: 1px solid #d7ccef; background: linear-gradient(145deg, var(--violet-soft), #f9f7ff); color: #44346b; }
+    .solution > strong { display: block; margin-bottom: 9px; color: #553e85; font-size: 1rem; }
+    .solution-steps { display: grid; gap: 9px; }
+    .solution-step { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; }
+    .solution-step-num { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: var(--violet); color: #fff; font-weight: 850; font-size: .82rem; }
+    .formula { display: block; margin: 4px 0; color: #35295a; font-family: Georgia, "Times New Roman", serif; font-size: 1.08rem; }
+    @keyframes rise { from { opacity: 0; transform: translateY(5px); } }
+
+    .completion { display: none; margin-top: 24px; border-radius: 24px; padding: 28px; background: linear-gradient(135deg, #153255, #265397 55%, #4e3c9b); color: #fff; box-shadow: var(--shadow); }
+    .completion.show { display: block; }
+    .completion h2 { margin: 0 0 8px; }
+    .completion p { margin: 0; color: #dce8f8; }
+
+    .gate { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 20px; background: radial-gradient(circle at 15% 15%, rgba(52,120,246,.28), transparent 25rem), radial-gradient(circle at 85% 80%, rgba(39,199,157,.24), transparent 25rem), linear-gradient(135deg, #eef5ff, #f9f5ff); }
+    .gate-card { width: min(520px, 100%); border: 1px solid rgba(190,207,231,.95); border-radius: 28px; padding: clamp(26px, 6vw, 44px); background: rgba(255,255,255,.96); box-shadow: 0 26px 70px rgba(29,57,97,.2); }
+    .gate-mark { display: grid; place-items: center; width: 62px; height: 62px; margin-bottom: 22px; border-radius: 20px; background: linear-gradient(145deg, #3276f5, #7655e8); color: #fff3b1; font-family: Georgia, serif; font-size: 34px; box-shadow: 0 12px 28px rgba(72,89,207,.28); }
+    .gate h1 { margin: 0; color: var(--navy); font-size: clamp(1.8rem, 7vw, 2.8rem); line-height: 1.05; letter-spacing: -.04em; }
+    .gate p { margin: 13px 0 22px; color: var(--muted); }
+    .gate label { display: block; margin-bottom: 7px; color: var(--navy); font-weight: 800; }
+    .gate input { width: 100%; border: 1px solid #bdcde1; border-radius: 13px; padding: 12px 14px; background: #fff; }
+    .gate .btn { width: 100%; margin-top: 12px; padding: 12px 16px; }
+    .gate-error { min-height: 24px; margin: 8px 0 0 !important; color: #a63c2f !important; font-size: .88rem; }
+    .gate-note { display: block; margin-top: 17px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+
+    .storage-warning { display: none; width: min(1120px, calc(100% - 36px)); margin: 16px auto -8px; border: 1px solid #e8c36f; border-radius: 13px; padding: 11px 14px; background: #fff9e5; color: #75540a; }
+    .storage-warning.show { display: block; }
+
+    /* Statistics window */
+    .stats-page { min-height: 100vh; padding: 28px; }
+    .stats-wrap { width: min(1320px, 100%); margin: 0 auto; }
+    .stats-header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 22px; border-radius: 24px; padding: 26px; background: linear-gradient(125deg, #17345b, #3152a4 58%, #713e9d); color: #fff; box-shadow: var(--shadow); }
+    .stats-header .eyebrow { color: #ffe594; }
+    .stats-header h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 3rem); line-height: 1.08; letter-spacing: -.04em; }
+    .stats-header p { margin: 9px 0 0; color: #dce8f8; }
+    .live-badge { border: 1px solid rgba(255,255,255,.25); border-radius: 99px; padding: 7px 12px; background: rgba(255,255,255,.12); font-size: .82rem; font-weight: 800; }
+    .metric-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .metric { border: 1px solid #cedced; border-radius: 17px; padding: 18px; background: rgba(255,255,255,.96); box-shadow: 0 8px 22px rgba(31,68,116,.07); }
+    .metric span { display: block; color: var(--muted); font-size: .8rem; font-weight: 730; }
+    .metric strong { display: block; margin-top: 5px; color: var(--navy); font-size: 1.65rem; line-height: 1.15; }
+    .stats-panel { margin-bottom: 18px; border: 1px solid #cedced; border-radius: 19px; padding: 20px; background: rgba(255,255,255,.97); box-shadow: 0 9px 25px rgba(31,68,116,.07); }
+    .stats-panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+    .stats-panel h2 { margin: 0; color: var(--navy); font-size: 1.15rem; }
+    .stats-panel small { color: var(--muted); }
+    .table-scroll { overflow-x: auto; border: 1px solid #d8e3f0; border-radius: 13px; }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { padding: 11px 13px; border-bottom: 1px solid #e1e9f3; text-align: left; vertical-align: top; }
+    th { background: #eff4fb; color: #526981; font-size: .78rem; letter-spacing: .03em; text-transform: uppercase; }
+    td { font-size: .9rem; }
+    tr:last-child td { border-bottom: 0; }
+    .status-pill { display: inline-block; border-radius: 99px; padding: 3px 8px; font-size: .74rem; font-weight: 800; white-space: nowrap; }
+    .status-pill.ok { background: var(--mint-soft); color: #14785d; }
+    .status-pill.wait { background: #edf2f8; color: #60748c; }
+    .attempt-ok { color: #14785d; font-weight: 800; }
+    .attempt-bad { color: #a23e30; font-weight: 800; }
+    .empty-state { padding: 34px; color: var(--muted); text-align: center; }
+    .stats-empty { display: grid; place-items: center; min-height: calc(100vh - 56px); }
+    .stats-empty-card { width: min(520px, 100%); border: 1px solid #cedced; border-radius: 24px; padding: 34px; background: #fff; text-align: center; box-shadow: var(--shadow); }
+    .stats-empty-card h1 { margin: 0 0 8px; color: var(--navy); }
+    .stats-empty-card p { margin: 0; color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .side-inner { position: static; }
+      .student-note { display: none; }
+      .topic-nav { display: flex; overflow-x: auto; }
+      .topic-link { flex: 0 0 190px; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 680px) {
+      .topbar { flex-wrap: wrap; gap: 8px; padding: 9px 14px; }
+      .brand { flex: 1; }
+      .brand-text { font-size: .9rem; }
+      .top-progress { order: 3; flex-basis: 100%; }
+      .top-actions .btn-danger { display: none; }
+      .shell { width: min(100% - 22px, 1120px); margin-top: 16px; }
+      .intro { border-radius: 22px; padding: 26px 22px; }
+      .intro::after { font-size: 150px; }
+      .task-body { padding: 19px 17px 19px 21px; }
+      .task-head { display: block; }
+      .task-status { display: inline-block; margin-top: 8px; }
+      .topic-heading { padding: 15px; }
+      .stats-page { padding: 12px; }
+      .stats-header { padding: 22px; }
+      .metric-grid { grid-template-columns: 1fr 1fr; }
+      .metric:last-child { grid-column: 1 / -1; }
+    }
+    @media print {
+      body { background: #fff; }
+      .stats-page { padding: 0; }
+      .stats-header { background: #fff; color: #000; box-shadow: none; border: 1px solid #bbb; }
+      .stats-header p, .stats-header .eyebrow { color: #333; }
+      .stats-header .btn, .live-badge { display: none; }
+      .metric, .stats-panel { box-shadow: none; break-inside: avoid; }
+    }
   </style>
 </head>
 <body>
-  <section class="gate" id="nameGate" hidden>
+  <section class="gate" id="nameGate" hidden aria-labelledby="gateTitle">
     <div class="gate-card">
-      <div class="gate-mark">a</div>
-      <p class="eyebrow">Можно работать без подключения</p>
-      <h1>Как тебя зовут?</h1>
-      <p>Имя нужно только для подписи локального прогресса на этом устройстве.</p>
+      <div class="gate-mark" aria-hidden="true">a</div>
+      <p class="eyebrow">Физика · 9 класс</p>
+      <h1 id="gateTitle">Как тебя зовут?</h1>
+      <p>Имя будет показано в окне статистики вместе с твоими ответами и прогрессом.</p>
       <form id="nameForm">
         <label for="studentName">Имя ученика</label>
-        <input id="studentName" autocomplete="name" maxlength="80" placeholder="Например, Матвей">
+        <input id="studentName" name="name" maxlength="80" autocomplete="name" placeholder="Например, Анна Петрова" required>
         <button class="btn btn-primary" type="submit">Начать тренировку</button>
-        <p class="gate-note">Ответы и прогресс остаются в браузере. Баллы и оценки не выставляются.</p>
+        <p class="gate-error" id="gateError" role="status"></p>
       </form>
+      <small class="gate-note">Результаты сохраняются только в этом браузере. После перезагрузки страницы работа продолжится с того же места.</small>
     </div>
   </section>
-  <div id="app" hidden>
+
+  <div id="studentView" hidden>
     <header class="topbar">
-      <div class="brand"><span class="brand-mark">a</span><span>Алгоритм решения</span></div>
-      <div class="top-progress"><div class="progress-meta"><span id="progressText">0 из 6 модулей</span><span id="progressDetail">Начинаем</span></div><div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div></div>
-      <button class="icon-btn" id="resetButton" type="button">Начать заново</button>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">a</span><span class="brand-text">Равноускоренное движение</span></div>
+      <div class="top-progress" aria-label="Общий прогресс">
+        <div class="progress-meta"><span id="progressText">0 из 12 задач</span><span id="attemptsText">0 попыток</span></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-secondary" href="../">К порталу</a>
+        <a class="btn btn-secondary" id="openStats" href="#stats" target="_blank" rel="noopener">Статистика</a>
+        <button class="btn btn-danger" id="resetSession" type="button">Новый сеанс</button>
+      </div>
     </header>
+
+    <div class="storage-warning" id="storageWarning" role="alert">Браузер запретил постоянное сохранение. Работа продолжится, но после закрытия страницы результаты могут исчезнуть, а отдельное окно статистики может не обновляться.</div>
+
     <div class="shell">
-      <aside><div class="side-inner"><section class="student-card"><p class="eyebrow">Твоя тренировка</p><strong id="studentDisplay"></strong><p>Здесь важен ход мысли, а не скорость и не количество баллов.</p></section><nav class="module-nav" id="moduleNav" aria-label="Учебные модули"></nav></div></aside>
+      <aside>
+        <div class="side-inner">
+          <section class="student-note">
+            <p class="eyebrow">Текущий ученик</p>
+            <strong id="studentDisplay"></strong>
+            <p>Решение появляется только после правильного ответа. Все проверки записываются в статистику.</p>
+          </section>
+          <nav class="topic-nav" id="topicNav" aria-label="Разделы тренажёра"></nav>
+        </div>
+      </aside>
+
       <main>
-        <section class="hero"><p class="eyebrow">Подготовка к ОГЭ · физика</p><h1>Сначала реши.<span>Потом смотри разбор.</span></h1><p>Задания оформлены как в экзаменационной работе: краткий числовой ответ или полное решение расчётной задачи.</p><div class="algorithm-strip" aria-label="Этапы решения"><span>1. Анализ</span><span>2. Дано</span><span>3. СИ</span><span>4. Формула</span><span>5. Преобразование</span><span>6. Вычисление</span><span>7. Проверка</span><span>8. Ответ</span></div></section>
-        <div class="storage-warning" id="storageWarning" hidden>Браузер не разрешил сохранить прогресс. После перезагрузки результат исчезнет.</div>
-        <div class="notice"><strong>Как работать:</strong> ответ и объяснение скрыты. Сначала выполни текущий шаг. После ошибки появится подсказка, а готовый образец — только после третьей неверной попытки.</div>
-        <section id="workspace"></section>
+        <section class="intro">
+          <p class="eyebrow">12 задач · самостоятельная работа</p>
+          <h1>Равноускоренное движение <em>от формулы к решению</em></h1>
+          <p class="intro-copy">Читай уравнения движения, находи скорость, ускорение, путь и перемещение. В числовых ответах можно использовать точку или запятую.</p>
+          <div class="formula-strip" aria-label="Основные формулы">
+            <span class="formula-chip">v = v₀ + at</span>
+            <span class="formula-chip">s = v₀t + at² / 2</span>
+            <span class="formula-chip">x = x₀ + v₀t + at² / 2</span>
+            <span class="formula-chip">a = (v − v₀) / t</span>
+          </div>
+        </section>
+
+        <div id="lessonContent"></div>
+
+        <section class="completion" id="completion" aria-live="polite">
+          <p class="eyebrow">Тренировка завершена</p>
+          <h2>Все 12 задач решены</h2>
+          <p id="completionText"></p>
+        </section>
       </main>
     </div>
   </div>
+
+  <section class="stats-page" id="statsView" hidden>
+    <div class="stats-wrap" id="statsContent"></div>
+  </section>
+
   <script src="../config.js?v=4"></script>
   <script>
     "use strict";
-    const STORAGE_KEY="physics-accelerated-motion-tutor-v3";
-    const LABELS=["Анализ","Дано","Единицы СИ","Формула","Преобразование","Вычисление","Проверка","Ответ"];
-    const c=(prompt,options,correct,hints,explanation,answerText="")=>({type:"choice",prompt,options,correct,hints,explanation,answerText});
-    const mu=(prompt,options,correct,hints,explanation,answerText="")=>({type:"multi",prompt,options,correct,hints,explanation,answerText});
-    const ma=(prompt,rows,options,correct,hints,explanation,answerText="")=>({type:"match",prompt,rows,options,correct,hints,explanation,answerText});
-    const n=(prompt,fields,correct,hints,explanation,answerText="")=>({type:"numeric",prompt,fields,correct,hints,explanation,answerText});
-    const o=(prompt,slots,options,correct,hints,explanation,answerText="")=>({type:"order",prompt,slots,options,correct,hints,explanation,answerText});
-    const d=(text,question,options,correct,conclusion)=>({text,question,options,correct,conclusion});
-    const field=(label,unit,tolerance=.01)=>({label,unit,tolerance});
-    const MODULES=[
+
+    const STORAGE_KEY = "physics-accelerated-motion-tracked-v1";
+    const CHANNEL_NAME = "physics-accelerated-motion-live-v1";
+
+    const TOPICS = {
+      equations: { name: "Читаем уравнения", icon: "x", color: "#f05a47", soft: "#fff0ec", note: "Находим начальные условия и ускорение по записи закона движения." },
+      velocity: { name: "Скорость и ускорение", icon: "v", color: "#3276f5", soft: "#eaf2ff", note: "Связываем изменение скорости со временем и знаком ускорения." },
+      distance: { name: "Путь и перемещение", icon: "s", color: "#8b5cf6", soft: "#f2edff", note: "Рассчитываем путь, перемещение и среднюю скорость." },
+      applied: { name: "Движение в задачах", icon: "a", color: "#e99a13", soft: "#fff6d9", note: "Соединяем формулы в составных задачах на разгон и торможение." }
+    };
+
+    const TASKS = [
       {
-        id:"speed",title:"Скорость при разгоне",subtitle:"Связываем начальную скорость, ускорение и время.",exam:"ОГЭ · часть 1 · краткий ответ",answerUnit:"м/с",
-        example:{problem:"Велосипедист движется со скоростью 3 м/с и разгоняется с ускорением 0,8 м/с² в течение 10 с. Найдите конечную скорость.",steps:[
-          d("Скорость растёт, значит это разгон. Направление движения выберем положительным.","Какой это процесс?",["Разгон","Торможение","Равномерное движение"],0,"При положительном ускорении скорость увеличивается."),
-          d("v₀ = 3 м/с; a = 0,8 м/с²; t = 10 с; найти v.","Какую величину ищем?",["v","a","s"],0,"Искомая величина — конечная скорость v."),
-          d("Все данные уже выражены в метрах и секундах.","Нужно ли переводить единицы?",["Нет","Да, скорость","Да, время"],0,"Перевод не нужен."),
-          d("Подходит формула v = v₀ + at: в ней есть искомая и все известные величины.","Какая формула нужна?",["v = v₀ + at","s = vt","a = v/t²"],0,"Это закон изменения скорости."),
-          d("Искомая v уже стоит отдельно, преобразование не требуется.","Что делаем перед подстановкой?",["Оставляем v = v₀ + at","Выражаем t","Делим всё на a"],0,"Формула уже подготовлена."),
-          d("v = 3 + 0,8 · 10 = 11 м/с.","Каков результат?",["11 м/с","8 м/с","30 м/с"],0,"Ускорение добавило 8 м/с."),
-          d("11 м/с больше начальных 3 м/с. Это соответствует разгону.","Результат разумен?",["Да","Нет, скорость должна уменьшиться"],0,"Знак и изменение скорости согласуются с условием."),
-          d("Ответ: через 10 с скорость велосипедиста станет равна 11 м/с.","Что обязательно есть в ответе?",["Число, единица и смысл","Только число","Только формула"],0,"Хороший ответ завершает решение ясной фразой.")
-        ]},
-        practice:{problem:"Самокат движется со скоростью 4 м/с и разгоняется с постоянным ускорением 1,5 м/с² в течение 8 с. Найдите конечную скорость.",steps:[
-          c("Определи процесс и знак ускорения.",["Разгон, a > 0","Торможение, a < 0","Равномерное движение"],0,["Посмотри, увеличивает ли самокат скорость.","Слово «разгоняется» означает положительное ускорение."],"Самокат разгоняется, поэтому a > 0.","Разгон, a > 0"),
-          ma("Составь краткую запись.",["v₀","a","t","Найти"],["4 м/с","1,5 м/с²","8 с","скорость v"],["4 м/с","1,5 м/с²","8 с","скорость v"],["Сопоставь числа с тем, что они описывают.","Искомая величина — скорость после восьми секунд."],"v₀ = 4 м/с, a = 1,5 м/с², t = 8 с; найти v."),
-          mu("Отметь верные утверждения.",["м/с — единица скорости в СИ","м/с² — единица ускорения в СИ","секунда — единица времени в СИ","Нужно перевести 8 с в минуты"],[0,1,2],["Проверь каждую величину отдельно.","Метры и секунды уже относятся к СИ."],"Все три данные уже записаны в СИ."),
-          c("Выбери формулу.",["v = v₀ + at","s = v₀t + at²/2","a = s/t"],0,["Она должна содержать v, v₀, a и t.","Нужен закон изменения скорости."],"Используем v = v₀ + at."),
-          c("Подготовь формулу.",["Оставить v = v₀ + at","Выразить a = (v − v₀)/t","Выразить t = (v − v₀)/a"],0,["Искомая величина уже слева.","Выражать другую величину не требуется."],"Формула уже разрешена относительно v."),
-          n("Вычисли конечную скорость.",[field("v","м/с")],[16],["Сначала найди at.","1,5 · 8 = 12; прибавь начальные 4."],"v = 4 + 1,5 · 8 = 16 м/с."),
-          c("Какая проверка верна?",["16 м/с больше 4 м/с — это разгон","16 м/с меньше 4 м/с","Ответ должен быть в метрах"],0,["Сравни конечную и начальную скорости.","При разгоне конечная скорость больше."],"16 > 4, единица м/с верна."),
-          n("Перенеси результат в поле ответа ОГЭ. Впиши только число.",[field("Ответ","м/с")],[16],["Единица уже напечатана после поля — её вводить не нужно.","Перенеси найденное на предыдущем этапе значение скорости."],"В бланк записываем число 16. Единица м/с уже указана в задании.")
-        ]}
+        id: "t1", topic: "equations", type: "choice", title: "Разгон или торможение?",
+        problem: "Скорость робота на прямой дороге меняется по закону v = 6 − 1,5t (м/с). Как верно описать его движение?",
+        choices: ["Начальная скорость 6 м/с, ускорение −1,5 м/с²", "Начальная скорость −1,5 м/с, ускорение 6 м/с²", "Робот движется равномерно со скоростью 6 м/с", "Начальная скорость 6 м/с, ускорение 1,5 м/с²"], answer: 0,
+        steps: ["<span class=\"formula\">v = v₀ + at</span>", "Свободный член равен начальной скорости: v₀ = 6 м/с.", "Коэффициент при t равен ускорению: a = −1,5 м/с². До остановки робот движется замедленно."]
       },
       {
-        id:"braking",title:"Ускорение и торможение",subtitle:"Понимаем отрицательный знак ускорения.",exam:"ОГЭ · часть 1 · краткий ответ",answerUnit:"м/с²",
-        example:{problem:"Скорость трамвая уменьшилась с 18 м/с до 6 м/с за 4 с. Направление движения положительно. Найдите ускорение.",steps:[
-          d("Трамвай тормозит, ускорение направлено против выбранной оси.","Каков знак ускорения?",["Отрицательный","Положительный","Нулевой"],0,"При торможении проекция ускорения отрицательна."),
-          d("v₀ = 18 м/с, v = 6 м/с, t = 4 с; найти a.","Что является начальной скоростью?",["18 м/с","6 м/с","4 м/с"],0,"Начальная скорость указана первой."),
-          d("Все величины уже записаны в СИ.","Нужен перевод?",["Нет","Да, скорости","Да, времени"],0,"м/с и с — единицы СИ."),
-          d("Начинаем с v = v₀ + at.","Какая формула связывает данные?",["v = v₀ + at","s = vt","F = ma"],0,"Это закон изменения скорости."),
-          d("Выразим ускорение: a = (v − v₀)/t.","Что стоит в числителе?",["v − v₀","v + v₀","t − v"],0,"Ускорение определяется изменением скорости."),
-          d("a = (6 − 18)/4 = −3 м/с².","Каков результат?",["−3 м/с²","3 м/с²","6 м/с²"],0,"Минус появился из уменьшения скорости."),
-          d("Каждую секунду скорость уменьшается на 3 м/с.","Что означает |a| = 3 м/с²?",["Изменение скорости на 3 м/с за секунду","Путь 3 м","Время 3 с"],0,"Размерность и смысл верны."),
-          d("Ответ: a = −3 м/с²; минус указывает на торможение.","Нужно ли пояснить знак?",["Да","Нет"],0,"Пояснение делает ответ физически осмысленным.")
-        ]},
-        practice:{problem:"Автомобиль снизил скорость с 25 м/с до 10 м/с за 5 с. Направление движения положительно. Найдите ускорение.",steps:[
-          c("Определи движение и знак ускорения.",["Торможение, a < 0","Разгон, a > 0","Равномерное движение"],0,["Сравни скорости.","Скорость уменьшилась, ускорение направлено против оси."],"Автомобиль тормозит, поэтому a < 0."),
-          ma("Составь краткую запись.",["v₀","v","t","Найти"],["25 м/с","10 м/с","5 с","ускорение a"],["25 м/с","10 м/с","5 с","ускорение a"],["Начальная скорость больше конечной.","Ищем изменение скорости за секунду."],"v₀ = 25 м/с, v = 10 м/с, t = 5 с; найти a."),
-          c("Что делать с единицами?",["Ничего: всё в СИ","Перевести скорости в км/ч","Перевести секунды в минуты"],0,["Скорости уже в м/с.","Время дано в секундах."],"Перевод не требуется."),
-          c("Выбери исходную формулу.",["v = v₀ + at","s = at","v = s/t²"],0,["Нужна связь двух скоростей, времени и ускорения.","Используй закон изменения скорости."],"Подходит v = v₀ + at."),
-          c("Вырази ускорение.",["a = (v − v₀)/t","a = (v + v₀)t","a = t/(v − v₀)"],0,["Перенеси v₀, затем раздели на t.","at = v − v₀."],"a = (v − v₀)/t."),
-          n("Вычисли ускорение со знаком.",[field("a","м/с²")],[-3],["Вычисли 10 − 25.","−15 / 5 = −3."],"a = (10 − 25)/5 = −3 м/с²."),
-          mu("Отметь верные проверки.",["Минус соответствует торможению","м/с² — единица ускорения","Скорость растёт на 3 м/с ежесекундно","Скорость уменьшается на 3 м/с ежесекундно"],[0,1,3],["Проверь знак, единицу и смысл.","Отрицательное ускорение означает уменьшение скорости."],"Знак, единица и изменение скорости согласуются с условием."),
-          n("Запиши ответ как в бланке ОГЭ. Знак минус обязателен.",[field("Ответ","м/с²")],[-3],["В поле вводится только число со знаком.","При торможении проекция ускорения отрицательна."],"В бланк записываем −3. Ответ без минуса был бы неверным.")
-        ]}
+        id: "t2", topic: "equations", type: "numeric", title: "Ускорение из координаты",
+        problem: "Координата тележки задана уравнением x = −3 + 4t + 0,75t² (м). Чему равно ускорение тележки?", unit: "м/с²", answer: 1.5, tolerance: 0.01,
+        steps: ["<span class=\"formula\">x = x₀ + v₀t + at²/2</span>", "Коэффициент при t² равен a/2: a/2 = 0,75.", "Следовательно, a = 2 · 0,75 = 1,5 м/с²."]
       },
       {
-        id:"distance",title:"Путь при разгоне",subtitle:"Отличаем путь от скорости и выбираем закон движения.",exam:"ОГЭ · часть 1 · краткий ответ",answerUnit:"м",
-        example:{problem:"Тележка движется со скоростью 2 м/с и ускорением 1,2 м/с². Какой путь она пройдёт за 5 с?",steps:[
-          d("Тележка разгоняется в одном направлении. Требуется путь.","Что ищем?",["Путь s","Скорость v","Ускорение a"],0,"Вопрос определяет искомую s."),
-          d("v₀ = 2 м/с; a = 1,2 м/с²; t = 5 с; найти s.","Какая величина равна 5 с?",["t","v₀","a"],0,"Пять секунд — время."),
-          d("Данные уже находятся в СИ.","Нужен перевод?",["Нет","Да"],0,"Перевод не нужен."),
-          d("Выбираем s = v₀t + at²/2.","Почему не подходит s = vt?",["Скорость меняется","Неизвестно время","Путь равен нулю"],0,"s = vt относится к постоянной скорости."),
-          d("Искомая s уже выражена.","Можно подставлять числа?",["Да","Нет, надо выразить a"],0,"Преобразование не требуется."),
-          d("s = 2 · 5 + 1,2 · 5²/2 = 25 м.","Какой путь получился?",["25 м","15 м","10 м"],0,"Складываем две части пути."),
-          d("Без ускорения было бы 10 м, поэтому 25 м при разгоне разумны.","С чем сравнить ответ?",["С путём при a = 0","С массой","С температурой"],0,"Предельный случай помогает заметить ошибку."),
-          d("Ответ: за 5 с тележка пройдёт 25 м.","Какая единица нужна?",["м","м/с","м/с²"],0,"Путь измеряется в метрах.")
-        ]},
-        practice:{problem:"Санки имеют начальную скорость 3 м/с и движутся с ускорением 0,8 м/с² в течение 10 с. Найдите путь.",steps:[
-          c("Что происходит и что найти?",["Разгон; найти путь","Торможение; найти скорость","Покой; найти ускорение"],0,["Ускорение положительное.","Путь обозначаем s."],"Санки разгоняются; требуется путь s."),
-          ma("Составь краткую запись.",["v₀","a","t","Найти"],["3 м/с","0,8 м/с²","10 с","путь s"],["3 м/с","0,8 м/с²","10 с","путь s"],["Сопоставь единицы с величинами.","м/с — скорость, м/с² — ускорение."],"v₀ = 3 м/с, a = 0,8 м/с², t = 10 с; найти s."),
-          c("Нужно ли переводить данные?",["Нет, всё в СИ","Да, секунды в минуты","Да, скорость в км/ч"],0,["Формулы используют метры и секунды.","Все единицы уже подходят."],"Перевод не требуется."),
-          c("Выбери формулу пути.",["s = v₀t + at²/2","v = v₀ + at","s = at/2"],0,["Учти и v₀, и a.","При v₀ ≠ 0 нельзя отбрасывать v₀t."],"Используем s = v₀t + at²/2."),
-          c("Подготовь формулу.",["Оставить s = v₀t + at²/2","t = (s − v₀)/a","a = 2s/t"],0,["Искомый путь уже слева.","Преобразование не требуется."],"Формула готова."),
-          n("Вычисли путь.",[field("s","м")],[70],["Отдельно вычисли v₀t и at²/2.","3 · 10 = 30; 0,8 · 10²/2 = 40."],"s = 30 + 40 = 70 м."),
-          c("Какая проверка верна?",["70 м больше 30 м — пути без ускорения","70 м меньше 3 м","Путь измеряется в м/с"],0,["Сравни с 3 · 10.","Разгон увеличивает путь."],"Без ускорения было бы 30 м, поэтому 70 м разумны."),
-          n("Запиши в поле ответа только числовое значение пути.",[field("Ответ","м")],[70],["Единица метры уже указана после поля.","Перенеси результат вычисления пути."],"В бланк записываем 70.")
-        ]}
+        id: "t9", topic: "equations", type: "numeric", title: "Что покажет уравнение через 8 секунд?",
+        problem: "Движение платформы описано уравнением x = −3 + 4t + 0,75t² (м). Найди её перемещение за первые 8 с.", unit: "м", answer: 80, tolerance: 0.01,
+        steps: ["<strong>Читаем данные.</strong> <span class=\"formula\">x₀ = −3 м, v₀ = 4 м/с, a = 1,5 м/с²</span>", "<strong>Находим координаты.</strong> <span class=\"formula\">x(0) = −3 м</span><span class=\"formula\">x(8) = −3 + 4 · 8 + 0,75 · 8² = 77 м</span>", "<strong>Вычисляем перемещение.</strong> <span class=\"formula\">Δx = x(8) − x(0) = 77 − (−3) = 80 м</span>"]
       },
       {
-        id:"units",title:"Единицы и остановка",subtitle:"Переводим км/ч в м/с и находим время торможения.",exam:"ОГЭ · часть 1 · краткий ответ",answerUnit:"с",
-        example:{problem:"Электровелосипед движется со скоростью 72 км/ч и тормозит с ускорением −4 м/с². Через сколько секунд он остановится?",steps:[
-          d("Торможение идёт до полной остановки, поэтому v = 0.","Какое скрытое данное?",["v = 0","t = 0","a = 0"],0,"«Остановится» задаёт конечную скорость."),
-          d("v₀ = 72 км/ч; v = 0; a = −4 м/с²; найти t.","Что ищем?",["t","v₀","s"],0,"Искомая — время."),
-          d("72 км/ч ÷ 3,6 = 20 м/с.","На что делят км/ч?",["На 3,6","На 60","На 1000"],0,"1 м/с = 3,6 км/ч."),
-          d("Используем v = v₀ + at и подставляем v = 0.","Какое равенство?",["0 = v₀ + at","v₀ = at²","0 = v₀t"],0,"Конечная скорость нулевая."),
-          d("Выразим время: t = −v₀/a.","Откуда минус?",["Из переноса v₀","Время отрицательно","Из перевода"],0,"at = −v₀."),
-          d("t = −20/(−4) = 5 с.","Каков результат?",["5 с","−5 с","80 с"],0,"Время положительно."),
-          d("20 + (−4) · 5 = 0.","До какой скорости дошли?",["0 м/с","20 м/с","−20 м/с"],0,"Проверка подтверждает остановку."),
-          d("Ответ: велосипед остановится через 5 с.","Единица времени?",["с","м","м/с"],0,"Время измеряется в секундах.")
-        ]},
-        practice:{problem:"Автомобиль движется со скоростью 90 км/ч и тормозит с ускорением −5 м/с². Через сколько секунд он остановится?",steps:[
-          mu("Отметь верные выводы.",["Автомобиль тормозит","Конечная v = 0","Ускорение против движения","Время равно нулю"],[0,1,2],["«Остановится» задаёт скорость.","Тормозное ускорение отрицательно."],"Автомобиль тормозит до v = 0."),
-          ma("Составь краткую запись.",["v₀","v","a","Найти"],["90 км/ч","0 м/с","−5 м/с²","время t"],["90 км/ч","0 м/с","−5 м/с²","время t"],["Начальная скорость не в СИ.","Остановка означает v = 0."],"v₀ = 90 км/ч, v = 0, a = −5 м/с²; найти t."),
-          n("Переведи скорость в СИ.",[field("v₀","м/с")],[25],["Раздели км/ч на 3,6.","90 / 3,6 = 25."],"v₀ = 25 м/с."),
-          c("Выбери уравнение остановки.",["0 = v₀ + at","s = v₀t","a = v₀t"],0,["Начни с v = v₀ + at.","При остановке v = 0."],"0 = v₀ + at."),
-          c("Вырази время.",["t = −v₀/a","t = a/v₀","t = v₀a"],0,["Перенеси v₀: at = −v₀.","Раздели на a."],"t = −v₀/a."),
-          n("Вычисли время.",[field("t","с")],[5],["Подставь 25 и −5.","t = −25/(−5)."],"t = 5 с."),
-          mu("Отметь верные проверки.",["Время положительно","Изменение скорости за 5 с равно −25 м/с","25 + (−25) = 0","Ответ должен быть −5 с"],[0,1,2],["Подставь ответ в формулу скорости.","Время не может быть отрицательным."],"25 + (−5) · 5 = 0; ответ разумен."),
-          n("Перенеси время остановки в поле ответа. Впиши только число.",[field("Ответ","с")],[5],["После поля уже стоит единица времени.","Перенеси найденное значение t."],"В бланк записываем 5.")
-        ]}
+        id: "t3", topic: "velocity", type: "numeric", title: "Финишная скорость велосипедиста",
+        problem: "Велосипедист ехал со скоростью 3 м/с и начал разгоняться с постоянным ускорением 0,8 м/с². Какой станет его скорость через 10 с?", unit: "м/с", answer: 11, tolerance: 0.01,
+        steps: ["При постоянном ускорении используем формулу v = v₀ + at.", "<span class=\"formula\">v = 3 + 0,8 · 10</span>", "Получаем v = 11 м/с."]
       },
       {
-        id:"equation",title:"Чтение уравнения",subtitle:"Извлекаем данные из коэффициентов и находим перемещение.",exam:"ОГЭ · часть 1 · краткий ответ",answerUnit:"м",
-        example:{problem:"Движение описано уравнением x = −3 + 4t + 0,75t² (м). Найдите перемещение за первые 8 с.",steps:[
-          d("Сравниваем с x = x₀ + v₀t + at²/2. Ищем изменение координаты.","Что требуется?",["Δx","x₀","a"],0,"Перемещение равно разности координат."),
-          d("x₀ = −3 м; v₀ = 4 м/с; a/2 = 0,75, значит a = 1,5 м/с².","Почему a не 0,75?",["Коэффициент равен a/2","a всегда вдвое меньше","Из-за x₀"],0,"При t² стоит a/2."),
-          d("Уравнение дано в метрах и секундах.","Все величины в СИ?",["Да","Нет"],0,"Перевод не нужен."),
-          d("Перемещение: Δx = x(8) − x(0).","Достаточно найти x(8)?",["Нет","Да"],0,"Координата и перемещение различаются."),
-          d("Вычислим обе координаты.","Чему равно x(0)?",["−3 м","0 м","4 м"],0,"При t = 0 остаётся свободный член."),
-          d("x(8) = 77 м; Δx = 77 − (−3) = 80 м.","Каково перемещение?",["80 м","77 м","74 м"],0,"Вычитаем начальную координату со знаком."),
-          d("Перемещение положительно, как и скорость.","Каков знак Δx?",["Положительный","Отрицательный","Нулевой"],0,"Тело движется по положительной оси."),
-          d("Ответ: за 8 с перемещение равно 80 м.","Что не перепутать?",["Δx = 80 м и x = 77 м","Метры и секунды","Скорость и время"],0,"Ответ относится к изменению координаты.")
-        ]},
-        practice:{problem:"Координата робота задана уравнением x = 2 + 3t + 0,5t² (м). Найдите перемещение за первые 6 с.",steps:[
-          c("Что нужно сделать?",["Сравнить со стандартным видом и найти Δx","Сложить коэффициенты","Найти только x₀"],0,["Нужно перемещение.","Распознай x₀, v₀ и a/2."],"Нужно вычислить Δx = x(6) − x(0)."),
-          ma("Сопоставь величины.",["x₀","v₀","a","t"],["2 м","3 м/с","1 м/с²","6 с"],["2 м","3 м/с","1 м/с²","6 с"],["Сравни с x = x₀ + v₀t + at²/2.","Если a/2 = 0,5, то a = 1."],"x₀ = 2 м, v₀ = 3 м/с, a = 1 м/с², t = 6 с."),
-          c("Требуется перевод?",["Нет: метры и секунды","Да: метры в километры","Да: секунды в часы"],0,["Посмотри на подпись уравнения.","Запись согласована с СИ."],"Перевод не требуется."),
-          c("Выбери формулу перемещения.",["Δx = x(t) − x(0)","Δx = x(t) + x(0)","Δx = x(0)/x(t)"],0,["Перемещение — изменение координаты.","Из конечной вычитают начальную."],"Δx = x(6) − x(0)."),
-          o("Расположи действия.",["Шаг 1","Шаг 2","Шаг 3"],["Найти x(0)","Найти x(6)","Вычислить x(6) − x(0)"],["Найти x(0)","Найти x(6)","Вычислить x(6) − x(0)"],["Сначала нужны обе координаты.","Разность считают после координат."],"x(0) → x(6) → x(6) − x(0)."),
-          n("Вычисли координаты и перемещение.",[field("x(0)","м"),field("x(6)","м"),field("Δx","м")],[2,38,36],["Подставь t = 0, затем t = 6.","x(6) = 2 + 18 + 18 = 38; вычти 2."],"x(0) = 2 м; x(6) = 38 м; Δx = 36 м."),
-          mu("Отметь верные проверки.",["Δx положительно","Единица — метр","Δx равно 38 м","Начальная координата учтена"],[0,1,3],["Не путай координату и её изменение.","Δx = 38 − 2."],"Знак, единица и разность верны."),
-          n("Запиши числовое значение перемещения в поле ответа.",[field("Ответ","м")],[36],["Не переноси конечную координату 38 м.","Нужно записать перемещение Δx."],"В бланк записываем 36, а не конечную координату 38.")
-        ]}
+        id: "t4", topic: "velocity", type: "numeric", title: "Торможение трамвая",
+        problem: "Скорость трамвая уменьшилась с 18 м/с до 6 м/с за 4 с. Найди проекцию ускорения, считая направление движения положительным.", unit: "м/с²", answer: -3, tolerance: 0.01,
+        steps: ["Ускорение равно изменению скорости, делённому на время.", "<span class=\"formula\">a = (v − v₀)/t = (6 − 18)/4</span>", "Получаем a = −3 м/с². Минус показывает, что трамвай тормозит."]
       },
       {
-        id:"combined",title:"Составное движение",subtitle:"Делим маршрут на участки и соединяем результаты.",exam:"ОГЭ · часть 2 · развёрнутое решение",answerUnit:"м",
-        example:{problem:"Поезд разгоняется из покоя с ускорением 1,2 м/с² в течение 10 с, затем 20 с движется равномерно и тормозит с ускорением −1,5 м/с² до остановки. Найдите весь путь.",steps:[
-          d("Есть три участка: разгон, равномерное движение, торможение.","Сколько участков?",["3","2","1"],0,"Для каждого действует свой закон."),
-          d("v₀ = 0; a₁ = 1,2; t₁ = 10; t₂ = 20; a₃ = −1,5; конечная v = 0.","Что значит «из покоя»?",["v₀ = 0","a₁ = 0","t₁ = 0"],0,"Покой означает нулевую скорость."),
-          d("Все данные уже в СИ.","Нужен перевод?",["Нет","Да"],0,"м/с² и с согласованы."),
-          d("Найдём скорость после разгона, затем s₁, s₂, s₃.","Одинакова ли скорость везде?",["Нет","Да"],0,"На разгоне и торможении она меняется."),
-          d("v₁ = a₁t₁ = 12 м/с; t₃ = −v₁/a₃ = 8 с.","Зачем нужна v₁?",["Она связывает участки","Она равна пути","Для перевода"],0,"С ней начинается второй и третий участки."),
-          d("s₁ = 60 м; s₂ = 240 м; s₃ = 48 м; s = 348 м.","Как найти весь путь?",["Сложить участки","Вычесть s₂","Взять s₃"],0,"Путь — сумма длин участков."),
-          d("348 м больше каждого участка, все слагаемые положительны.","Путь участка может быть отрицательным?",["Нет","Да"],0,"Длина пути неотрицательна."),
-          d("Ответ: полный путь поезда равен 348 м.","Какая величина получена?",["Путь","Ускорение","Время"],0,"Итог измеряется в метрах.")
-        ]},
-        practice:{problem:"Поезд метро разгоняется из покоя с ускорением 1,5 м/с² в течение 8 с, затем 15 с движется равномерно и тормозит с ускорением −2 м/с² до остановки. Найдите весь путь.",steps:[
-          o("Расположи участки.",["Участок 1","Участок 2","Участок 3"],["Разгон","Равномерное движение","Торможение"],["Разгон","Равномерное движение","Торможение"],["Следуй условию.","Сначала скорость растёт, затем постоянна, потом падает."],"Разгон → равномерное движение → торможение."),
-          ma("Составь краткую запись.",["v₀","a₁ и t₁","t₂","a₃ и конечная v"],["0 м/с","1,5 м/с² и 8 с","15 с","−2 м/с² и 0 м/с"],["0 м/с","1,5 м/с² и 8 с","15 с","−2 м/с² и 0 м/с"],["«Из покоя» и «до остановки» дают нулевые скорости.","Индексы относятся к участкам."],"v₀ = 0; a₁ = 1,5; t₁ = 8; t₂ = 15; a₃ = −2; v = 0."),
-          c("Что делать с единицами?",["Ничего: всё в СИ","Секунды в часы","Ускорение в км/ч²"],0,["Время уже в секундах.","Данные согласованы."],"Перевод не нужен."),
-          mu("Выбери нужные формулы.",["v₁ = a₁t₁","s₁ = a₁t₁²/2","s₂ = v₁t₂","s₃ = (v₁ + 0)t₃/2","s = s₁ − s₂ − s₃"],[0,1,2,3],["Для каждого участка своя формула.","Общий путь складывают."],"Нужны первые четыре формулы; затем s = s₁ + s₂ + s₃."),
-          c("Как найти время торможения?",["t₃ = −v₁/a₃","t₃ = v₁a₃","t₃ = a₃/v₁"],0,["Запиши 0 = v₁ + a₃t₃.","Перенеси v₁ и раздели на a₃."],"t₃ = −v₁/a₃."),
-          n("Рассчитай участки.",[field("v₁","м/с"),field("s₁","м"),field("s₂","м"),field("t₃","с"),field("s₃","м"),field("s","м")],[12,48,180,6,36,264],["Начни с v₁ = 1,5 · 8.","v₁=12; s₁=48; s₂=180; t₃=6; s₃=36; сложи пути."],"v₁ = 12 м/с; s₁ = 48 м; s₂ = 180 м; t₃ = 6 с; s₃ = 36 м; s = 264 м."),
-          mu("Отметь верные проверки.",["Все пути положительны","48 + 180 + 36 = 264","12 + (−2) · 6 = 0","Общий путь меньше s₂"],[0,1,2],["Проверь сумму и конечную скорость.","Общий путь больше каждого слагаемого."],"Сумма верна, конечная скорость нулевая."),
-          n("Запиши итоговый ответ после полного решения.",[field("Ответ","м")],[264],["В части 2 число без решения не оценивается полным баллом.","Проверь, что выше записаны формулы и промежуточные значения для всех участков."],"Итог: s = 264 м. В ОГЭ этот ответ должен сопровождаться полным решением.")
-        ]}
+        id: "t10", topic: "velocity", type: "numeric", title: "Разгон электросамоката",
+        problem: "Электросамокат стартует из покоя и за 6 с достигает скорости 54 км/ч. Считая ускорение постоянным, найди путь за это время.", unit: "м", answer: 45, tolerance: 0.01,
+        steps: ["<strong>Переводим скорость.</strong> <span class=\"formula\">54 км/ч = 54 / 3,6 = 15 м/с</span>", "<strong>Находим ускорение.</strong> <span class=\"formula\">a = (15 − 0)/6 = 2,5 м/с²</span>", "<strong>Находим путь.</strong> <span class=\"formula\">s = (v₀ + v)t/2 = (0 + 15) · 6 / 2 = 45 м</span>"]
+      },
+      {
+        id: "t5", topic: "distance", type: "choice", title: "Путь за третью секунду",
+        problem: "Шарик начал двигаться из покоя с ускорением 2 м/с². Какой путь он прошёл именно за третью секунду движения?",
+        choices: ["3 м", "5 м", "9 м", "12 м"], answer: 1,
+        steps: ["Найдём путь за первые 3 с: <span class=\"formula\">s(3) = a · 3²/2 = 9 м</span>", "Найдём путь за первые 2 с: <span class=\"formula\">s(2) = a · 2²/2 = 4 м</span>", "За третью секунду шарик прошёл 9 − 4 = 5 м."]
+      },
+      {
+        id: "t6", topic: "distance", type: "numeric", title: "Путь лабораторной тележки",
+        problem: "Тележка движется со скоростью 2 м/с и ускорением 1,2 м/с². Какой путь она пройдёт за следующие 5 с?", unit: "м", answer: 25, tolerance: 0.01,
+        steps: ["Используем формулу <span class=\"formula\">s = v₀t + at²/2</span>", "<span class=\"formula\">s = 2 · 5 + 1,2 · 5² / 2</span>", "s = 10 + 15 = 25 м."]
+      },
+      {
+        id: "t11", topic: "distance", type: "numeric", title: "Средняя скорость дрона",
+        problem: "Дрон летит по прямой в одном направлении: его начальная скорость 4 м/с, ускорение 1,5 м/с², время движения 8 с. Найди среднюю скорость за этот промежуток.", unit: "м/с", answer: 10, tolerance: 0.01,
+        steps: ["<strong>Находим конечную скорость.</strong> <span class=\"formula\">v = v₀ + at = 4 + 1,5 · 8 = 16 м/с</span>", "<strong>Находим среднюю скорость.</strong> <span class=\"formula\">v<sub>ср</sub> = (v₀ + v)/2 = (4 + 16)/2 = 10 м/с</span>", "<strong>Проверяем через путь.</strong> <span class=\"formula\">s = 80 м; s/t = 80/8 = 10 м/с</span>"]
+      },
+      {
+        id: "t7", topic: "applied", type: "numeric", title: "Время остановки электровелосипеда",
+        problem: "Электровелосипед движется со скоростью 72 км/ч и начинает тормозить с постоянным ускорением −4 м/с². Через сколько секунд он остановится?", unit: "с", answer: 5, tolerance: 0.01,
+        steps: ["Переводим скорость: <span class=\"formula\">72 км/ч = 72 / 3,6 = 20 м/с</span>", "В момент остановки v = 0: <span class=\"formula\">0 = v₀ + at = 20 − 4t</span>", "Отсюда t = 5 с."]
+      },
+      {
+        id: "t8", topic: "applied", type: "numeric", title: "Когда снегоход достигнет отметки?",
+        problem: "Снегоход проходит контрольную отметку со скоростью 8 м/с и продолжает разгоняться с ускорением 2 м/с². Через какое время после отметки он окажется на расстоянии 65 м от неё?", unit: "с", answer: 5, tolerance: 0.01,
+        steps: ["Запишем уравнение пути: <span class=\"formula\">65 = 8t + 2t²/2</span>", "Получаем <span class=\"formula\">t² + 8t − 65 = 0</span><span class=\"formula\">(t + 13)(t − 5) = 0</span>", "Корни: −13 с и 5 с. Отрицательное время не подходит, поэтому t = 5 с."]
+      },
+      {
+        id: "t12", topic: "applied", type: "numeric", title: "Полный маршрут поезда метро",
+        problem: "Поезд метро разгоняется из покоя с ускорением 1,2 м/с² в течение 10 с, затем 20 с движется равномерно, после чего тормозит с ускорением −1,5 м/с² до остановки. Найди весь пройденный путь.", unit: "м", answer: 348, tolerance: 0.01,
+        steps: ["<strong>Разгон.</strong> <span class=\"formula\">v₁ = 1,2 · 10 = 12 м/с</span><span class=\"formula\">s₁ = 1,2 · 10²/2 = 60 м</span>", "<strong>Равномерное движение.</strong> <span class=\"formula\">s₂ = 12 · 20 = 240 м</span>", "<strong>Торможение.</strong> <span class=\"formula\">t₃ = 8 с; s₃ = (12 + 0) · 8/2 = 48 м</span><span class=\"formula\">s = 60 + 240 + 48 = 348 м</span>"]
       }
     ];
-    let memoryState=null,storageWorks=true,state=loadState(),activeModule=0;
-    function blank(){return{exampleIndex:0,exampleDone:false,practiceIndex:0,practice:{}}}
-    function createState(name){return{version:3,studentName:name,createdAt:new Date().toISOString(),modules:Object.fromEntries(MODULES.map(m=>[m.id,blank()]))}}
-    function valid(value){return value&&value.version===3&&typeof value.studentName==="string"&&value.studentName.trim()&&value.modules}
-    function loadState(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));if(!valid(saved))return memoryState;for(const m of MODULES)saved.modules[m.id]={...blank(),...(saved.modules[m.id]||{}),practice:{...(saved.modules[m.id]?.practice||{})}};memoryState=saved;return saved}catch(_){storageWorks=false;return memoryState}}
-    function save(){memoryState=state;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(_){storageWorks=false}document.getElementById("storageWarning")?.toggleAttribute("hidden",storageWorks)}
-    function done(i){return Boolean(state?.modules?.[MODULES[i].id]?.practiceIndex>=8)}
-    function unlocked(i){return i===0||done(i-1)}
-    function firstIncomplete(){const i=MODULES.findIndex((_,x)=>!done(x));return i<0?MODULES.length-1:i}
-    function summary(i){const s=state.modules[MODULES[i].id];return s.practiceIndex>=8?"✓":s.exampleDone?"✎":s.exampleIndex?"▶":unlocked(i)?"○":"🔒"}
-    function renderApp(){document.getElementById("studentDisplay").textContent=state.studentName;document.getElementById("app").hidden=false;document.getElementById("nameGate").hidden=true;renderNav();renderWorkspace();updateProgress();document.getElementById("storageWarning").toggleAttribute("hidden",storageWorks)}
-    function renderNav(){document.getElementById("moduleNav").innerHTML=MODULES.map((m,i)=>`<button class="module-link${i===activeModule?" active":""}" type="button" data-module="${i}" ${unlocked(i)?"":"disabled"}><span class="module-num">${i+1}</span><span class="module-name">${m.title}</span><span>${summary(i)}</span></button>`).join("");document.querySelectorAll("[data-module]").forEach(b=>b.onclick=()=>{activeModule=Number(b.dataset.module);renderNav();renderWorkspace();scrollTo({top:0,behavior:"smooth"})})}
-    function map(current,statuses=[]){return`<div class="stage-map" aria-label="Прогресс по этапам">${LABELS.map((label,i)=>{const s=statuses[i]||(i<current?"self":"");return`<span class="stage-dot ${i===current&&current<8?"current":s}" title="${label}">${i+1}</span>`}).join("")}</div>`}
-    function renderWorkspace(){
-      const workspace=document.getElementById("workspace");if(MODULES.every((_,i)=>done(i))){workspace.innerHTML=completion();return}
-      const m=MODULES[activeModule],s=state.modules[m.id];
-      workspace.innerHTML=`<div class="module-panel"><header class="module-head"><div><p class="eyebrow">Модуль ${activeModule+1} из 6</p><h2>${m.title}</h2><p>${m.subtitle}</p></div><span class="module-badge">${m.exam}</span></header>${renderExample(m,s)}${renderPractice(m,s)}${s.practiceIndex>=8?moduleComplete(s):""}</div>`;
-      attach();
+
+    let memoryState = null;
+    let storageWorks = true;
+    let state = loadState();
+    let channel = null;
+    try { if ("BroadcastChannel" in window) channel = new BroadcastChannel(CHANNEL_NAME); } catch (_) { channel = null; }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>'"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
     }
-    function optionOrder(length,seed){if(length<2)return[0];const shift=1+seed%(length-1);return Array.from({length},(_,index)=>(index+shift)%length)}
-    function examProblem(m,text,label){return`<div class="problem"><span class="exam-label">${m.exam}</span><strong>${label}</strong>${text}<p class="exam-instruction">${m.exam.includes("часть 2")?"Запишите полное решение и итоговый ответ с единицей измерения.":"Выполните вычисления. В поле ответа запишите только число."}</p><div class="answer-blank">Ответ: <span aria-hidden="true"></span> ${m.answerUnit}</div></div>`}
-    function renderExample(m,s){
-      if(s.exampleDone)return`<section class="phase-card"><div class="phase-head"><span class="phase-icon">✓</span><div><h3>Разбор примера завершён</h3><p>Теперь примени тот же алгоритм самостоятельно.</p></div></div></section>`;
-      const i=s.exampleIndex,x=m.example.steps[i],ordered=optionOrder(x.options.length,activeModule*8+i+1);
-      return`<section class="phase-card"><div class="phase-head"><span class="phase-icon">1</span><div><h3>Тренировочный пример</h3><p>Сначала ответь сам — разбор появится после проверки.</p></div></div><div class="phase-body">${examProblem(m,m.example.problem,"Пример")}${map(i)}<div class="stage-card"><p class="stage-kicker">Этап ${i+1} из 8</p><h4>${LABELS[i]}</h4><p class="stage-copy">${x.question}</p><div class="controls">${ordered.map((original,position)=>`<button class="choice" type="button" data-example="${original}"><span class="choice-letter">${position+1}</span><span>${x.options[original]}</span></button>`).join("")}</div><div id="exampleFeedback" aria-live="polite"></div></div></div></section>`;
+
+    function sessionId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
+      return "session-" + Date.now() + "-" + Math.random().toString(16).slice(2);
     }
-    function renderPractice(m,s){
-      if(!s.exampleDone)return`<section class="phase-card practice-card"><div class="phase-head"><span class="phase-icon">2</span><div><h3>Решаем самостоятельно</h3><p>Блок откроется после разбора.</p></div></div><div class="phase-body"><div class="phase-locked">Заверши восемь этапов примера.</div></div></section>`;
-      if(s.practiceIndex>=8)return`<section class="phase-card practice-card"><div class="phase-head"><span class="phase-icon">✓</span><div><h3>Самостоятельная задача завершена</h3><p>Решение собрано от анализа до ответа.</p></div></div></section>`;
-      const i=s.practiceIndex,x=m.practice.steps[i],statuses=Array.from({length:8},(_,k)=>s.practice[k]?.status||""),errors=s.practice[i]?.errors||0;
-      return`<section class="phase-card practice-card"><div class="phase-head"><span class="phase-icon">2</span><div><h3>Задание в формате ОГЭ</h3><p>Ответы и решение скрыты до проверки.</p></div></div><div class="phase-body">${examProblem(m,m.practice.problem,"Задание")}${map(i,statuses)}<div class="stage-card"><p class="stage-kicker">Этап ${i+1} из 8</p><h4>${LABELS[i]}</h4><p class="stage-copy">${x.prompt}</p><div class="controls" id="practiceControl">${control(x,activeModule*8+i+1)}</div><div class="actions"><button class="btn btn-primary" id="checkPractice" type="button">Проверить шаг</button><span class="status-note">Ошибок: ${errors}</span></div><div id="practiceFeedback" aria-live="polite"></div></div></div></section>`;
+
+    function blankTasks() {
+      return Object.fromEntries(TASKS.map(task => [task.id, { solved: false, value: "", selected: null, solvedAt: null }]));
     }
-    function control(x,seed){
-      if(x.type==="choice")return optionOrder(x.options.length,seed).map((original,position)=>`<button class="choice" type="button" data-choice="${original}"><span class="choice-letter">${position+1}</span><span>${x.options[original]}</span></button>`).join("");
-      if(x.type==="multi")return optionOrder(x.options.length,seed).map((original,position)=>`<label class="choice"><input type="checkbox" value="${original}"><span><strong>${position+1})</strong> ${x.options[original]}</span></label>`).join("");
-      if(x.type==="match")return`<div class="field-grid">${x.rows.map((r,i)=>`<div class="field-row"><label for="match-${i}">${r}</label><select class="select-input" id="match-${i}" data-match><option value="">Выбери…</option>${x.options.map(z=>`<option value="${z}">${z}</option>`).join("")}</select></div>`).join("")}</div>`;
-      if(x.type==="numeric")return`<div class="field-grid">${x.fields.map((f,i)=>`<div class="field-row"><label for="num-${i}">${f.label}</label><div class="number-wrap"><input class="text-input" id="num-${i}" data-number inputmode="decimal" autocomplete="off"><span class="unit">${f.unit}</span></div></div>`).join("")}</div>`;
-      if(x.type==="order")return`<div class="field-grid">${x.slots.map((r,i)=>`<div class="order-row"><span class="order-num">${i+1}</span><select class="select-input" data-order aria-label="${r}"><option value="">Выбери действие…</option>${x.options.map(z=>`<option value="${z}">${z}</option>`).join("")}</select></div>`).join("")}</div>`;return"";
+
+    function createState(name) {
+      const now = new Date().toISOString();
+      return { version: 1, sessionId: sessionId(), studentName: name, startedAt: now, lastActivityAt: now, tasks: blankTasks(), attempts: [] };
     }
-    function attach(){
-      document.querySelectorAll("[data-example]").forEach(b=>b.onclick=()=>checkExample(Number(b.dataset.example)));
-      document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-choice]").forEach(q=>q.classList.remove("selected"));b.classList.add("selected")});
-      const checkButton=document.getElementById("checkPractice");if(checkButton)checkButton.onclick=checkPracticeStep;
-      document.querySelectorAll("[data-number]").forEach(x=>x.onkeydown=e=>{if(e.key==="Enter")checkPracticeStep()});
-      const next=document.getElementById("nextModule");if(next)next.onclick=()=>{activeModule=Math.min(5,activeModule+1);renderNav();renderWorkspace();updateProgress();scrollTo({top:0,behavior:"smooth"})};
+
+    function validState(value) {
+      return value && value.version === 1 && typeof value.studentName === "string" && value.studentName.trim() && value.tasks && Array.isArray(value.attempts);
     }
-    function checkExample(selected){
-      const m=MODULES[activeModule],s=state.modules[m.id],x=m.example.steps[s.exampleIndex],box=document.getElementById("exampleFeedback");
-      document.querySelectorAll("[data-example]").forEach(b=>b.classList.toggle("selected",Number(b.dataset.example)===selected));
-      if(selected!==x.correct){box.className="feedback bad";box.textContent="Пока не так. Проверь условие и смысл физических величин. Готовый ответ остаётся скрытым.";return}
-      box.className="feedback good";box.innerHTML=`<strong>Верно.</strong> ${x.text} ${x.conclusion}<div class="actions"><button class="btn btn-primary" id="nextExample" type="button">${s.exampleIndex===7?"Перейти к заданию ОГЭ":"Следующий этап"}</button></div>`;
-      document.querySelectorAll("[data-example]").forEach(b=>b.disabled=true);
-      document.getElementById("nextExample").onclick=()=>{s.exampleIndex++;if(s.exampleIndex>=8)s.exampleDone=true;save();renderNav();renderWorkspace();updateProgress();document.querySelector(".practice-card")?.scrollIntoView({behavior:"smooth",block:"start"})};
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!validState(saved)) return memoryState;
+        const defaults = blankTasks();
+        saved.tasks = Object.fromEntries(TASKS.map(task => [task.id, { ...defaults[task.id], ...(saved.tasks[task.id] || {}) }]));
+        memoryState = saved;
+        return saved;
+      } catch (_) {
+        storageWorks = false;
+        return memoryState;
+      }
     }
-    function num(value){const v=String(value).trim().replace(/[−–—]/g,"-").replace(/\s+/g,"").replace(",",".");return/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(v)?Number(v):NaN}
-    function read(x){
-      if(x.type==="choice"){const b=document.querySelector("[data-choice].selected");return b?Number(b.dataset.choice):null}
-      if(x.type==="multi")return[...document.querySelectorAll('#practiceControl input[type="checkbox"]:checked')].map(q=>Number(q.value)).sort((a,b)=>a-b);
-      if(x.type==="match")return[...document.querySelectorAll("[data-match]")].map(q=>q.value);
-      if(x.type==="numeric")return[...document.querySelectorAll("[data-number]")].map(q=>num(q.value));
-      if(x.type==="order")return[...document.querySelectorAll("[data-order]")].map(q=>q.value);
+
+    function saveState() {
+      memoryState = state;
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      catch (_) { storageWorks = false; }
+      if (channel) {
+        try { channel.postMessage({ type: "updated", sessionId: state?.sessionId || null }); } catch (_) {}
+      }
+      const warning = document.getElementById("storageWarning");
+      if (warning) warning.classList.toggle("show", !storageWorks);
     }
-    function equal(x,a){if(x.type==="choice")return a===x.correct;if(x.type==="numeric")return a.length===x.correct.length&&a.every((v,i)=>Number.isFinite(v)&&Math.abs(v-x.correct[i])<=x.fields[i].tolerance);return Array.isArray(a)&&a.length===x.correct.length&&a.every((v,i)=>v===x.correct[i])}
-    function empty(x,a){if(x.type==="choice")return a===null;if(x.type==="multi")return!a.length;if(x.type==="numeric")return a.some(v=>!Number.isFinite(v));return a.some(v=>!v)}
-    function checkPracticeStep(){
-      const m=MODULES[activeModule],s=state.modules[m.id],i=s.practiceIndex,x=m.practice.steps[i],a=read(x),box=document.getElementById("practiceFeedback"),checkButton=document.getElementById("checkPractice");
-      if(empty(x,a)){box.className="feedback bad";box.textContent="Заполни все поля или выбери ответ.";return}
-      const ss=s.practice[i]||(s.practice[i]={errors:0,status:""});
-      if(equal(x,a)){ss.status="self";finish(x,false);return}
-      ss.errors++;save();document.querySelector(".status-note").textContent=`Ошибок: ${ss.errors}`;
-      if(ss.errors<3){box.className="feedback help";box.innerHTML=`<strong>Подсказка ${ss.errors} из 3.</strong> ${x.hints[ss.errors-1]}`;return}
-      box.className="feedback help";box.innerHTML=`<strong>Разберём по образцу.</strong> ${x.explanation}<div class="actions"><button class="btn btn-primary" id="acceptHelp" type="button">Понял — продолжить</button></div>`;checkButton.disabled=true;document.getElementById("acceptHelp").onclick=()=>{ss.status="assisted";finish(x,true)}
+
+    function pluralAttempts(number) {
+      const mod100 = number % 100;
+      const mod10 = number % 10;
+      if (mod100 >= 11 && mod100 <= 14) return "попыток";
+      if (mod10 === 1) return "попытка";
+      if (mod10 >= 2 && mod10 <= 4) return "попытки";
+      return "попыток";
     }
-    function finish(x,assisted){
-      const s=state.modules[MODULES[activeModule].id],box=document.getElementById("practiceFeedback"),checkButton=document.getElementById("checkPractice");
-      box.className=assisted?"feedback help":"feedback good";box.innerHTML=`<strong>${assisted?"Разобрано с помощью.":"Верно — самостоятельно."}</strong> ${x.explanation}<div class="actions"><button class="btn btn-primary" id="nextPractice" type="button">${s.practiceIndex===7?"Завершить модуль":"Следующий этап"}</button></div>`;
-      checkButton.disabled=true;document.querySelectorAll("#practiceControl button,#practiceControl input,#practiceControl select").forEach(q=>q.disabled=true);
-      document.getElementById("nextPractice").onclick=()=>{s.practiceIndex++;save();renderNav();renderWorkspace();updateProgress();if(s.practiceIndex>=8)document.querySelector(".module-complete")?.scrollIntoView({behavior:"smooth",block:"center"})}
+
+    function renderStudent() {
+      document.getElementById("studentDisplay").textContent = state.studentName;
+      const content = document.getElementById("lessonContent");
+      content.innerHTML = Object.entries(TOPICS).map(([topicId, topic]) => {
+        const tasks = TASKS.filter(task => task.topic === topicId);
+        return `<section class="topic-section" id="topic-${topicId}" style="--topic-color:${topic.color};--topic-soft:${topic.soft}">
+          <header class="topic-heading">
+            <div class="topic-heading-icon" aria-hidden="true">${topic.icon}</div>
+            <div><h2>${topic.name}</h2><p>${topic.note}</p></div>
+          </header>
+          <div class="task-grid">${tasks.map(renderTask).join("")}</div>
+        </section>`;
+      }).join("");
+
+      document.getElementById("topicNav").innerHTML = Object.entries(TOPICS).map(([id, topic], index) => `
+        <button class="topic-link${index === 0 ? " active" : ""}" type="button" data-topic-link="${id}" style="--topic-color:${topic.color};--topic-soft:${topic.soft}">
+          <span class="topic-icon" aria-hidden="true">${topic.icon}</span><span class="topic-name">${topic.name}</span><span class="topic-score" id="navScore-${id}">0/3</span>
+        </button>`).join("");
+
+      attachStudentEvents();
+      restoreStudentState();
+      updateProgress();
+      observeTopics();
     }
-    function moduleComplete(s){const assisted=Object.values(s.practice).filter(x=>x.status==="assisted").length;return`<section class="module-complete"><h3>Модуль завершён</h3><p>${assisted?`Самостоятельно: ${8-assisted} этапов; с разбором: ${assisted}. Помощь — часть обучения.`:"Все восемь этапов выполнены самостоятельно."}</p>${activeModule===5?"":'<button class="btn btn-primary" id="nextModule" type="button">Открыть следующий модуль</button>'}</section>`}
-    function completion(){return`<section class="completion"><p class="eyebrow">Маршрут завершён</p><h2>${state.studentName}, теперь у тебя есть алгоритм решения</h2><p>Каждый раз проходи эти восемь шагов — от смысла условия до ясного ответа.</p><div class="memory">${LABELS.map((x,i)=>`<div><strong>${i+1}.</strong> ${x}</div>`).join("")}</div></section>`}
-    function updateProgress(){const modules=MODULES.filter((_,i)=>done(i)).length,stages=MODULES.reduce((sum,m)=>{const s=state.modules[m.id];return sum+Math.min(8,s.exampleIndex)+Math.min(8,s.practiceIndex)},0);document.getElementById("progressText").textContent=`${modules} из 6 модулей`;document.getElementById("progressDetail").textContent=modules===6?"Маршрут завершён":`${stages} из 96 этапов`;document.getElementById("progressFill").style.width=`${stages/96*100}%`}
-    function startWithName(name){if(!valid(state)||state.studentName!==name)state=createState(name);activeModule=firstIncomplete();save();renderApp()}
-    async function startTrainer(){
-      try{const{PhysicsTracker}=await import("../tracker.js");const p=await PhysicsTracker.loadProgress("accelerated-motion"),name=p.student?.name||"",access=p.activities?.find(x=>x.activityId==="accelerated-motion");if(name&&access?.isOpen){const key="physics-entry:accelerated-motion",id=sessionStorage.getItem(key)||crypto.randomUUID();sessionStorage.removeItem(key);await PhysicsTracker.openActivity("accelerated-motion",id);startWithName(name);return}}catch(_){}
-      if(valid(state))startWithName(state.studentName);else{document.getElementById("nameGate").hidden=false;requestAnimationFrame(()=>document.getElementById("studentName").focus())}
+
+    function renderTask(task) {
+      const number = TASKS.indexOf(task) + 1;
+      const answerControl = task.type === "choice"
+        ? `<div class="choices" role="group" aria-label="Варианты ответа">${task.choices.map((choice, index) => `<button class="choice" type="button" data-task="${task.id}" data-choice="${index}"><span class="choice-letter">${String.fromCharCode(1040 + index)}</span><span>${choice}</span></button>`).join("")}</div>`
+        : `<div class="answer-line"><input class="answer-input" id="input-${task.id}" data-numeric="${task.id}" inputmode="decimal" autocomplete="off" placeholder="Введи число" aria-label="Ответ на задачу ${number}"><span class="unit">${task.unit}</span></div>`;
+      return `<article class="task-card" id="card-${task.id}" style="--topic-color:${TOPICS[task.topic].color};--topic-soft:${TOPICS[task.topic].soft}">
+        <div class="task-body">
+          <div class="task-head"><div><p class="task-kicker">Задача ${number}</p><h3 class="task-title">${task.title}</h3></div><span class="task-status" id="status-${task.id}">Не решена</span></div>
+          <p class="problem">${task.problem}</p>
+          <div class="answer-zone">
+            ${answerControl}
+            <div class="task-actions"><button class="btn btn-primary" type="button" data-check="${task.id}">Проверить</button><span class="attempt-count" id="attempts-${task.id}">Попыток: 0</span></div>
+            <div class="feedback" id="feedback-${task.id}" role="status"></div>
+            <div class="solution" id="solution-${task.id}"><strong>Решение по шагам</strong><div class="solution-steps">${task.steps.map((step, index) => `<div class="solution-step"><span class="solution-step-num">${index + 1}</span><div>${step}</div></div>`).join("")}</div></div>
+          </div>
+        </div>
+      </article>`;
     }
-    document.getElementById("nameForm").onsubmit=e=>{e.preventDefault();const input=document.getElementById("studentName"),name=input.value.trim();if(name)startWithName(name);else input.focus()};
-    document.getElementById("resetButton").onclick=()=>{if(!confirm("Удалить локальный прогресс и начать заново?"))return;try{localStorage.removeItem(STORAGE_KEY)}catch(_){}state=createState(state.studentName);activeModule=0;save();renderNav();renderWorkspace();updateProgress();scrollTo({top:0,behavior:"smooth"})};
-    void startTrainer();
+
+    function attachStudentEvents() {
+      document.querySelectorAll("[data-topic-link]").forEach(button => button.addEventListener("click", () => document.getElementById("topic-" + button.dataset.topicLink).scrollIntoView({ behavior: "smooth", block: "start" })));
+      document.querySelectorAll("[data-choice]").forEach(button => button.addEventListener("click", () => selectChoice(button)));
+      document.querySelectorAll("[data-check]").forEach(button => button.addEventListener("click", () => checkTask(button.dataset.check)));
+      document.querySelectorAll("[data-numeric]").forEach(input => {
+        input.addEventListener("input", () => { state.tasks[input.dataset.numeric].value = input.value; saveState(); });
+        input.addEventListener("keydown", event => { if (event.key === "Enter") checkTask(input.dataset.numeric); });
+      });
+    }
+
+    function selectChoice(button) {
+      const taskId = button.dataset.task;
+      if (state.tasks[taskId].solved) return;
+      document.querySelectorAll(`[data-task="${taskId}"]`).forEach(choice => choice.classList.remove("selected", "wrong"));
+      button.classList.add("selected");
+      state.tasks[taskId].selected = Number(button.dataset.choice);
+      saveState();
+    }
+
+    function restoreStudentState() {
+      TASKS.forEach(task => {
+        const saved = state.tasks[task.id];
+        if (task.type === "choice" && saved.selected !== null) {
+          document.querySelector(`[data-task="${task.id}"][data-choice="${saved.selected}"]`)?.classList.add("selected");
+        }
+        if (task.type === "numeric") document.getElementById("input-" + task.id).value = saved.value || "";
+        if (saved.solved) markSolved(task);
+        updateTaskAttempts(task.id);
+      });
+    }
+
+    function rawAnswer(task) {
+      const saved = state.tasks[task.id];
+      if (task.type === "choice") return saved.selected;
+      return String(saved.value || "").trim();
+    }
+
+    function numericValue(value) {
+      const normalized = String(value).trim().replace(/\s+/g, "").replace(",", ".");
+      if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) return NaN;
+      return Number(normalized);
+    }
+
+    function answerLabel(task, answer) {
+      if (task.type === "choice") return task.choices[answer] || "Не выбран";
+      return String(answer).replace(".", ",") + " " + task.unit;
+    }
+
+    function checkTask(taskId) {
+      const task = TASKS.find(item => item.id === taskId);
+      const saved = state.tasks[taskId];
+      if (!task || saved.solved) return;
+      const answer = rawAnswer(task);
+      const feedback = document.getElementById("feedback-" + taskId);
+      const parsed = task.type === "numeric" ? numericValue(answer) : answer;
+      const empty = task.type === "choice" ? answer === null : !answer || Number.isNaN(parsed);
+      if (empty) {
+        feedback.className = "feedback show info";
+        feedback.textContent = task.type === "numeric" ? "Введи числовой ответ. Можно использовать точку или запятую." : "Сначала выбери один вариант ответа.";
+        return;
+      }
+
+      const correct = task.type === "choice" ? parsed === task.answer : Math.abs(parsed - task.answer) <= task.tolerance;
+      const now = new Date();
+      state.attempts.push({
+        id: sessionId(), taskId,
+        answer: answerLabel(task, task.type === "numeric" ? answer : parsed),
+        correct, at: now.toISOString(), elapsedSeconds: Math.max(0, Math.round((now.getTime() - new Date(state.startedAt).getTime()) / 1000))
+      });
+      state.lastActivityAt = now.toISOString();
+
+      if (correct) {
+        saved.solved = true;
+        saved.solvedAt = now.toISOString();
+        feedback.className = "feedback show good";
+        feedback.innerHTML = "<strong>Верно.</strong> Подробное решение открыто ниже.";
+        markSolved(task);
+      } else {
+        feedback.className = "feedback show bad";
+        feedback.innerHTML = "<strong>Пока неверно.</strong> Проверь формулу, единицы измерения и вычисления. Решение останется закрытым.";
+        if (task.type === "choice") {
+          document.querySelectorAll(`[data-task="${taskId}"]`).forEach(choice => choice.classList.remove("wrong"));
+          document.querySelector(`[data-task="${taskId}"][data-choice="${saved.selected}"]`)?.classList.add("wrong");
+        }
+      }
+      saveState();
+      updateTaskAttempts(taskId);
+      updateProgress();
+    }
+
+    function markSolved(task) {
+      const saved = state.tasks[task.id];
+      document.getElementById("card-" + task.id).classList.add("done");
+      const status = document.getElementById("status-" + task.id);
+      status.textContent = "Решена";
+      const check = document.querySelector(`[data-check="${task.id}"]`);
+      check.disabled = true;
+      check.textContent = "Готово";
+      document.getElementById("solution-" + task.id).classList.add("show");
+      if (task.type === "choice") {
+        document.querySelectorAll(`[data-task="${task.id}"]`).forEach((choice, index) => {
+          choice.disabled = true;
+          choice.classList.remove("wrong");
+          if (index === task.answer) choice.classList.add("correct");
+        });
+      } else {
+        document.getElementById("input-" + task.id).disabled = true;
+      }
+      saved.solved = true;
+    }
+
+    function taskAttempts(taskId) { return state.attempts.filter(attempt => attempt.taskId === taskId); }
+
+    function updateTaskAttempts(taskId) {
+      const count = taskAttempts(taskId).length;
+      document.getElementById("attempts-" + taskId).textContent = "Попыток: " + count;
+    }
+
+    function updateProgress() {
+      const solved = TASKS.filter(task => state.tasks[task.id].solved).length;
+      const attempts = state.attempts.length;
+      document.getElementById("progressText").textContent = `${solved} из ${TASKS.length} задач`;
+      document.getElementById("attemptsText").textContent = `${attempts} ${pluralAttempts(attempts)}`;
+      document.getElementById("progressFill").style.width = (solved / TASKS.length * 100) + "%";
+      Object.keys(TOPICS).forEach(topicId => {
+        const topicTasks = TASKS.filter(task => task.topic === topicId);
+        const count = topicTasks.filter(task => state.tasks[task.id].solved).length;
+        document.getElementById("navScore-" + topicId).textContent = `${count}/${topicTasks.length}`;
+      });
+      const completion = document.getElementById("completion");
+      completion.classList.toggle("show", solved === TASKS.length);
+      if (solved === TASKS.length) {
+        const wrong = state.attempts.filter(attempt => !attempt.correct).length;
+        document.getElementById("completionText").textContent = wrong ? `Работа завершена за ${state.attempts.length} попыток. Неверных попыток: ${wrong}. Подробности уже доступны в окне статистики.` : "Все задачи решены с первой попытки. Отличный результат!";
+      }
+    }
+
+    function observeTopics() {
+      if (!("IntersectionObserver" in window)) return;
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id.replace("topic-", "");
+          document.querySelectorAll("[data-topic-link]").forEach(button => button.classList.toggle("active", button.dataset.topicLink === id));
+        });
+      }, { rootMargin: "-100px 0px -65% 0px" });
+      document.querySelectorAll(".topic-section").forEach(section => observer.observe(section));
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+      try { return new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "medium" }).format(new Date(value)); }
+      catch (_) { return value; }
+    }
+
+    function formatDuration(totalSeconds) {
+      const seconds = Math.max(0, Number(totalSeconds) || 0);
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const rest = seconds % 60;
+      if (hours) return `${hours} ч ${minutes} мин`;
+      if (minutes) return `${minutes} мин ${rest} с`;
+      return `${rest} с`;
+    }
+
+    function renderStats() {
+      state = loadState();
+      const root = document.getElementById("statsContent");
+      if (!validState(state)) {
+        root.innerHTML = `<div class="stats-empty"><div class="stats-empty-card"><h1>Данных пока нет</h1><p>Ученик должен ввести имя и начать решать задачи в основном окне.</p></div></div>`;
+        return;
+      }
+      const solved = TASKS.filter(task => state.tasks[task.id].solved).length;
+      const totalAttempts = state.attempts.length;
+      const correctAttempts = state.attempts.filter(attempt => attempt.correct).length;
+      const wrongAttempts = totalAttempts - correctAttempts;
+      const accuracy = totalAttempts ? Math.round(correctAttempts / totalAttempts * 100) : 0;
+      const lastAttempt = state.attempts[state.attempts.length - 1];
+
+      root.innerHTML = `
+        <header class="stats-header">
+          <div><p class="eyebrow">Статистика преподавателя</p><h1>${escapeHtml(state.studentName)}</h1><p>Начало: ${formatDate(state.startedAt)} · Последняя активность: ${formatDate(state.lastActivityAt)}</p></div>
+          <div><div class="live-badge">● Обновляется автоматически</div><button class="btn btn-secondary" id="printStats" type="button" style="margin-top:10px;width:100%">Печать</button></div>
+        </header>
+        <section class="metric-grid" aria-label="Сводка результатов">
+          <div class="metric"><span>Решено</span><strong>${solved} / ${TASKS.length}</strong></div>
+          <div class="metric"><span>Выполнение</span><strong>${Math.round(solved / TASKS.length * 100)}%</strong></div>
+          <div class="metric"><span>Всего попыток</span><strong>${totalAttempts}</strong></div>
+          <div class="metric"><span>Неверных</span><strong>${wrongAttempts}</strong></div>
+          <div class="metric"><span>Точность попыток</span><strong>${accuracy}%</strong></div>
+        </section>
+        <section class="stats-panel">
+          <div class="stats-panel-head"><h2>Результаты по задачам</h2><small>${lastAttempt ? "Последняя проверка через " + formatDuration(lastAttempt.elapsedSeconds) + " после начала" : "Попыток пока нет"}</small></div>
+          <div class="table-scroll"><table>
+            <thead><tr><th>№</th><th>Тема и задача</th><th>Статус</th><th>Попыток</th><th>Последний ответ</th></tr></thead>
+            <tbody>${TASKS.map((task, index) => {
+              const attempts = taskAttemptsFor(state, task.id);
+              const latest = attempts[attempts.length - 1];
+              return `<tr><td>${index + 1}</td><td><strong>${task.title}</strong><br><small>${TOPICS[task.topic].name}</small></td><td><span class="status-pill ${state.tasks[task.id].solved ? "ok" : "wait"}">${state.tasks[task.id].solved ? "Решена" : attempts.length ? "В работе" : "Не начата"}</span></td><td>${attempts.length}</td><td>${latest ? escapeHtml(latest.answer) : "—"}</td></tr>`;
+            }).join("")}</tbody>
+          </table></div>
+        </section>
+        <section class="stats-panel">
+          <div class="stats-panel-head"><h2>История всех попыток</h2><small>Новые попытки находятся сверху</small></div>
+          ${totalAttempts ? `<div class="table-scroll"><table>
+            <thead><tr><th>Время от начала</th><th>Задача</th><th>Ответ ученика</th><th>Результат</th><th>Точное время</th></tr></thead>
+            <tbody>${[...state.attempts].reverse().map(attempt => {
+              const task = TASKS.find(item => item.id === attempt.taskId);
+              return `<tr><td>${formatDuration(attempt.elapsedSeconds)}</td><td>${task ? (TASKS.indexOf(task) + 1) + ". " + task.title : escapeHtml(attempt.taskId)}</td><td>${escapeHtml(attempt.answer)}</td><td class="${attempt.correct ? "attempt-ok" : "attempt-bad"}">${attempt.correct ? "Верно" : "Неверно"}</td><td>${formatDate(attempt.at)}</td></tr>`;
+            }).join("")}</tbody>
+          </table></div>` : `<div class="empty-state">Ученик ещё не проверял ответы.</div>`}
+        </section>`;
+      document.getElementById("printStats")?.addEventListener("click", () => window.print());
+    }
+
+    function taskAttemptsFor(sourceState, taskId) {
+      return sourceState.attempts.filter(attempt => attempt.taskId === taskId);
+    }
+
+    function resetSession() {
+      if (!window.confirm("Начать новый сеанс? Имя, прогресс и вся история текущих попыток будут удалены.")) return;
+      try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+      memoryState = null;
+      if (channel) {
+        try { channel.postMessage({ type: "reset" }); } catch (_) {}
+      }
+      location.reload();
+    }
+
+    function startStudentMode() {
+      document.getElementById("statsView").hidden = true;
+      if (!validState(state)) {
+        document.getElementById("nameGate").hidden = false;
+        document.getElementById("studentView").hidden = true;
+        requestAnimationFrame(() => document.getElementById("studentName").focus());
+      } else {
+        document.getElementById("nameGate").hidden = true;
+        document.getElementById("studentView").hidden = false;
+        renderStudent();
+      }
+      document.getElementById("nameForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const name = document.getElementById("studentName").value.trim();
+        if (!name) {
+          document.getElementById("gateError").textContent = "Введи имя, чтобы начать.";
+          return;
+        }
+        state = createState(name);
+        saveState();
+        location.reload();
+      });
+      document.getElementById("resetSession")?.addEventListener("click", resetSession);
+    }
+
+    function startStatsMode() {
+      document.getElementById("nameGate").hidden = true;
+      document.getElementById("studentView").hidden = true;
+      document.getElementById("statsView").hidden = false;
+      document.title = "Статистика · Равноускоренное движение";
+      renderStats();
+      window.addEventListener("storage", event => { if (event.key === STORAGE_KEY) renderStats(); });
+      if (channel) channel.addEventListener("message", renderStats);
+    }
+
+    function showPortalError(error) {
+      document.getElementById("statsView").hidden = true;
+      document.getElementById("studentView").hidden = true;
+      document.getElementById("nameGate").hidden = false;
+      document.getElementById("gateTitle").textContent = "Сначала войди в портал";
+      const form = document.getElementById("nameForm");
+      form.replaceChildren();
+      const message = document.createElement("p");
+      message.className = "gate-error";
+      message.textContent = error instanceof Error ? error.message : "Не удалось открыть тренировку.";
+      const link = document.createElement("a");
+      link.className = "btn btn-primary";
+      link.href = "../";
+      link.textContent = "Вернуться в портал";
+      form.append(message, link);
+    }
+
+    async function startPortalTrainer() {
+      const activityId = "accelerated-motion";
+      try {
+        const { PhysicsTracker } = await import("../tracker.js");
+        const progress = await PhysicsTracker.loadProgress(activityId);
+        const studentName = progress.student?.name || "";
+        const access = progress.activities?.find(item => item.activityId === activityId);
+        if (!studentName) throw new Error("Не найдено имя ученика.");
+        if (!access) throw new Error("Эта тренировка пока не опубликована.");
+        if (!access.isOpen) throw new Error(access.manuallyClosed ? `${studentName}, эта тренировка сейчас закрыта.` : `${studentName}, время выполнения тренировки истекло.`);
+        if (!validState(state) || state.studentName !== studentName) {
+          state = createState(studentName);
+          saveState();
+        }
+        if (location.hash !== "#stats") {
+          const entryKey = `physics-entry:${activityId}`;
+          const entryId = sessionStorage.getItem(entryKey) || crypto.randomUUID();
+          sessionStorage.removeItem(entryKey);
+          await PhysicsTracker.openActivity(activityId, entryId);
+        }
+        if (location.hash === "#stats") startStatsMode();
+        else startStudentMode();
+      } catch (error) {
+        showPortalError(error);
+      }
+    }
+
+    void startPortalTrainer();
+
+    window.addEventListener("hashchange", () => location.reload());
   </script>
 </body>
 </html>

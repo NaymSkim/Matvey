@@ -57,7 +57,7 @@ if (/"problemImage"\s*:\s*"data:image\//.test(olympiad)) throw new Error("Изо
 const olympiadAssetCount = fs.readdirSync(path.join(root, "tasks", "olympiad-assets")).filter((name) => /\.(?:jpe?g|png|webp)$/i.test(name)).length;
 if (olympiadAssetCount !== 365) throw new Error(`Ожидалось 365 изображений олимпиадных задач, найдено ${olympiadAssetCount}.`);
 
-for (const trainer of ["accelerated-motion.html", "curvilinear-motion.html", "oge-formulas.html"]) {
+for (const trainer of ["accelerated-motion.html", "accelerated-motion-oge.html", "curvilinear-motion.html", "oge-formulas.html"]) {
   const html = fs.readFileSync(path.join(root, "tasks", trainer), "utf8");
   if (!/<script\s+src="\.\.\/config\.js\?v=\d+"><\/script>/.test(html)) throw new Error(`В тренажёре ${trainer} не подключены настройки портала.`);
   if (!/import\(["']\.\.\/tracker\.js["']\)/.test(html)) throw new Error(`В тренажёре ${trainer} не подключён журнал посещений.`);
