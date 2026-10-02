@@ -23,13 +23,20 @@ for (const game of ["field.html", "goldberg.html", "alchemy.html", "pressure-due
   fs.copyFileSync(path.join(root, "games", game), path.join(dist, "games", game));
 }
 fs.copyFileSync(path.join(root, "data", "activities.json"), path.join(dist, "data", "activities.json"));
+const copiedTaskPages = new Set();
 for (const activity of catalog.activities.filter((item) => item.published)) {
   if (activity.verificationMode === "server-graded") {
     const name = `${activity.id}.json`;
     fs.copyFileSync(path.join(root, "data", "task-content", name), path.join(dist, "data", "task-content", name));
   } else {
-    if (!/^tasks\/[a-z0-9-]+\.html$/.test(activity.url)) throw new Error(`Небезопасный путь работы: ${activity.url}`);
-    fs.copyFileSync(path.join(root, activity.url), path.join(dist, activity.url));
+    const parsed = new URL(activity.url, "https://portal.local/");
+    const taskPath = parsed.pathname.replace(/^\//, "");
+    const safeQuery = [...parsed.searchParams].every(([key, value]) => key === "work" && /^\d+$/.test(value));
+    if (!/^tasks\/[a-z0-9-]+\.html$/.test(taskPath) || parsed.hash || !safeQuery) throw new Error(`Небезопасный путь работы: ${activity.url}`);
+    if (!copiedTaskPages.has(taskPath)) {
+      fs.copyFileSync(path.join(root, taskPath), path.join(dist, taskPath));
+      copiedTaskPages.add(taskPath);
+    }
   }
 }
 const olympiadAssets = path.join(root, "tasks", "olympiad-assets");

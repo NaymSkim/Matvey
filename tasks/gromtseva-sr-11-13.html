@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Физика 9 класс — Законы Ньютона, СР-11–СР-13 — Громцева</title>
+  <title>Физика 9 класс — Самостоятельная работа — Громцева</title>
   <style>
     :root {
       --ink:#172033; --muted:#6e7890; --paper:#fffdf8; --bg:#eef3f8; --line:#dce3ec;
@@ -44,10 +44,10 @@
   </style>
 </head>
 <body>
-  <header class="topbar"><div class="brand">Физика · 9 класс<small>Законы Ньютона · СР-11–СР-13</small></div><nav class="work-tabs" aria-label="Выбор работы"></nav><a class="tab" href="../">К порталу</a></header>
+  <header class="topbar"><div class="brand">Физика · 9 класс<small id="work-brand">Самостоятельная работа</small></div><nav class="work-tabs" aria-label="Текущая работа"></nav><a class="tab" href="../">К порталу</a></header>
   <main>
     <section class="hero">
-      <div class="hero-main"><div class="eyebrow">Динамика · самостоятельная практика</div><h1>Законы Ньютона</h1><p class="lead">Самостоятельные работы СР-11, СР-12 и СР-13 из пособия О. И. Громцевой. Оба варианта, проверка ответов, подробные решения, объяснения терминов и доска для черновиков.</p><div class="chips"><span class="chip">3 работы</span><span class="chip">6 вариантов</span><span class="chip orange">24 задания</span><span class="chip" id="save-status">Прогресс сохраняется автоматически</span></div></div>
+      <div class="hero-main"><div class="eyebrow" id="work-eyebrow">Самостоятельная работа</div><h1 id="work-title">Законы Ньютона</h1><p class="lead" id="work-lead">Два варианта, автоматическая проверка, подробные решения, объяснения терминов и доска для черновиков.</p><div class="chips"><span class="chip">2 варианта</span><span class="chip orange" id="task-count"></span><span class="chip" id="save-status">Прогресс сохраняется автоматически</span></div></div>
       <aside class="formula-card"><h2>Мини-шпаргалка</h2><div class="formula">F = 0 → a = 0, v = const</div><div class="formula">F = ma</div><div class="formula">a = F / m</div><div class="formula">F₁₂ = F₂₁ (по модулю)</div><p class="note">Здесь F — равнодействующая всех сил, действующих на тело. Ускорение направлено в сторону этой силы. Силы действия и противодействия равны по модулю, направлены противоположно и приложены к разным телам.</p></aside>
     </section>
     <div id="works"></div>
@@ -62,7 +62,7 @@
   </section>
 
   <script>
-    const WORKS = [
+    const ALL_WORKS = [
       {id:11,title:'Инерциальные системы отсчёта. Первый закон Ньютона',variants:[
         {n:1,tasks:[
           {kind:'choice',q:'При каком условии, по мнению Аристотеля, тело может двигаться равномерно и прямолинейно?',options:['Только при непрерывном действии другого тела, то есть силы','Только при полном отсутствии массы','Только в безвоздушном пространстве','Только при движении по окружности'],answer:'1',a:'По историческому представлению Аристотеля, равномерное движение поддерживается непрерывным действием другого тела, то есть силы. Позднее Галилей и Ньютон показали, что при нулевой равнодействующей скорость сохраняется без поддерживающей силы.',terms:['aristotle','inertia','resultant']},
@@ -107,6 +107,15 @@
       ]}
     ];
 
+    const requestedWorkId=Number(new URLSearchParams(location.search).get('work'));
+    const selectedWork=ALL_WORKS.find(work=>work.id===requestedWorkId)||ALL_WORKS[0];
+    const WORKS=[selectedWork];
+    document.title=`Физика 9 класс — СР-${selectedWork.id} — Громцева`;
+    document.getElementById('work-brand').textContent=`Законы Ньютона · СР-${selectedWork.id}`;
+    document.getElementById('work-eyebrow').textContent=`Самостоятельная работа № ${selectedWork.id}`;
+    document.getElementById('work-title').textContent=selectedWork.title;
+    document.getElementById('task-count').textContent=`${selectedWork.variants[0].tasks.length} заданий`;
+
     const TERMS={
       aristotle:['Представление Аристотеля','Историческое, позднее опровергнутое представление: для поддержания движения якобы требуется непрерывное действие силы.'],
       galileo:['Принцип инерции Галилея','Если внешние воздействия отсутствуют или скомпенсированы, тело сохраняет покой или равномерное прямолинейное движение.'],
@@ -132,12 +141,12 @@
       kN:['Килоньютон','1 кН = 1000 Н. Если ответ требуется в кН и сравниваются силы одной пары, перевод может не понадобиться.']
     };
     const state={};
-    const STORAGE_KEY='gromceva-physics-9-newton-sr11-13-progress-v1';
+    const STORAGE_KEY=`gromceva-physics-9-newton-sr-${selectedWork.id}-progress-v2`;
     let savedProgress=readProgress(),saveTimer;
 
     function readProgress(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch(e){return null}}
     function progressSnapshot(){
-      const answers={},statuses={},solutions={},activeWork=document.querySelector('.tab.active')?.dataset.work||'11',activeVariants={};
+      const answers={},statuses={},solutions={},activeWork=document.querySelector('.tab.active')?.dataset.work||String(selectedWork.id),activeVariants={};
       document.querySelectorAll('input:not([type="radio"]),textarea').forEach(el=>answers[el.id]=el.value);
       document.querySelectorAll('input[type="radio"]:checked').forEach(el=>answers[el.name]=el.value);
       document.querySelectorAll('.task').forEach(el=>{if(el.classList.contains('solved'))statuses[el.id]='solved';else if(el.classList.contains('wrong'))statuses[el.id]='wrong'});
@@ -166,11 +175,12 @@
 
     function render(){
       document.querySelector('.work-tabs').innerHTML=WORKS.map((w,i)=>`<button class="tab ${i===0?'active':''}" data-work="${w.id}">СР-${w.id}</button>`).join('');
-      document.getElementById('works').innerHTML=WORKS.map((w,wi)=>`<section class="work-panel ${wi===0?'active':''}" id="work-${w.id}"><div class="work-head"><div><div class="eyebrow">Самостоятельная работа СР-${w.id}</div><h2>${w.title}</h2><div class="work-sub">Два варианта · заданий в каждом: ${w.variants[0].tasks.length}</div></div><div class="work-controls"><div class="variant-tabs">${w.variants.map((v,i)=>`<button class="vtab ${i===0?'active':''}" data-variant="${w.id}-${v.n}">Вариант ${v.n}</button>`).join('')}</div><button class="reset reset-work" data-reset-work="${w.id}">Сбросить СР-${w.id}</button></div></div>${w.variants.map((v,vi)=>`<div class="variant-panel ${vi===0?'active':''}" id="variant-${w.id}-${v.n}"><div class="variant-meta"><h3>Вариант № ${v.n}</h3><div class="progress"><span id="progress-${w.id}-${v.n}">Готово 0 из ${v.tasks.length}</span><div class="track"><div class="fill" id="fill-${w.id}-${v.n}"></div></div></div></div><div class="task-list">${v.tasks.map((t,i)=>`<article class="task" id="task-${w.id}-${v.n}-${i+1}"><div class="task-top"><div class="task-number">${i+1}</div><div class="task-body"><p class="question">${t.q}</p>${t.diagram?diagram(t.diagram):''}${control(w.id,v.n,i,t)}</div></div><div class="task-actions"><button class="check" data-check="${w.id}-${v.n}-${i+1}">Проверить</button><button class="solution-toggle" data-solution="${w.id}-${v.n}-${i+1}">Показать решение</button></div><div class="feedback" id="feedback-${w.id}-${v.n}-${i+1}"></div><div class="solution" id="solution-${w.id}-${v.n}-${i+1}"><strong>Решение.</strong> ${t.a}${termBlock(t)}</div></article>`).join('')}</div><div class="summary"><div><strong id="score-${w.id}-${v.n}">Результат: 0 / ${v.tasks.length}</strong><br><span>Засчитываются проверенные правильные ответы.</span></div><button class="reset" data-reset="${w.id}-${v.n}">Сбросить вариант</button></div></div>`).join('')}</section>`).join('');
+      document.getElementById('works').innerHTML=WORKS.map((w,wi)=>`<section class="work-panel ${wi===0?'active':''}" id="work-${w.id}"><div class="work-head"><div><div class="eyebrow">Самостоятельная работа № ${w.id}</div><h2>${w.title}</h2><div class="work-sub">Два варианта · заданий в каждом: ${w.variants[0].tasks.length}</div></div><div class="work-controls"><div class="variant-tabs">${w.variants.map((v,i)=>`<button class="vtab ${i===0?'active':''}" data-variant="${w.id}-${v.n}">Вариант ${v.n}</button>`).join('')}</div><button class="reset reset-work" data-reset-work="${w.id}">Сбросить СР-${w.id}</button></div></div>${w.variants.map((v,vi)=>`<div class="variant-panel ${vi===0?'active':''}" id="variant-${w.id}-${v.n}"><div class="variant-meta"><h3>Вариант № ${v.n}</h3><div class="progress"><span id="progress-${w.id}-${v.n}">Готово 0 из ${v.tasks.length}</span><div class="track"><div class="fill" id="fill-${w.id}-${v.n}"></div></div></div></div><div class="task-list">${v.tasks.map((t,i)=>`<article class="task" id="task-${w.id}-${v.n}-${i+1}"><div class="task-top"><div class="task-number">${i+1}</div><div class="task-body"><p class="question">${t.q}</p>${t.diagram?diagram(t.diagram):''}${control(w.id,v.n,i,t)}</div></div><div class="task-actions"><button class="check" data-check="${w.id}-${v.n}-${i+1}">Проверить</button><button class="solution-toggle" data-solution="${w.id}-${v.n}-${i+1}">Показать решение</button></div><div class="feedback" id="feedback-${w.id}-${v.n}-${i+1}"></div><div class="solution" id="solution-${w.id}-${v.n}-${i+1}"><strong>Решение.</strong> ${t.a}${termBlock(t)}</div></article>`).join('')}</div><div class="summary"><div><strong id="score-${w.id}-${v.n}">Результат: 0 / ${v.tasks.length}</strong><br><span id="grade-${w.id}-${v.n}">Ответь на все задания, чтобы получить оценку.</span></div><button class="reset" data-reset="${w.id}-${v.n}">Сбросить вариант</button></div></div>`).join('')}</section>`).join('');
       WORKS.forEach(w=>w.variants.forEach(v=>{const key=`${w.id}-${v.n}`,stored=savedProgress?.state?.[key];state[key]=Array.from({length:v.tasks.length},(_,i)=>Boolean(stored?.[i]))}));
     }
     function taskData(w,v,q){return WORKS.find(x=>x.id===w).variants.find(x=>x.n===v).tasks[q-1]}
-    function update(w,v){const key=`${w}-${v}`,score=state[key].filter(Boolean).length,total=state[key].length;document.getElementById(`score-${key}`).textContent=`Результат: ${score} / ${total}`;document.getElementById(`progress-${key}`).textContent=`Готово ${score} из ${total}`;document.getElementById(`fill-${key}`).style.width=`${score/total*100}%`}
+    function gradeFor(score,total){const percent=score/total*100;return percent>=85?5:percent>=65?4:percent>=40?3:2}
+    function update(w,v){const key=`${w}-${v}`,score=state[key].filter(Boolean).length,total=state[key].length,answered=document.querySelectorAll(`#variant-${key} .task.solved, #variant-${key} .task.wrong`).length,grade=document.getElementById(`grade-${key}`);document.getElementById(`score-${key}`).textContent=`Результат: ${score} / ${total}`;document.getElementById(`progress-${key}`).textContent=`Готово ${answered} из ${total}`;document.getElementById(`fill-${key}`).style.width=`${answered/total*100}%`;grade.textContent=answered===total?`Оценка: ${gradeFor(score,total)}`:'Ответь на все задания, чтобы получить оценку.'}
     function check(w,v,q){const t=taskData(w,v,q),key=`${w}-${v}`,name=`w${w}v${v}q${q}`,card=document.getElementById(`task-${w}-${v}-${q}`),fb=document.getElementById(`feedback-${w}-${v}-${q}`),sol=document.getElementById(`solution-${w}-${v}-${q}`);let ok=false,empty=false;if(t.kind==='text'){const val=document.getElementById(name).value.trim();empty=val.length<3;ok=!empty}else if(t.kind==='choice'){const val=document.querySelector(`input[name="${name}"]:checked`)?.value||'';empty=!val;ok=val===t.answer}else{const raw=document.getElementById(name).value.trim().replace(',','.');const val=raw===''?NaN:Number(raw);empty=Number.isNaN(val);ok=!empty&&Math.abs(val-t.answer)<=Math.max(t.tol,Math.abs(t.answer)*t.tol)}card.classList.remove('solved','wrong');fb.className='feedback';if(empty){fb.textContent=t.kind==='text'?'Сначала напиши свой ответ.':'Сначала введи или выбери ответ.';return}state[key][q-1]=ok;if(t.kind==='text'){card.classList.add('solved');fb.classList.add('ok');fb.textContent='Ответ записан — сравни его с эталоном ниже.';sol.classList.add('show');document.querySelector(`[data-solution="${w}-${v}-${q}"]`).textContent='Скрыть решение'}else if(ok){card.classList.add('solved');fb.classList.add('ok');fb.textContent='Верно ✓'}else{card.classList.add('wrong');fb.classList.add('bad');fb.textContent='Пока неверно. Проверь формулу, знак и единицы.'}update(w,v);saveProgress()}
     function resetVariant(w,v,persist=true){const root=document.getElementById(`variant-${w}-${v}`);root.querySelectorAll('input,textarea').forEach(x=>{if(x.type==='radio')x.checked=false;else x.value=''});root.querySelectorAll('.task').forEach(x=>x.classList.remove('solved','wrong'));root.querySelectorAll('.feedback').forEach(x=>{x.textContent='';x.className='feedback'});root.querySelectorAll('.solution').forEach(x=>x.classList.remove('show'));root.querySelectorAll('.solution-toggle').forEach(x=>x.textContent='Показать решение');state[`${w}-${v}`].fill(false);update(w,v);if(persist)saveProgress()}
     function resetWork(w){WORKS.find(x=>x.id===w).variants.forEach(v=>resetVariant(w,v.n,false));saveProgress()}
