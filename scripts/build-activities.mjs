@@ -137,6 +137,47 @@ for (const work of works) {
   addActivity(activityId, srPublic, srAnswers);
 }
 
+// СР-11–СР-13 хранятся в отдельной интерактивной странице. Для портала
+// собираем из неё три самостоятельные работы: каждая получает собственные
+// попытки, оценку и строку в кабинете преподавателя.
+const newtonWorks = extractArray(path.join(taskDir, "gromtseva-sr-11-13.html"), "ALL_WORKS");
+for (const work of newtonWorks) {
+  const activityId = `gromtseva-sr-${work.id}`;
+  const srPublic = [];
+  const srAnswers = [];
+  for (const variant of work.variants) {
+    const variantId = `v${variant.n}`;
+    const questions = variant.tasks.map((item, index) => {
+      const id = `${variantId}-q${index + 1}`;
+      if (item.kind !== "choice" || !Array.isArray(item.options) || !item.options.length) {
+        throw new Error(`СР-${work.id}, вариант ${variant.n}, задание ${index + 1}: ожидается тестовый вопрос.`);
+      }
+      srAnswers.push({
+        variantId,
+        questionId: id,
+        matcherType: "choice",
+        expected: String(item.answer),
+        tolerance: 0,
+        points: 1,
+        solutionHtml: cleanHtml(item.a),
+      });
+      const question = {
+        id,
+        title: item.q,
+        prompt: "",
+        kind: "choice",
+        options: item.options,
+        points: 1,
+        scored: true,
+      };
+      if (item.diagram) question.diagram = item.diagram;
+      return question;
+    });
+    srPublic.push({ id: variantId, title: `Вариант ${variant.n}`, maxPoints: questions.length, questions });
+  }
+  addActivity(activityId, srPublic, srAnswers);
+}
+
 fs.writeFileSync(privateFile, JSON.stringify(privateAnswers, null, 2) + "\n", { mode: 0o600 });
 fs.chmodSync(privateFile, 0o600);
 

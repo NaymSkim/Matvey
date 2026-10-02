@@ -93,6 +93,17 @@ const velocityDiagrams = {
 };
 
 function diagramMarkup(key) {
+  if (key === "vectors1" || key === "vectors2") {
+    const first = key === "vectors1";
+    const marker = `vector-arrow-${key}`;
+    const given = first
+      ? `<text x="92" y="28" font-weight="800">v</text><line x1="105" y1="112" x2="105" y2="42" stroke="#2563eb" stroke-width="5" marker-end="url(#${marker}-blue)"/><text x="26" y="104" font-weight="800">a</text><line x1="100" y1="116" x2="35" y2="116" stroke="#ea580c" stroke-width="5" marker-end="url(#${marker}-orange)"/>`
+      : `<text x="92" y="98" font-weight="800">v</text><line x1="55" y1="116" x2="145" y2="116" stroke="#2563eb" stroke-width="5" marker-end="url(#${marker}-blue)"/><text x="92" y="28" font-weight="800">F</text><line x1="105" y1="112" x2="105" y2="42" stroke="#ea580c" stroke-width="5" marker-end="url(#${marker}-orange)"/>`;
+    const choices = first
+      ? `<line x1="355" y1="90" x2="355" y2="150" stroke="#168653" stroke-width="4" marker-end="url(#${marker}-green)"/><text x="366" y="152">1</text><line x1="355" y1="90" x2="285" y2="90" stroke="#168653" stroke-width="4" marker-end="url(#${marker}-green)"/><text x="270" y="84">2</text><line x1="355" y1="90" x2="300" y2="38" stroke="#168653" stroke-width="4" marker-end="url(#${marker}-green)"/><text x="288" y="31">3</text><line x1="355" y1="90" x2="355" y2="30" stroke="#168653" stroke-width="4" marker-end="url(#${marker}-green)"/><text x="365" y="32">4</text>`
+      : `<line x1="355" y1="95" x2="430" y2="95" stroke="#168653" stroke-width="4" marker-end="url(#${marker}-green)"/><text x="437" y="100">1</text><line x1="355" y1="95" x2="410" y2="42" stroke="#168653" stroke-width="4" marker-end="url(#${marker}-green)"/><text x="416" y="38">2</text><line x1="355" y1="95" x2="355" y2="30" stroke="#168653" stroke-width="4" marker-end="url(#${marker}-green)"/><text x="365" y="32">3</text><line x1="355" y1="95" x2="285" y2="95" stroke="#168653" stroke-width="4" marker-end="url(#${marker}-green)"/><text x="270" y="88">4</text>`;
+    return `<svg viewBox="0 0 500 180" role="img" aria-label="Схема направлений векторов"><defs><marker id="${marker}-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2563eb"/></marker><marker id="${marker}-orange" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#ea580c"/></marker><marker id="${marker}-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#168653"/></marker></defs><rect x="8" y="8" width="205" height="160" rx="12" fill="#fff"/><rect x="235" y="8" width="255" height="160" rx="12" fill="#fff"/><text x="24" y="158">Дано</text><text x="250" y="158">Выберите направление</text>${given}${choices}</svg>`;
+  }
   if (key === "coord1" || key === "coord2") {
     const start = key === "coord1" ? [6, 1] : [4, 4];
     const end = key === "coord1" ? [2, 5] : [2, 1];

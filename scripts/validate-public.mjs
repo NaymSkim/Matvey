@@ -16,7 +16,7 @@ for (const file of publicFiles) {
 const catalog = JSON.parse(fs.readFileSync(path.join(root, "data", "activities.json"), "utf8"));
 const ids = new Set();
 const publicQuestionKeys = new Set();
-const supportedDiagrams = new Set(["coord1", "coord2", "speed1", "speed2", "g6v1q2", "g6v1q3", "g6v2q2", "g6v2q3", "g7v1q3", "g7v2q3"]);
+const supportedDiagrams = new Set(["coord1", "coord2", "speed1", "speed2", "g6v1q2", "g6v1q3", "g6v2q2", "g6v2q3", "g7v1q3", "g7v2q3", "vectors1", "vectors2"]);
 let diagramCount = 0;
 let visualQuestionCount = 0;
 for (const activity of catalog.activities) {
@@ -50,7 +50,7 @@ for (const activity of catalog.activities) {
   }
 }
 if (diagramCount !== supportedDiagrams.size) throw new Error(`Ожидалось ${supportedDiagrams.size} диаграмм, найдено ${diagramCount}.`);
-if (visualQuestionCount !== 14) throw new Error(`Ожидалось 14 заданий с графикой, найдено ${visualQuestionCount}.`);
+if (visualQuestionCount !== 16) throw new Error(`Ожидалось 16 заданий с графикой, найдено ${visualQuestionCount}.`);
 const olympiad = fs.readFileSync(path.join(root, "tasks", "olympiad-physics.html"), "utf8");
 if (/"answerImage"\s*:/.test(olympiad) || /solutions\.html/.test(olympiad)) throw new Error("Скрытые олимпиадные ответы попали в публичный HTML.");
 if (/"problemImage"\s*:\s*"data:image\//.test(olympiad)) throw new Error("Изображения олимпиадных задач должны загружаться отдельно.");
