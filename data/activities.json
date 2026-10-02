@@ -230,6 +230,21 @@
       "order": 57
     },
     {
+      "id": "newton-laws",
+      "title": "Законы Ньютона",
+      "subject": "Тренажёры",
+      "description": "Интерактивный практикум по трём законам Ньютона: теория, задачи, подсказки и разборы.",
+      "url": "tasks/newton-laws.html",
+      "questionCount": 12,
+      "maxPoints": 0,
+      "difficulty": "9 класс",
+      "verificationMode": "visit-only",
+      "cardState": "Практикум",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 58
+    },
+    {
       "id": "olympiad-physics",
       "title": "Олимпиадная физика",
       "subject": "Олимпиада",
