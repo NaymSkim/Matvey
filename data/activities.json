@@ -185,6 +185,21 @@
       "order": 49
     },
     {
+      "id": "gromtseva-sr-11-13",
+      "title": "Самостоятельные работы № 11–13",
+      "subject": "Самостоятельные",
+      "description": "Первый, второй и третий законы Ньютона. Три работы, по два тестовых варианта.",
+      "url": "tasks/gromtseva-sr-11-13.html",
+      "questionCount": 24,
+      "maxPoints": 0,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "visit-only",
+      "cardState": "Практикум",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 50
+    },
+    {
       "id": "accelerated-motion",
       "title": "Прямолинейное равноускоренное движение",
       "subject": "Тренажёры",
