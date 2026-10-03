@@ -208,7 +208,7 @@ olympiad = olympiad.replace("  </style>", `    .portal-access{width:min(1160px,c
     .portal-access a{color:#1d4ed8}
   </style>`);
 olympiad = olympiad.replace("</body>", `<script src="../config.js?v=2"></script><script type="module">
-  import {PhysicsTracker} from "../tracker.js";
+  import {PhysicsTracker} from "../tracker.js?v=3";
   const activityId="olympiad-physics",key=\`physics-entry:\${activityId}\`,entryId=sessionStorage.getItem(key)||crypto.randomUUID();
   sessionStorage.removeItem(key);
   const banner=document.createElement("div");banner.className="portal-access";banner.hidden=true;document.querySelector(".topbar").after(banner);

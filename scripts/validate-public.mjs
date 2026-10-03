@@ -60,7 +60,7 @@ if (olympiadAssetCount !== 365) throw new Error(`Ожидалось 365 изоб
 for (const trainer of ["accelerated-motion.html", "accelerated-motion-oge.html", "curvilinear-motion.html", "oge-formulas.html"]) {
   const html = fs.readFileSync(path.join(root, "tasks", trainer), "utf8");
   if (!/<script\s+src="\.\.\/config\.js\?v=\d+"><\/script>/.test(html)) throw new Error(`В тренажёре ${trainer} не подключены настройки портала.`);
-  if (!/import\(["']\.\.\/tracker\.js["']\)/.test(html)) throw new Error(`В тренажёре ${trainer} не подключён журнал посещений.`);
+  if (!/import\(["']\.\.\/tracker\.js(?:\?v=\d+)?["']\)/.test(html)) throw new Error(`В тренажёре ${trainer} не подключён журнал посещений.`);
 }
 
 const privatePath = path.join(root, "answers.private.json");

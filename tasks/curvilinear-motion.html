@@ -834,7 +834,7 @@
     async function startPortalTrainer() {
       const activityId = "curvilinear-motion";
       try {
-        const { PhysicsTracker } = await import("../tracker.js");
+        const { PhysicsTracker } = await import("../tracker.js?v=3");
         if (new URLSearchParams(location.search).get("preview") === "teacher") {
           await PhysicsTracker.loadTeacherAnswers(activityId);
           state = createState("Преподаватель");
