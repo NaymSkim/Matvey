@@ -175,7 +175,7 @@
     if("ResizeObserver"in window){var timer;new ResizeObserver(function(){if(!board.open)return;clearTimeout(timer);timer=setTimeout(function(){resize(true)},120)}).observe(panel)}
   </script>
 <script src="../config.js?v=2"></script><script type="module">
-  import {PhysicsTracker} from "../tracker.js?v=3";
+  import {PhysicsTracker} from "../tracker.js?v=4";
   const activityId="olympiad-physics",key=`physics-entry:${activityId}`,entryId=sessionStorage.getItem(key)||crypto.randomUUID();
   sessionStorage.removeItem(key);
   const banner=document.createElement("div");banner.className="portal-access";banner.hidden=true;document.querySelector(".topbar").after(banner);

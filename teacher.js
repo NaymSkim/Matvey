@@ -17,6 +17,7 @@ const ui = {
 };
 let client;
 let catalog = [];
+let previewStudentId = "";
 
 async function invoke(name, body = {}) {
   return invokeFunction(name, body);
@@ -41,6 +42,7 @@ const activityHref = (id, questionId = "") => {
   if (!item?.url) return "./";
   const url = new URL(item.url, document.baseURI);
   url.searchParams.set("preview", "teacher");
+  if (previewStudentId) url.searchParams.set("student", previewStudentId);
   if (item.verificationMode === "server-graded" && questionId) {
     url.searchParams.set("question", questionId);
     url.hash = `question-${questionId}`;
@@ -216,6 +218,7 @@ async function loadDashboard() {
   ui.refresh.disabled = true;
   try {
     const data = await invoke("teacher-summary");
+    previewStudentId = data.student?.id || "";
     ui.login.hidden = true; ui.dashboard.hidden = false; ui.signout.hidden = false;
     const studentName = data.student?.name || "";
     document.title = studentName ? `${studentName} · Кабинет преподавателя` : "Кабинет преподавателя";

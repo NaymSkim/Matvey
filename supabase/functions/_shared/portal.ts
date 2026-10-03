@@ -425,6 +425,7 @@ async function teacherSummary(userId: string, input: Record<string, unknown>) {
 async function teacherAnswers(userId: string, input: Record<string, unknown>) {
   await requireTeacher(userId);
   const activityId = assertId(input.activityId, "activityId");
+  const studentId = input.studentId == null || input.studentId === "" ? null : assertUuid(input.studentId, "studentId");
   const { data: activity, error: activityError } = await admin.from("activities").select("id").eq("id", activityId).eq("active", true).maybeSingle();
   if (activityError) throw activityError;
   if (!activity) throw new PortalError("Работа не найдена.", 404);
@@ -434,8 +435,42 @@ async function teacherAnswers(userId: string, input: Record<string, unknown>) {
     .order("variant_id")
     .order("question_id");
   if (error) throw error;
+  let student: { id: string; display_name: string } | null = null;
+  let attempts: Array<Record<string, unknown>> = [];
+  if (studentId) {
+    const { data: studentRow, error: studentError } = await admin.from("students").select("id, display_name").eq("id", studentId).maybeSingle();
+    if (studentError) throw studentError;
+    if (!studentRow) throw new PortalError("Ученик не найден.", 404);
+    student = studentRow;
+    const { data: runs, error: runsError } = await admin.from("activity_runs").select("id, variant_id, run_no").eq("student_id", studentId).eq("activity_id", activityId);
+    if (runsError) throw runsError;
+    const runById = new Map((runs || []).map((run) => [run.id, run]));
+    const runIds = [...runById.keys()];
+    if (runIds.length) {
+      const { data: attemptRows, error: attemptsError } = await admin.from("answer_attempts")
+        .select("run_id, question_id, answer_json, graded, correct, points, created_at")
+        .in("run_id", runIds)
+        .order("created_at", { ascending: false });
+      if (attemptsError) throw attemptsError;
+      attempts = (attemptRows || []).map((attempt) => {
+        const run = runById.get(attempt.run_id);
+        return {
+          variantId: run?.variant_id,
+          runNo: Number(run?.run_no),
+          questionId: attempt.question_id,
+          answer: attempt.answer_json,
+          graded: attempt.graded,
+          correct: attempt.correct,
+          points: Number(attempt.points),
+          createdAt: attempt.created_at,
+        };
+      });
+    }
+  }
   return {
     activityId,
+    student: student ? { id: student.id, name: student.display_name } : null,
+    attempts,
     answers: (data || []).map((item) => ({
       variantId: item.variant_id,
       questionId: item.question_id,

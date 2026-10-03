@@ -4,6 +4,7 @@ const params = new URLSearchParams(location.search);
 const activityId = params.get("activity") || "";
 const teacherPreview = params.get("preview") === "teacher";
 const previewQuestionId = params.get("question") || location.hash.replace(/^#question-/, "");
+const previewStudentId = params.get("student") || "";
 const ui = {
   subject: document.querySelector("#task-subject"), title: document.querySelector("#task-title"),
   description: document.querySelector("#task-description"), variants: document.querySelector("#variant-picker"),
@@ -22,6 +23,7 @@ let serverOffsetMs = 0;
 let autoSubmitting = false;
 const answered = new Map();
 const teacherAnswers = new Map();
+const teacherAttempts = new Map();
 
 const taskNow = () => Date.now() + serverOffsetMs;
 const formatDate = (value) => new Intl.DateTimeFormat("ru-RU", { dateStyle: "long", timeStyle: "short" }).format(new Date(value));
@@ -242,6 +244,50 @@ function appendTeacherAnswer(card, question) {
   card.append(panel);
 }
 
+function displayAnswer(question, value) {
+  if (value == null || value === "") return "Ответ не указан";
+  if (question.kind === "choice") {
+    const option = question.options?.[Number(value) - 1];
+    return option == null ? `Вариант ${value}` : `Вариант ${value}: ${typeof option === "object" ? option.label : option}`;
+  }
+  if (question.kind === "graph") return `График ${value}`;
+  if (question.kind === "match" && Array.isArray(value)) {
+    return value.map((selected, index) => {
+      const option = question.options?.find((item, optionIndex) => String(typeof item === "object" ? item.value : optionIndex + 1) === String(selected));
+      return `${question.rows?.[index] || index + 1} — ${typeof option === "object" ? option.label : option || selected}`;
+    }).join("; ");
+  }
+  if (Array.isArray(value)) return value.join(" ");
+  return `${value}${question.unit ? ` ${question.unit}` : ""}`;
+}
+
+function showStudentChoice(control, question, attempt) {
+  if (!attempt) return;
+  if (question.kind === "choice" || question.kind === "graph") {
+    const input = [...control.querySelectorAll("input")].find((item) => item.value === String(attempt.answer));
+    if (input) input.checked = true;
+  } else if (question.kind === "match" && Array.isArray(attempt.answer)) {
+    [...control.querySelectorAll("select")].forEach((select, index) => { select.value = String(attempt.answer[index] ?? ""); });
+  } else if (question.kind === "formula") {
+    const output = control.querySelector("output");
+    const tokens = Array.isArray(attempt.answer) ? attempt.answer : [];
+    output.dataset.tokens = JSON.stringify(tokens);
+    output.textContent = tokens.join(" ");
+  } else if (question.kind === "ungraded-text") control.querySelector("textarea").value = String(attempt.answer ?? "");
+  else control.querySelector("input").value = String(attempt.answer ?? "");
+}
+
+function appendStudentAnswer(card, question, attempt) {
+  const panel = document.createElement("div");
+  panel.className = `teacher-student-answer${attempt?.graded && !attempt.correct ? " wrong" : ""}`;
+  const label = document.createElement("strong");
+  label.textContent = studentName ? `Ответ ученика: ${studentName}` : "Ответ ученика";
+  const value = document.createElement("div");
+  value.textContent = attempt ? `${displayAnswer(question, attempt.answer)}${attempt.graded ? attempt.correct ? " · верно" : " · неверно" : ""}` : "На этот вопрос ответа пока нет.";
+  panel.append(label, value);
+  card.append(panel);
+}
+
 function renderQuestions(questions) {
   ui.list.replaceChildren(); answered.clear();
   questions.forEach((question, index) => {
@@ -259,8 +305,11 @@ function renderQuestions(questions) {
     const control = controlFor(question); card.querySelector(".question-control").append(control);
     const check = card.querySelector(".check-answer");
     if (teacherPreview) {
+      const attempt = teacherAttempts.get(`${selectedVariant.id}/${question.id}`);
+      showStudentChoice(control, question, attempt);
       check.remove();
       control.querySelectorAll("input,select,button,textarea").forEach((element) => { element.disabled = true; });
+      appendStudentAnswer(card, question, attempt);
       appendTeacherAnswer(card, question);
     } else {
       if (!question.scored) check.textContent = "Сохранить ответ";
@@ -299,7 +348,7 @@ function renderTeacherPreview(variantId) {
   ui.submitPanel.hidden = true;
   ui.banner.hidden = false;
   const heading = document.createElement("strong"); heading.textContent = "Просмотр преподавателя";
-  const description = document.createElement("span"); description.textContent = `${selectedVariant.title} · ответы здесь не отправляются`;
+  const description = document.createElement("span"); description.textContent = `${selectedVariant.title}${studentName ? ` · ответы ученика ${studentName}` : ""} · изменения не сохраняются`;
   ui.banner.replaceChildren(heading, description);
   renderQuestions(selectedVariant.questions);
   focusPreviewQuestion();
@@ -473,8 +522,13 @@ async function init() {
   ui.subject.textContent = activity.subject; ui.title.textContent = activity.title; ui.description.textContent = activity.description;
   if (teacherPreview) {
     document.querySelector(".brand small").textContent = "Просмотр";
-    const answerData = await PhysicsTracker.loadTeacherAnswers(activity.id);
+    const answerData = await PhysicsTracker.loadTeacherAnswers(activity.id, previewStudentId);
+    studentName = answerData.student?.name || "";
     answerData.answers.forEach((answer) => teacherAnswers.set(`${answer.variantId}/${answer.questionId}`, answer));
+    answerData.attempts.forEach((attempt) => {
+      const key = `${attempt.variantId}/${attempt.questionId}`;
+      if (!teacherAttempts.has(key)) teacherAttempts.set(key, attempt);
+    });
     const targetVariant = content.variants.find((variant) => variant.questions.some((question) => question.id === previewQuestionId)) || content.variants[0];
     renderVariants();
     if (content.variants.length > 1) renderTeacherPreview(targetVariant.id);
