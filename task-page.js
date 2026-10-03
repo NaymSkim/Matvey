@@ -21,6 +21,7 @@ let taskAccess = { isOpen: true, manuallyClosed: false, deadlineExpired: false, 
 let serverOffsetMs = 0;
 let autoSubmitting = false;
 const answered = new Map();
+const teacherAnswers = new Map();
 
 const taskNow = () => Date.now() + serverOffsetMs;
 const formatDate = (value) => new Intl.DateTimeFormat("ru-RU", { dateStyle: "long", timeStyle: "short" }).format(new Date(value));
@@ -202,6 +203,45 @@ function answerFrom(control, question) {
   return control.querySelector("input")?.value.trim().replace(",", ".") || "";
 }
 
+function teacherAnswerText(question, answer) {
+  if (!answer || answer.matcherType === "ungraded") return "Открытый вопрос без автоматического ключа.";
+  const expected = answer.expected;
+  if (answer.matcherType === "choice") {
+    const number = Number(expected);
+    const option = question.options?.[number - 1];
+    return option == null ? `Вариант ${number}` : `Вариант ${number}: ${typeof option === "object" ? option.label : option}`;
+  }
+  if (answer.matcherType === "match" && Array.isArray(expected)) {
+    return expected.map((value, index) => {
+      const option = question.options?.find((item, optionIndex) => String(typeof item === "object" ? item.value : optionIndex + 1) === String(value));
+      const label = typeof option === "object" ? option.label : option;
+      return `${question.rows?.[index] || index + 1} — ${label || value}`;
+    }).join("; ");
+  }
+  if (Array.isArray(expected)) return expected.join(" ");
+  const unit = question.unit ? ` ${question.unit}` : "";
+  const tolerance = answer.matcherType === "numeric" && Number(answer.tolerance) > 0 ? ` (допуск ±${answer.tolerance})` : "";
+  return `${expected ?? "—"}${unit}${tolerance}`;
+}
+
+function appendTeacherAnswer(card, question) {
+  const answer = teacherAnswers.get(`${selectedVariant.id}/${question.id}`);
+  const panel = document.createElement("div");
+  panel.className = "teacher-answer";
+  const label = document.createElement("strong");
+  label.textContent = answer?.matcherType === "ungraded" ? "Проверка преподавателем" : "Правильный ответ";
+  const value = document.createElement("div");
+  value.textContent = teacherAnswerText(question, answer);
+  panel.append(label, value);
+  if (answer?.solutionHtml) {
+    const solution = document.createElement("div");
+    solution.className = "teacher-solution";
+    solution.append(safeSolutionFragment(answer.solutionHtml));
+    panel.append(solution);
+  }
+  card.append(panel);
+}
+
 function renderQuestions(questions) {
   ui.list.replaceChildren(); answered.clear();
   questions.forEach((question, index) => {
@@ -221,6 +261,7 @@ function renderQuestions(questions) {
     if (teacherPreview) {
       check.remove();
       control.querySelectorAll("input,select,button,textarea").forEach((element) => { element.disabled = true; });
+      appendTeacherAnswer(card, question);
     } else {
       if (!question.scored) check.textContent = "Сохранить ответ";
       check.addEventListener("click", async () => {
@@ -432,9 +473,11 @@ async function init() {
   ui.subject.textContent = activity.subject; ui.title.textContent = activity.title; ui.description.textContent = activity.description;
   if (teacherPreview) {
     document.querySelector(".brand small").textContent = "Просмотр";
-    renderVariants();
+    const answerData = await PhysicsTracker.loadTeacherAnswers(activity.id);
+    answerData.answers.forEach((answer) => teacherAnswers.set(`${answer.variantId}/${answer.questionId}`, answer));
     const targetVariant = content.variants.find((variant) => variant.questions.some((question) => question.id === previewQuestionId)) || content.variants[0];
-    renderTeacherPreview(targetVariant.id);
+    renderVariants();
+    if (content.variants.length > 1) renderTeacherPreview(targetVariant.id);
     return;
   }
   const entryKey = `physics-entry:${activity.id}`;

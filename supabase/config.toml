@@ -21,5 +21,7 @@ verify_jwt = false
 verify_jwt = false
 [functions.teacher-summary]
 verify_jwt = false
+[functions.teacher-answers]
+verify_jwt = false
 [functions.teacher-admin]
 verify_jwt = false

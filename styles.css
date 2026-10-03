@@ -229,6 +229,9 @@ td { font-size: .88rem; }
 .question-feedback.ok { color: var(--green); }
 .question-feedback.bad { color: var(--danger); }
 .question-feedback.queued { color: var(--blue); }
+.teacher-answer { margin-top: 16px; padding: 14px 16px; border-left: 4px solid var(--green); border-radius: 4px; background: #edf8f1; color: #174c32; }
+.teacher-answer strong { display: block; margin-bottom: 4px; }
+.teacher-answer .teacher-solution { margin-top: 9px; color: var(--ink); font-weight: 500; }
 .choice-grid { display: grid; gap: 8px; }
 .answer-choice { position: relative; display: block; cursor: pointer; }
 .answer-choice input { position: absolute; opacity: 0; }

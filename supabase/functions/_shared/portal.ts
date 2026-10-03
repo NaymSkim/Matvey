@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 type Operation =
   | "claim-student" | "student-progress" | "open-activity" | "start-run"
   | "submit-answer" | "submit-run" | "released-solutions"
-  | "teacher-summary" | "teacher-admin";
+  | "teacher-summary" | "teacher-answers" | "teacher-admin";
 
 class PortalError extends Error {
   constructor(message: string, readonly status = 400) { super(message); }
@@ -422,6 +422,32 @@ async function teacherSummary(userId: string, input: Record<string, unknown>) {
   };
 }
 
+async function teacherAnswers(userId: string, input: Record<string, unknown>) {
+  await requireTeacher(userId);
+  const activityId = assertId(input.activityId, "activityId");
+  const { data: activity, error: activityError } = await admin.from("activities").select("id").eq("id", activityId).eq("active", true).maybeSingle();
+  if (activityError) throw activityError;
+  if (!activity) throw new PortalError("Работа не найдена.", 404);
+  const { data, error } = await admin.from("answer_keys")
+    .select("variant_id, question_id, matcher_type, expected_json, tolerance, points, solution_html")
+    .eq("activity_id", activityId)
+    .order("variant_id")
+    .order("question_id");
+  if (error) throw error;
+  return {
+    activityId,
+    answers: (data || []).map((item) => ({
+      variantId: item.variant_id,
+      questionId: item.question_id,
+      matcherType: item.matcher_type,
+      expected: item.expected_json,
+      tolerance: Number(item.tolerance),
+      points: Number(item.points),
+      solutionHtml: item.solution_html,
+    })),
+  };
+}
+
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 function newCode() {
   const bytes = crypto.getRandomValues(new Uint8Array(8));
@@ -508,6 +534,7 @@ export async function handle(req: Request, operation: Operation) {
     else if (operation === "submit-run") result = await submitRun(user.id, input);
     else if (operation === "released-solutions") result = await releasedSolutions(user.id, input);
     else if (operation === "teacher-summary") result = await teacherSummary(user.id, input);
+    else if (operation === "teacher-answers") result = await teacherAnswers(user.id, input);
     else result = await teacherAdmin(user.id, input);
     return json(req, result);
   } catch (error) {

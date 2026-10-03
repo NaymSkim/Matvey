@@ -84,6 +84,7 @@ export const PhysicsTracker = {
   submitRun: (runId) => invoke("submit-run", { runId }),
   loadProgress: (activityId) => invoke("student-progress", activityId ? { activityId } : {}),
   loadReleasedSolutions: (activityId, variantId = "default") => invoke("released-solutions", { activityId, variantId }),
+  loadTeacherAnswers: (activityId) => invoke("teacher-answers", { activityId }),
   flushPending,
   discardPending,
 };

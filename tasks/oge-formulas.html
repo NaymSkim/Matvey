@@ -4131,6 +4131,16 @@ async function startPortalFormulaTrainer() {
   }
 
   try {
+    if (new URLSearchParams(location.search).get('preview') === 'teacher') {
+      const { PhysicsTracker } = await import('../tracker.js');
+      await PhysicsTracker.loadTeacherAnswers(activityId);
+      document.getElementById('studentChip').textContent = 'Преподаватель';
+      document.getElementById('heroTitle').innerHTML = 'Просмотр <span>формул</span>';
+      gate.hidden = true;
+      shell.hidden = false;
+      startFormulaPreview();
+      return;
+    }
     const { PhysicsTracker } = await import('../tracker.js');
     const progress = await PhysicsTracker.loadProgress(activityId);
     const studentName = progress.student?.name || '';

@@ -40,12 +40,10 @@ const activityHref = (id, questionId = "") => {
   const item = activityItem(id);
   if (!item?.url) return "./";
   const url = new URL(item.url, document.baseURI);
-  if (item.verificationMode === "server-graded") {
-    url.searchParams.set("preview", "teacher");
-    if (questionId) {
-      url.searchParams.set("question", questionId);
-      url.hash = `question-${questionId}`;
-    }
+  url.searchParams.set("preview", "teacher");
+  if (item.verificationMode === "server-graded" && questionId) {
+    url.searchParams.set("question", questionId);
+    url.hash = `question-${questionId}`;
   }
   return url.href;
 };

@@ -803,6 +803,17 @@
       if (channel) channel.addEventListener("message", renderStats);
     }
 
+    function showTeacherAnswers() {
+      TASKS.forEach(task => {
+        const feedback = document.getElementById("feedback-" + task.id);
+        feedback.className = "feedback show good";
+        feedback.innerHTML = `<strong>Правильный ответ:</strong> ${escapeHtml(answerLabel(task, task.answer))}`;
+        document.getElementById("solution-" + task.id).classList.add("show");
+        document.querySelectorAll(`[data-task="${task.id}"], [data-check="${task.id}"], [data-numeric="${task.id}"]`).forEach(control => { control.disabled = true; });
+        if (task.type === "choice") document.querySelector(`[data-task="${task.id}"][data-choice="${task.answer}"]`)?.classList.add("selected");
+      });
+    }
+
     function showPortalError(error) {
       document.getElementById("statsView").hidden = true;
       document.getElementById("studentView").hidden = true;
@@ -824,6 +835,13 @@
       const activityId = "curvilinear-motion";
       try {
         const { PhysicsTracker } = await import("../tracker.js");
+        if (new URLSearchParams(location.search).get("preview") === "teacher") {
+          await PhysicsTracker.loadTeacherAnswers(activityId);
+          state = createState("Преподаватель");
+          startStudentMode();
+          showTeacherAnswers();
+          return;
+        }
         const progress = await PhysicsTracker.loadProgress(activityId);
         const studentName = progress.student?.name || "";
         const access = progress.activities?.find(item => item.activityId === activityId);
