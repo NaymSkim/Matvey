@@ -168,6 +168,10 @@ footer a { color: var(--blue); }
 .activity-access-list { display: grid; gap: 10px; }
 .activity-access-row { padding: 17px; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); }
 .activity-access-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.teacher-task-link { color: var(--ink); font-weight: 750; text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); text-underline-offset: 4px; }
+.teacher-task-link:hover { color: var(--accent-dark); text-decoration-thickness: 2px; }
+.teacher-task-link::after { content: " ↗"; color: var(--accent); font-size: .82em; }
+.teacher-task-link.question { font-weight: 650; white-space: nowrap; }
 .access-status { padding: 5px 9px; border-radius: 999px; font-size: .72rem; font-weight: 800; }
 .access-status.open { background: var(--green-soft); color: var(--green); }
 .access-status.closed { background: #fbe5e2; color: var(--danger); }
@@ -206,6 +210,7 @@ td { font-size: .88rem; }
 .run-banner span { color: var(--muted); }
 .question-list { display: grid; gap: 16px; margin-top: 30px; }
 .question-card { padding: 24px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.question-card.teacher-focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent); }
 .question-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 20px; color: var(--muted); font-size: .77rem; font-weight: 780; letter-spacing: .07em; text-transform: uppercase; }
 .question-card h2 { margin-bottom: 14px; font: 400 1.45rem/1.25 Georgia, serif; }
 .question-prompt { color: var(--muted); white-space: pre-line; }

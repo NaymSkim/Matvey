@@ -2,6 +2,8 @@ import { PhysicsTracker } from "./tracker.js";
 
 const params = new URLSearchParams(location.search);
 const activityId = params.get("activity") || "";
+const teacherPreview = params.get("preview") === "teacher";
+const previewQuestionId = params.get("question") || location.hash.replace(/^#question-/, "");
 const ui = {
   subject: document.querySelector("#task-subject"), title: document.querySelector("#task-title"),
   description: document.querySelector("#task-description"), variants: document.querySelector("#variant-picker"),
@@ -205,6 +207,7 @@ function renderQuestions(questions) {
   questions.forEach((question, index) => {
     const card = ui.template.content.firstElementChild.cloneNode(true);
     card.dataset.questionId = question.id;
+    card.id = `question-${question.id}`;
     card.querySelector(".question-number").textContent = `Задание ${index + 1}`;
     card.querySelector(".question-points").textContent = question.scored ? `${question.points} балл${question.points === 1 ? "" : "а"}` : "Без оценки";
     card.querySelector("h2").textContent = question.title || question.prompt;
@@ -215,8 +218,12 @@ function renderQuestions(questions) {
     }
     const control = controlFor(question); card.querySelector(".question-control").append(control);
     const check = card.querySelector(".check-answer");
-    if (!question.scored) check.textContent = "Сохранить ответ";
-    check.addEventListener("click", async () => {
+    if (teacherPreview) {
+      check.remove();
+      control.querySelectorAll("input,select,button,textarea").forEach((element) => { element.disabled = true; });
+    } else {
+      if (!question.scored) check.textContent = "Сохранить ответ";
+      check.addEventListener("click", async () => {
         if (!currentAccess().isOpen) { updateDeadline(); return; }
         const answer = answerFrom(control, question);
         const feedback = card.querySelector(".question-feedback");
@@ -230,11 +237,35 @@ function renderQuestions(questions) {
           answered.set(question.id, result); control.querySelectorAll("input,select,button,textarea").forEach((element) => element.disabled = true);
         } catch (error) { check.disabled = false; feedback.textContent = error.message; feedback.className = "question-feedback bad"; }
       });
+    }
     ui.list.append(card);
   });
 }
 
+function focusPreviewQuestion() {
+  if (!teacherPreview || !previewQuestionId) return;
+  const target = document.getElementById(`question-${previewQuestionId}`);
+  if (!target) return;
+  target.classList.add("teacher-focus");
+  requestAnimationFrame(() => target.scrollIntoView({ behavior: "smooth", block: "center" }));
+}
+
+function renderTeacherPreview(variantId) {
+  selectedVariant = content.variants.find((variant) => variant.id === variantId) || content.variants[0];
+  document.querySelectorAll(".variant-button").forEach((button) => button.classList.toggle("active", button.dataset.variant === selectedVariant.id));
+  ui.result.hidden = true;
+  ui.solutions.hidden = true;
+  ui.submitPanel.hidden = true;
+  ui.banner.hidden = false;
+  const heading = document.createElement("strong"); heading.textContent = "Просмотр преподавателя";
+  const description = document.createElement("span"); description.textContent = `${selectedVariant.title} · ответы здесь не отправляются`;
+  ui.banner.replaceChildren(heading, description);
+  renderQuestions(selectedVariant.questions);
+  focusPreviewQuestion();
+}
+
 function selectVariant(variantId) {
+  if (teacherPreview) { renderTeacherPreview(variantId); return; }
   if (!currentAccess().isOpen && !currentRun) { renderClosedState(); return; }
   selectedVariant = content.variants.find((variant) => variant.id === variantId);
   document.querySelectorAll(".variant-button").forEach((button) => button.classList.toggle("active", button.dataset.variant === variantId));
@@ -399,6 +430,13 @@ async function init() {
   if (!activity) throw new Error("Работа отсутствует в каталоге.");
   document.title = `${activity.title} · Физика`;
   ui.subject.textContent = activity.subject; ui.title.textContent = activity.title; ui.description.textContent = activity.description;
+  if (teacherPreview) {
+    document.querySelector(".brand small").textContent = "Просмотр";
+    renderVariants();
+    const targetVariant = content.variants.find((variant) => variant.questions.some((question) => question.id === previewQuestionId)) || content.variants[0];
+    renderTeacherPreview(targetVariant.id);
+    return;
+  }
   const entryKey = `physics-entry:${activity.id}`;
   const entryId = sessionStorage.getItem(entryKey) || crypto.randomUUID();
   sessionStorage.removeItem(entryKey);

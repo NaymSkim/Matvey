@@ -29,7 +29,36 @@ const localDateTimeValue = (value) => {
   const local = new Date(parsed.getTime() - parsed.getTimezoneOffset() * 60_000);
   return local.toISOString().slice(0, 16);
 };
-const activityName = (id) => catalog.find((item) => item.id === id)?.title || id;
+const activityItem = (id) => catalog.find((item) => item.id === id);
+const activityName = (id) => activityItem(id)?.title || id;
+const questionLabel = (id) => {
+  const match = /^(?:v(\d+)-)?q(\d+)$/.exec(id || "");
+  if (!match) return id || "Открыть вопрос";
+  return `${match[1] ? `Вариант ${match[1]} · ` : ""}задание ${match[2]}`;
+};
+const activityHref = (id, questionId = "") => {
+  const item = activityItem(id);
+  if (!item?.url) return "./";
+  const url = new URL(item.url, document.baseURI);
+  if (item.verificationMode === "server-graded") {
+    url.searchParams.set("preview", "teacher");
+    if (questionId) {
+      url.searchParams.set("question", questionId);
+      url.hash = `question-${questionId}`;
+    }
+  }
+  return url.href;
+};
+function activityLink(id, label = activityName(id), questionId = "") {
+  const link = document.createElement("a");
+  link.className = `teacher-task-link${questionId ? " question" : ""}`;
+  link.href = activityHref(id, questionId);
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.textContent = label;
+  link.title = questionId ? `Открыть ${questionLabel(questionId)}` : "Открыть работу";
+  return link;
+}
 const runLabel = (run) => run ? (run.grade == null ? "Ответы сохранены · без оценки" : `${run.score}/${run.maxPoints} · ${run.percent}% · ${run.grade}`) : "—";
 const runsLabel = (runs, runNo) => {
   const selected = runs.filter((run) => run.runNo === runNo);
@@ -103,8 +132,7 @@ function renderActivityAccess(settings, studentName = "") {
     row.className = "activity-access-row";
     const heading = document.createElement("div");
     heading.className = "activity-access-heading";
-    const title = document.createElement("strong");
-    title.textContent = activityName(item.activityId);
+    const title = activityLink(item.activityId);
     const status = document.createElement("span");
     status.className = `access-status ${item.isOpen ? "open" : "closed"}`;
     status.textContent = item.manuallyClosed ? "Закрыта" : item.deadlineExpired ? "Срок истёк" : "Открыта";
@@ -153,7 +181,10 @@ function renderResults(rows, student) {
   ui.results.replaceChildren();
   rows.forEach((item) => {
     const tr = document.createElement("tr");
-    const values = [activityName(item.activityId), `${item.visitCount} · ${date(item.lastVisitAt)}`, runsLabel(item.runs, 1), runsLabel(item.runs, 2), item.bestRun ? `${item.bestRun.variantId}: ${runLabel(item.bestRun)}` : "—"];
+    const activityCell = document.createElement("td");
+    activityCell.append(activityLink(item.activityId));
+    tr.append(activityCell);
+    const values = [`${item.visitCount} · ${date(item.lastVisitAt)}`, runsLabel(item.runs, 1), runsLabel(item.runs, 2), item.bestRun ? `${item.bestRun.variantId}: ${runLabel(item.bestRun)}` : "—"];
     values.forEach((value) => { const td = document.createElement("td"); td.textContent = value; tr.append(td); });
     const release = document.createElement("td");
     const releaseButton = button(item.solutionsReleasedAt ? "Открыты" : "Открыть", "secondary-button", async () => {
@@ -171,8 +202,14 @@ function renderAttempts(attempts) {
   ui.attempts.replaceChildren();
   attempts.forEach((item) => {
     const tr = document.createElement("tr");
-    const values = [date(item.createdAt), activityName(item.activityId), item.questionId, item.answerPreview, !item.graded ? "Открытый ответ" : item.correct ? `Верно · +${item.points}` : "Неверно"];
-    values.forEach((value, index) => { const td = document.createElement("td"); td.textContent = value; if (index === 4 && item.graded) td.className = item.correct ? "result-ok" : "result-bad"; tr.append(td); });
+    const timeCell = document.createElement("td"); timeCell.textContent = date(item.createdAt);
+    const activityCell = document.createElement("td"); activityCell.append(activityLink(item.activityId));
+    const questionCell = document.createElement("td"); questionCell.append(activityLink(item.activityId, questionLabel(item.questionId), item.questionId));
+    const answerCell = document.createElement("td"); answerCell.textContent = item.answerPreview;
+    const resultCell = document.createElement("td");
+    resultCell.textContent = !item.graded ? "Открытый ответ" : item.correct ? `Верно · +${item.points}` : "Неверно";
+    if (item.graded) resultCell.className = item.correct ? "result-ok" : "result-bad";
+    tr.append(timeCell, activityCell, questionCell, answerCell, resultCell);
     ui.attempts.append(tr);
   });
 }
