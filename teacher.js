@@ -1,4 +1,5 @@
 import { APP_CONFIG, getSupabaseClient, invokeFunction } from "./supabase-client.js";
+import { summarizeIndependent, summarizePractice, summarizeStandalone } from "./practice-stats.js";
 
 const ui = {
   login: document.querySelector("#teacher-login"), dashboard: document.querySelector("#teacher-dashboard"),
@@ -8,6 +9,10 @@ const ui = {
   activityAccess: document.querySelector("#activity-access-list"),
   studentAdmin: document.querySelector("#student-admin"), results: document.querySelector("#results-body"),
   attempts: document.querySelector("#attempts-body"), noResults: document.querySelector("#no-results"),
+  practiceSummary: document.querySelector("#practice-summary"), practiceBody: document.querySelector("#practice-body"),
+  practiceStatus: document.querySelector("#practice-status"), independentSummary: document.querySelector("#independent-summary"),
+  independentBody: document.querySelector("#independent-body"), independentStatus: document.querySelector("#independent-status"),
+  standaloneBody: document.querySelector("#standalone-body"),
   adminDialog: document.querySelector("#student-admin-dialog"), adminForm: document.querySelector("#student-admin-form"),
   adminError: document.querySelector("#student-admin-error"), codeDialog: document.querySelector("#code-dialog"),
   dashboardTitle: document.querySelector("#teacher-dashboard-title"), accessCopy: document.querySelector("#activity-access-copy"),
@@ -214,6 +219,88 @@ function renderAttempts(attempts) {
   });
 }
 
+async function loadPracticeEvents(studentId) {
+  if (!studentId) return [];
+  const rows = [];
+  for (let from = 0; ; from += 500) {
+    const { data, error } = await client.from("visits").select("path, visited_at")
+      .eq("student_id", studentId).is("activity_id", null)
+      .like("path", "%/tasks/%?practice=%")
+      .order("visited_at", { ascending: false }).range(from, from + 499);
+    if (error) throw error;
+    rows.push(...(data || []));
+    if (!data || data.length < 500) break;
+  }
+  return rows;
+}
+
+function renderPractice(stats) {
+  ui.practiceSummary.replaceChildren(
+    summaryCard("Открытий", String(stats.opens)),
+    summaryCard("Решено задач", `${stats.solved} / 30`),
+    summaryCard("Проверок", String(stats.checks)),
+    summaryCard("Ошибок", String(stats.errors)),
+  );
+  ui.practiceBody.replaceChildren();
+  const topics = ["Свободное падение", "Всемирное тяготение", "Ускорение свободного падения"];
+  stats.variants.forEach((group) => {
+    const tr = document.createElement("tr");
+    const topic = document.createElement("td");
+    const link = activityLink("free-fall-gravity", `${topics[group.work - 1]} · вариант ${group.variant}`);
+    link.href = `${activityHref("free-fall-gravity")}#variant-${group.work}-${group.variant}`;
+    topic.append(link);
+    tr.append(topic);
+    [`${group.solved} / 5`, group.checks, group.errors, date(group.lastAt)].forEach((value) => {
+      const cell = document.createElement("td"); cell.textContent = String(value); tr.append(cell);
+    });
+    ui.practiceBody.append(tr);
+  });
+}
+
+function renderIndependent(rows, attempts, standalone) {
+  const works = summarizeIndependent(catalog, rows, attempts);
+  const completed = works.filter((work) => work.status === "Сдана");
+  const inProgress = works.filter((work) => work.status === "В работе");
+  const graded = completed.filter((work) => work.bestRun?.grade != null);
+  const grade = graded.length ? (graded.reduce((sum, work) => sum + work.bestRun.grade, 0) / graded.length).toFixed(1).replace(".0", "") : "—";
+  ui.independentSummary.replaceChildren(
+    summaryCard("Сдано", `${completed.length} / ${works.length}`),
+    summaryCard("В работе", String(inProgress.length)),
+    summaryCard("Средняя оценка", grade),
+    summaryCard("Верных ответов", String(works.reduce((sum, work) => sum + work.correct, 0))),
+    summaryCard("СР 14–18: решено", `${standalone.works.reduce((sum, work) => sum + work.solved[0] + work.solved[1], 0)} / 32`),
+  );
+  ui.independentBody.replaceChildren();
+  works.forEach((work) => {
+    const tr = document.createElement("tr");
+    const title = document.createElement("td"); title.append(activityLink(work.id, work.title)); tr.append(title);
+    [work.status, work.visits, `${work.correct} / ${work.checked}`, runLabel(work.bestRun), date(work.lastAt)].forEach((value) => {
+      const cell = document.createElement("td"); cell.textContent = String(value); tr.append(cell);
+    });
+    ui.independentBody.append(tr);
+  });
+  ui.standaloneBody.replaceChildren();
+  const titles = {
+    14: "Свободное падение тел", 15: "Движение вверх и невесомость",
+    16: "Всемирное тяготение", 17: "Ускорение свободного падения", 18: "Сила тяжести",
+  };
+  standalone.works.forEach((work) => {
+    const tr = document.createElement("tr");
+    const title = document.createElement("td");
+    const link = document.createElement("a");
+    link.className = "teacher-task-link";
+    link.href = new URL(`tasks/gromtseva-sr-${work.number}.html`, document.baseURI).href;
+    link.target = "_blank"; link.rel = "noopener";
+    link.textContent = `СР № ${work.number} · ${titles[work.number]}`;
+    title.append(link); tr.append(title);
+    const total = work.number === 18 ? 4 : 3;
+    [work.visits, `1: ${work.solved[0]}/${total} · 2: ${work.solved[1]}/${total}`, work.checks, work.errors, date(work.lastAt)].forEach((value) => {
+      const cell = document.createElement("td"); cell.textContent = String(value); tr.append(cell);
+    });
+    ui.standaloneBody.append(tr);
+  });
+}
+
 async function loadDashboard() {
   ui.refresh.disabled = true;
   try {
@@ -230,12 +317,28 @@ async function loadDashboard() {
     ui.attemptsTitle.textContent = studentName ? `${studentName}: ответы` : "Попытки ответов";
     ui.noResults.textContent = studentName ? `${studentName} пока не сдавал работы.` : "Результатов пока нет.";
     ui.meta.textContent = `Обновлено ${date(new Date().toISOString())}`;
+    let practice = summarizePractice([]);
+    let standalone = summarizeStandalone([]);
+    ui.practiceStatus.textContent = data.student ? "Загружаем проверки тренажёра…" : "Статистика появится после создания ученика.";
+    ui.independentStatus.textContent = "";
+    if (data.student) {
+      try {
+        const events = await loadPracticeEvents(data.student.id);
+        practice = summarizePractice(events);
+        standalone = summarizeStandalone(events);
+        ui.practiceStatus.textContent = practice.checks ? "Учитываются проверки, сделанные после входа ученика в портал." : "Проверок пока нет. Ученик должен войти в портал перед решением.";
+      } catch {
+        ui.practiceStatus.textContent = "Не удалось загрузить проверки тренажёра. Повторите обновление позже.";
+        ui.independentStatus.textContent = "Проверки СР № 14–18 пока не загрузились. Данные по СР № 1–13 доступны ниже.";
+      }
+    }
     ui.summaries.replaceChildren(
       summaryCard("Ученик", studentName || "—"),
-      summaryCard("Посещений", String(data.totalVisits || 0)),
+      summaryCard("Посещений", String(Math.max(0, (data.totalVisits || 0) - practice.checks - standalone.checkCount))),
       summaryCard("Сдано работ", String(data.submittedRuns || 0)),
       summaryCard("Средняя оценка", data.averageGrade ? String(data.averageGrade) : "—"),
     );
+    renderPractice(practice); renderIndependent(data.activities || [], data.attempts || [], standalone);
     renderActivityAccess(data.activitySettings || [], studentName); renderStudent(data.student); renderResults(data.activities || [], data.student); renderAttempts(data.attempts || []);
   } finally { ui.refresh.disabled = false; }
 }

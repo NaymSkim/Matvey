@@ -160,6 +160,11 @@ footer a { color: var(--blue); }
 .summary-card { padding: 21px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
 .summary-card span { color: var(--muted); font-size: .78rem; }
 .summary-card strong { display: block; margin-top: 7px; font: 400 2.2rem Georgia, serif; }
+.compact-stats { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 18px; }
+.compact-stats .summary-card { min-width: 150px; padding: 14px 17px; background: var(--paper); }
+.compact-stats .summary-card strong { font-size: 1.5rem; }
+.dashboard-note { margin: -4px 0 14px; color: var(--muted); font-size: .82rem; }
+.subsection-title { margin: 27px 0 13px; font: 400 1.35rem Georgia, serif; }
 .panel { margin-top: 18px; padding: 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
 .panel-head { margin-bottom: 18px; }
 .panel-head .eyebrow { margin-bottom: 5px; }

@@ -78,7 +78,7 @@ async function submitAnswer(runId, questionId, answer, attemptId = crypto.random
 }
 
 export const PhysicsTracker = {
-  openActivity: (activityId, entryId = crypto.randomUUID()) => invoke("open-activity", { activityId, entryId, path: location.pathname + location.search }),
+  openActivity: (activityId, entryId = crypto.randomUUID(), path = location.pathname + location.search) => invoke("open-activity", { activityId, entryId, path }),
   startRun: (activityId, variantId = "default") => invoke("start-run", { activityId, variantId }),
   submitAnswer,
   submitRun: (runId) => invoke("submit-run", { runId }),

@@ -67,7 +67,7 @@ if (publicUrl || publicKey) {
 
 await build({
   absWorkingDir: root,
-  entryPoints: ["portal.js", "guides.js", "games.js", "teacher.js", "task-page.js", "tracker.js"],
+  entryPoints: ["portal.js", "guides.js", "games.js", "teacher.js", "task-page.js", "tracker.js", "practice-tracker.js"],
   outdir: dist,
   bundle: true,
   format: "esm",

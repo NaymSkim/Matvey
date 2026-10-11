@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#12231a" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2312231a'/%3E%3Cpath d='M18 17v19c0 18 28 18 28 0V17H35v19c0 7-6 7-6 0V17z' fill='%23f2f7f0'/%3E%3Cpath d='M18 17h11v9H18zm17 0h11v9H35z' fill='%23ff6846'/%3E%3C/svg%3E" />
     <title>Кабинет преподавателя · Физика</title>
-    <link rel="stylesheet" href="styles.css?v=7" />
+    <link rel="stylesheet" href="styles.css?v=8" />
   </head>
   <body>
     <header class="topbar">
@@ -37,6 +37,24 @@
         </div>
         <p class="dashboard-meta" id="dashboard-meta"></p>
         <div class="summary-cards" id="summary-cards"></div>
+
+        <section class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Практикум</p><h2>Падение и тяготение</h2></div></div>
+          <p class="panel-copy">Проверки ответов по темам и вариантам. Решённой считается задача, на которую ученик хотя бы раз дал верный ответ; это самопроверка, не оценка за работу.</p>
+          <div class="compact-stats" id="practice-summary"></div>
+          <p class="dashboard-note" id="practice-status" aria-live="polite"></p>
+          <div class="table-wrap"><table><thead><tr><th>Тема и вариант</th><th>Решено</th><th>Проверок</th><th>Ошибок</th><th>Последняя проверка</th></tr></thead><tbody id="practice-body"></tbody></table></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><div><p class="eyebrow">Самостоятельные работы</p><h2>СР № 1–18</h2></div></div>
+          <p class="panel-copy">СР № 1–13 сдаются с оценкой. У СР № 14–18 есть самопроверка по вариантам; её результаты появляются после входа ученика в портал.</p>
+          <div class="compact-stats" id="independent-summary"></div>
+          <p class="dashboard-note" id="independent-status" aria-live="polite"></p>
+          <div class="table-wrap"><table><thead><tr><th>Работа</th><th>Статус</th><th>Посещения</th><th>Верно / проверено</th><th>Лучший результат</th><th>Последнее действие</th></tr></thead><tbody id="independent-body"></tbody></table></div>
+          <h3 class="subsection-title">СР № 14–18 · самопроверка</h3>
+          <div class="table-wrap"><table><thead><tr><th>Работа</th><th>Открытий</th><th>Решено по вариантам</th><th>Проверок</th><th>Ошибок</th><th>Последняя проверка</th></tr></thead><tbody id="standalone-body"></tbody></table></div>
+        </section>
 
         <section class="panel">
           <div class="panel-head"><div><p class="eyebrow">Расписание</p><h2 id="access-panel-title">Доступ к работам</h2></div></div>
@@ -95,6 +113,6 @@
     </dialog>
 
     <script src="config.js?v=2"></script>
-    <script type="module" src="teacher.js?v=4"></script>
+    <script type="module" src="teacher.js?v=5"></script>
   </body>
 </html>

@@ -19,7 +19,7 @@ main{max-width:1120px;margin:0 auto;padding:2.1rem 1rem 5rem}.hero{display:grid;
   <header class="topbar"><div class="brand">Физика · 9 класс<small>Динамика · СР-16</small></div><a class="chip" href="../" style="text-decoration:none">← К порталу</a></header>
   <main>
     <section class="hero">
-      <div class="hero-main"><div class="eyebrow">Динамика · самостоятельная практика</div><h1>Закон всемирного тяготения</h1><p class="lead">Самостоятельная работа № 16 по О. И. Громцевой: два варианта, проверка числовых ответов, решения и доска для черновика.</p><div class="chips"><span class="chip">2 варианта</span><span class="chip orange">3 задания в каждом</span><span class="chip" id="save-status">Прогресс сохраняется на этом устройстве</span></div></div>
+      <div class="hero-main"><div class="eyebrow">Динамика · самостоятельная практика</div><h1>Закон всемирного тяготения</h1><p class="lead">Самостоятельная работа № 16 по О. И. Громцевой: два варианта, проверка числовых ответов, решения и доска для черновика.</p><div class="chips"><span class="chip">2 варианта</span><span class="chip orange">3 задания в каждом</span><span class="chip" id="save-status">Прогресс сохраняется на этом устройстве</span><span class="chip" id="teacher-stats-status" aria-live="polite">Проверяем связь с кабинетом</span></div></div>
       <aside class="formula-card"><h2>Мини-шпаргалка</h2><div class="formula">F = Gm₁m₂/r²</div><div class="formula">G = 6,67 · 10⁻¹¹ Н·м²/кг²</div><div class="formula">r — расстояние между центрами</div><p class="note">Перед расчётом переведите тонны в килограммы, сантиметры и километры — в метры.</p></aside>
     </section>
     <section class="work-panel"><div class="work-head"><div><div class="eyebrow">Самостоятельная работа СР-16</div><h2>Закон всемирного тяготения</h2><div class="work-sub">Выберите вариант и решайте задания по порядку.</div></div><nav class="variant-tabs" id="variant-tabs" aria-label="Выбор варианта"></nav></div><div id="variants"></div></section>
@@ -71,7 +71,7 @@ function check(id) {
   card.classList.toggle('solved',ok); card.classList.toggle('wrong',!ok);
   feedback.className=`feedback ${ok?'ok':'bad'}`;
   feedback.textContent=ok?(t.kind==='text'?'Ответ записан. Сравните его с образцом.':'Верно ✓'):'Пока неверно. Проверьте вычисления и единицы.';
-  update(v); save();
+  update(v); save(); window.recordPracticeAttempt(v,q,ok);
 }
 render();
 document.addEventListener('input',event=>{if (!event.target.matches('.answer-input,.answer-text')) return; const id=event.target.id.slice(7); answers[id]=event.target.value; if(status[id]){delete status[id];$(`#task-${id}`).classList.remove('solved','wrong');$(`#feedback-${id}`).textContent='';$(`#feedback-${id}`).className='feedback';update(Number(id.split('-')[0]));} save();});
@@ -84,6 +84,10 @@ $('#board-close').onclick=()=>board.classList.remove('show');$('#board-clear').o
 canvas.addEventListener('pointerdown',e=>{drawing=true;canvas.setPointerCapture(e.pointerId);const r=canvas.getBoundingClientRect();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top)});
 canvas.addEventListener('pointermove',e=>{if(!drawing)return;const r=canvas.getBoundingClientRect();ctx.lineWidth=3;ctx.lineCap='round';ctx.strokeStyle='#172033';ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top)});
 canvas.addEventListener('pointerup',()=>drawing=false);canvas.addEventListener('pointercancel',()=>drawing=false);window.addEventListener('resize',()=>{if(board.classList.contains('show'))resizeBoard()});
+window.practiceChecksBeforeLogin = [];
+window.recordPracticeAttempt = (...entry) => window.practiceChecksBeforeLogin.push(entry);
 </script>
+<script src="../config.js?v=2"></script>
+<script type="module" src="../practice-tracker.js?v=1"></script>
 </body>
 </html>
