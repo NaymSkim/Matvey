@@ -287,6 +287,21 @@
       "order": 58
     },
     {
+      "id": "free-fall-gravity",
+      "title": "Свободное падение и тяготение",
+      "subject": "Тренажёры",
+      "description": "30 задач с данными, формулами, проверкой ответов и доской для рисунков: падение, всемирное тяготение и ускорение на разных небесных телах.",
+      "url": "tasks/free-fall-gravity.html",
+      "questionCount": 30,
+      "maxPoints": 0,
+      "difficulty": "9 класс",
+      "verificationMode": "visit-only",
+      "cardState": "Практикум",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 59
+    },
+    {
       "id": "olympiad-physics",
       "title": "Олимпиадная физика",
       "subject": "Олимпиада",
