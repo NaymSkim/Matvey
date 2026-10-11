@@ -5,12 +5,19 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const forbiddenFiles = ["answers.private.json", ".env", ".env.local"];
 const publicFiles = ["index.html", "guides.html", "games.html", "teacher.html", "task.html", "portal.js", "guides.js", "games.js", "teacher.js", "task-page.js", "tracker.js", "config.js", "styles.css", "guides/fizika-9-klass-oge.pdf", "guides/fizika-9-klass-oge-preview.png", "games/field.html", "games/goldberg.html", "games/alchemy.html", "games/pressure-duel.html", "games/physics-detective.html"];
+for (let number = 14; number <= 18; number += 1) publicFiles.push(`tasks/gromtseva-sr-${number}.html`);
 
 for (const file of forbiddenFiles) {
   if (fs.existsSync(path.join(root, "dist", file))) throw new Error(`Приватный файл попал в dist: ${file}`);
 }
 for (const file of publicFiles) {
   if (!fs.existsSync(path.join(root, file))) throw new Error(`Отсутствует публичный файл: ${file}`);
+}
+const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
+for (let number = 14; number <= 18; number += 1) {
+  if (!index.includes(`href="tasks/gromtseva-sr-${number}.html"`)) throw new Error(`Нет ссылки на СР-${number} на главной странице.`);
+  const page = fs.readFileSync(path.join(root, "tasks", `gromtseva-sr-${number}.html`), "utf8");
+  if (!page.includes(`const WORK = {"number": ${number},`) || !page.includes("href=\"../\"")) throw new Error(`Неверная автономная страница СР-${number}.`);
 }
 
 const catalog = JSON.parse(fs.readFileSync(path.join(root, "data", "activities.json"), "utf8"));

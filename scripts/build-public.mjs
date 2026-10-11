@@ -23,6 +23,12 @@ for (const game of ["field.html", "goldberg.html", "alchemy.html", "pressure-due
   fs.copyFileSync(path.join(root, "games", game), path.join(dist, "games", game));
 }
 fs.copyFileSync(path.join(root, "data", "activities.json"), path.join(dist, "data", "activities.json"));
+// The five older-style self-check pages are independent of the graded catalog.
+// Each page includes its own UI and solutions; no server answer keys are copied.
+for (let number = 14; number <= 18; number += 1) {
+  const name = `gromtseva-sr-${number}.html`;
+  fs.copyFileSync(path.join(root, "tasks", name), path.join(dist, "tasks", name));
+}
 const copiedTaskPages = new Set();
 for (const activity of catalog.activities.filter((item) => item.published)) {
   if (activity.verificationMode === "server-graded") {
