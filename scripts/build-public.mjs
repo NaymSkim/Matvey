@@ -15,6 +15,9 @@ for (const file of files) fs.copyFileSync(path.join(root, file), path.join(dist,
 const catalog = JSON.parse(fs.readFileSync(path.join(root, "data", "activities.json"), "utf8"));
 fs.mkdirSync(path.join(dist, "data", "task-content"), { recursive: true });
 fs.mkdirSync(path.join(dist, "tasks"), { recursive: true });
+for (const asset of ["drawing-board.css", "drawing-board.js"]) {
+  fs.copyFileSync(path.join(root, "tasks", asset), path.join(dist, "tasks", asset));
+}
 fs.mkdirSync(path.join(dist, "guides"), { recursive: true });
 fs.mkdirSync(path.join(dist, "games"), { recursive: true });
 fs.copyFileSync(path.join(root, "guides", "fizika-9-klass-oge.pdf"), path.join(dist, "guides", "fizika-9-klass-oge.pdf"));
