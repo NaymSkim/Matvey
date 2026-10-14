@@ -22,7 +22,7 @@ fs.mkdirSync(path.join(dist, "guides"), { recursive: true });
 fs.mkdirSync(path.join(dist, "games"), { recursive: true });
 fs.copyFileSync(path.join(root, "guides", "fizika-9-klass-oge.pdf"), path.join(dist, "guides", "fizika-9-klass-oge.pdf"));
 fs.copyFileSync(path.join(root, "guides", "fizika-9-klass-oge-preview.png"), path.join(dist, "guides", "fizika-9-klass-oge-preview.png"));
-for (const game of ["field.html", "goldberg.html", "alchemy.html", "pressure-duel.html", "physics-detective.html"]) {
+for (const game of ["formula-blitz.html", "field.html", "goldberg.html", "alchemy.html", "pressure-duel.html", "physics-detective.html"]) {
   fs.copyFileSync(path.join(root, "games", game), path.join(dist, "games", game));
 }
 fs.copyFileSync(path.join(root, "data", "activities.json"), path.join(dist, "data", "activities.json"));

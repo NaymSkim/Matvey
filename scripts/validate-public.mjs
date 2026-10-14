@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const forbiddenFiles = ["answers.private.json", ".env", ".env.local"];
-const publicFiles = ["index.html", "guides.html", "games.html", "teacher.html", "task.html", "portal.js", "guides.js", "games.js", "teacher.js", "task-page.js", "tracker.js", "config.js", "styles.css", "guides/fizika-9-klass-oge.pdf", "guides/fizika-9-klass-oge-preview.png", "games/field.html", "games/goldberg.html", "games/alchemy.html", "games/pressure-duel.html", "games/physics-detective.html"];
+const publicFiles = ["index.html", "guides.html", "games.html", "teacher.html", "task.html", "portal.js", "guides.js", "games.js", "teacher.js", "task-page.js", "tracker.js", "config.js", "styles.css", "guides/fizika-9-klass-oge.pdf", "guides/fizika-9-klass-oge-preview.png", "games/formula-blitz.html", "games/field.html", "games/goldberg.html", "games/alchemy.html", "games/pressure-duel.html", "games/physics-detective.html"];
 for (let number = 14; number <= 18; number += 1) publicFiles.push(`tasks/gromtseva-sr-${number}.html`);
 
 for (const file of forbiddenFiles) {
@@ -12,6 +12,12 @@ for (const file of forbiddenFiles) {
 }
 for (const file of publicFiles) {
   if (!fs.existsSync(path.join(root, file))) throw new Error(`Отсутствует публичный файл: ${file}`);
+}
+const gamesPage = fs.readFileSync(path.join(root, "games.html"), "utf8");
+if (!gamesPage.includes('href="games/formula-blitz.html"')) throw new Error("Нет ссылки на «Формульный блиц» в разделе игр.");
+const formulaBlitz = fs.readFileSync(path.join(root, "games", "formula-blitz.html"), "utf8");
+if (!formulaBlitz.includes("Формульный блиц") || !formulaBlitz.includes('id="arcade-app"') || /__ARCADE_DATA__|__KATEX_CSS__|__KATEX_JS__/.test(formulaBlitz)) {
+  throw new Error("Публичный файл «Формульного блица» собран неверно.");
 }
 const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
 for (let number = 14; number <= 18; number += 1) {
