@@ -15,7 +15,7 @@ export function parsePracticeEvent(row) {
   if (standaloneMatch && standaloneMatch[1] !== "18" && task.endsWith("-4")) return null;
   const result = url.searchParams.get("correct");
   if (result !== "0" && result !== "1") return null;
-  return { source, kind, task, correct: result === "1", at: row.visited_at };
+  return { source, kind, task, correct: result === "1", answer: (url.searchParams.get("answer") || "").slice(0, 120), at: row.visited_at };
 }
 
 export function summarizePractice(rows) {
@@ -80,7 +80,7 @@ export function summarizeStandalone(rows) {
 
 export function summarizeIndependent(activities, rows, attempts) {
   const rowById = new Map(rows.map((row) => [row.activityId, row]));
-  return activities.filter((activity) => activity.subject === "Самостоятельные").map((activity) => {
+  return activities.filter((activity) => activity.subject === "Самостоятельные" && activity.verificationMode === "server-graded").map((activity) => {
     const row = rowById.get(activity.id);
     const runs = row?.runs || [];
     const answerRows = attempts.filter((attempt) => attempt.activityId === activity.id && attempt.graded);

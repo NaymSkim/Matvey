@@ -1,5 +1,5 @@
 import { APP_CONFIG, getSupabaseClient, invokeFunction } from "./supabase-client.js";
-import { summarizeIndependent, summarizePractice, summarizeStandalone } from "./practice-stats.js";
+import { parsePracticeEvent, summarizeIndependent, summarizePractice, summarizeStandalone } from "./practice-stats.js";
 
 const ui = {
   login: document.querySelector("#teacher-login"), dashboard: document.querySelector("#teacher-dashboard"),
@@ -23,6 +23,7 @@ const ui = {
 let client;
 let catalog = [];
 let previewStudentId = "";
+let dashboardLoading = false;
 
 async function invoke(name, body = {}) {
   return invokeFunction(name, body);
@@ -37,6 +38,7 @@ const localDateTimeValue = (value) => {
 };
 const activityItem = (id) => catalog.find((item) => item.id === id);
 const activityName = (id) => activityItem(id)?.title || id;
+const activityOrder = (id) => activityItem(id)?.order ?? Number.MAX_SAFE_INTEGER;
 const questionLabel = (id) => {
   const match = /^(?:v(\d+)-)?q(\d+)$/.exec(id || "");
   if (!match) return id || "Открыть вопрос";
@@ -132,7 +134,7 @@ function renderStudent(student) {
 
 function renderActivityAccess(settings, studentName = "") {
   ui.activityAccess.replaceChildren();
-  settings.forEach((item) => {
+  [...settings].sort((a, b) => activityOrder(a.activityId) - activityOrder(b.activityId)).forEach((item) => {
     const row = document.createElement("article");
     row.className = "activity-access-row";
     const heading = document.createElement("div");
@@ -150,6 +152,7 @@ function renderActivityAccess(settings, studentName = "") {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = !item.manuallyClosed;
+    checkbox.defaultChecked = checkbox.checked;
     const toggleText = document.createElement("span");
     toggleText.textContent = studentName ? `${studentName}: работа открыта` : "Открыта ученику";
     toggle.append(checkbox, toggleText);
@@ -161,6 +164,7 @@ function renderActivityAccess(settings, studentName = "") {
     const deadline = document.createElement("input");
     deadline.type = "datetime-local";
     deadline.value = localDateTimeValue(item.deadlineAt);
+    deadline.defaultValue = deadline.value;
     deadlineLabel.append(deadlineText, deadline);
 
     const actions = document.createElement("div");
@@ -182,56 +186,99 @@ function renderActivityAccess(settings, studentName = "") {
   });
 }
 
-function renderResults(rows, student) {
+function renderResults(rows, student, standalone, practice) {
   ui.results.replaceChildren();
-  rows.forEach((item) => {
+  const standaloneById = new Map(standalone.works.map((work) => [`gromtseva-sr-${work.number}`, work]));
+  [...rows].sort((a, b) => activityOrder(a.activityId) - activityOrder(b.activityId)).forEach((item) => {
+    const activity = activityItem(item.activityId);
+    const selfCheck = standaloneById.get(item.activityId);
     const tr = document.createElement("tr");
     const activityCell = document.createElement("td");
     activityCell.append(activityLink(item.activityId));
     tr.append(activityCell);
-    const values = [`${item.visitCount} · ${date(item.lastVisitAt)}`, runsLabel(item.runs, 1), runsLabel(item.runs, 2), item.bestRun ? `${item.bestRun.variantId}: ${runLabel(item.bestRun)}` : "—"];
+    const values = selfCheck
+      ? [`${selfCheck.visits} · ${date(selfCheck.lastAt || item.lastVisitAt)}`, `Вариант 1: ${selfCheck.solved[0]}/${selfCheck.number === 18 ? 4 : 3}`, `Вариант 2: ${selfCheck.solved[1]}/${selfCheck.number === 18 ? 4 : 3}`, `Без оценки · проверок: ${selfCheck.checks}`]
+      : item.activityId === "free-fall-gravity"
+        ? [`${practice.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${practice.solved}/30 · проверок: ${practice.checks}`]
+        : [`${item.visitCount} · ${date(item.lastVisitAt)}`, activity?.verificationMode === "visit-only" ? "Без оценки" : runsLabel(item.runs, 1), activity?.verificationMode === "visit-only" ? "—" : runsLabel(item.runs, 2), activity?.verificationMode === "visit-only" ? "Без оценки" : item.bestRun ? `${item.bestRun.variantId}: ${runLabel(item.bestRun)}` : "—"];
     values.forEach((value) => { const td = document.createElement("td"); td.textContent = value; tr.append(td); });
     const release = document.createElement("td");
-    const releaseButton = button(item.solutionsReleasedAt ? "Открыты" : "Открыть", "secondary-button", async () => {
-      if (!student) return;
-      await teacherAction("release_solutions", { studentId: student.id, activityId: item.activityId });
-      await loadDashboard();
-    });
-    releaseButton.disabled = Boolean(item.solutionsReleasedAt);
-    release.append(releaseButton); tr.append(release); ui.results.append(tr);
+    if (activity?.verificationMode === "visit-only") release.textContent = "—";
+    else {
+      const releaseButton = button(item.solutionsReleasedAt ? "Открыты" : "Открыть", "secondary-button", async () => {
+        if (!student) return;
+        await teacherAction("release_solutions", { studentId: student.id, activityId: item.activityId });
+        await loadDashboard();
+      });
+      releaseButton.disabled = Boolean(item.solutionsReleasedAt);
+      release.append(releaseButton);
+    }
+    tr.append(release); ui.results.append(tr);
   });
   ui.noResults.hidden = rows.length !== 0;
 }
 
-function renderAttempts(attempts) {
-  ui.attempts.replaceChildren();
-  attempts.forEach((item) => {
-    const tr = document.createElement("tr");
-    const timeCell = document.createElement("td"); timeCell.textContent = date(item.createdAt);
-    const activityCell = document.createElement("td"); activityCell.append(activityLink(item.activityId));
-    const questionCell = document.createElement("td"); questionCell.append(activityLink(item.activityId, questionLabel(item.questionId), item.questionId));
-    const answerCell = document.createElement("td"); answerCell.textContent = item.answerPreview;
-    const resultCell = document.createElement("td");
-    resultCell.textContent = !item.graded ? "Открытый ответ" : item.correct ? `Верно · +${item.points}` : "Неверно";
-    if (item.graded) resultCell.className = item.correct ? "result-ok" : "result-bad";
-    tr.append(timeCell, activityCell, questionCell, answerCell, resultCell);
-    ui.attempts.append(tr);
-  });
+function practiceActivityId(event) {
+  return event.source === "gravity" ? "free-fall-gravity" : `gromtseva-${event.source}`;
 }
 
-async function loadPracticeEvents(studentId) {
-  if (!studentId) return [];
-  const rows = [];
-  for (let from = 0; ; from += 500) {
-    const { data, error } = await client.from("visits").select("path, visited_at")
-      .eq("student_id", studentId).is("activity_id", null)
-      .like("path", "%/tasks/%?practice=%")
-      .order("visited_at", { ascending: false }).range(from, from + 499);
-    if (error) throw error;
-    rows.push(...(data || []));
-    if (!data || data.length < 500) break;
+function practiceQuestion(event) {
+  if (event.kind !== "check") return "";
+  const parts = event.task.split("-").map(Number);
+  if (event.source === "gravity") {
+    const topics = ["Свободное падение", "Всемирное тяготение", "Ускорение свободного падения"];
+    return `${topics[parts[0] - 1]} · вариант ${parts[1]} · задание ${parts[2]}`;
   }
-  return rows;
+  return `Вариант ${parts[0]} · задание ${parts[1]}`;
+}
+
+function practiceQuestionHref(activityId, event) {
+  if (event.kind !== "check") return activityHref(activityId);
+  const url = new URL(activityHref(activityId));
+  url.hash = `task-${event.task}`;
+  return url.href;
+}
+
+function recentActions(data) {
+  const actions = [];
+  for (const visit of data.visits || []) {
+    const event = parsePracticeEvent({ path: visit.path, visited_at: visit.createdAt });
+    if (event) {
+      const activityId = visit.activityId || practiceActivityId(event);
+      actions.push({ at: event.at, activityId, action: event.kind === "open" ? "Открыл работу" : "Проверил ответ", detail: event.kind === "open" ? "Самопроверка" : practiceQuestion(event), answer: event.answer, result: event.kind === "check" ? (event.correct ? "Верно" : "Неверно") : "", correct: event.kind === "check" ? event.correct : null, href: practiceQuestionHref(activityId, event) });
+    } else if (visit.activityId) actions.push({ at: visit.createdAt, activityId: visit.activityId, action: "Открыл работу", detail: "Страница работы", result: "" });
+  }
+  for (const attempt of data.attempts || []) {
+    actions.push({ at: attempt.createdAt, activityId: attempt.activityId, action: "Ответил", detail: questionLabel(attempt.questionId), questionId: attempt.questionId, answer: attempt.answerPreview, result: !attempt.graded ? "Открытый ответ" : attempt.correct ? `Верно · +${attempt.points}` : "Неверно", correct: attempt.graded ? attempt.correct : null });
+  }
+  for (const activity of data.activities || []) for (const run of activity.runs || []) {
+    actions.push({ at: run.startedAt, activityId: activity.activityId, action: `Начал попытку ${run.runNo}`, detail: `Вариант ${run.variantId}`, result: "" });
+    if (run.submittedAt) actions.push({ at: run.submittedAt, activityId: activity.activityId, action: `Сдал попытку ${run.runNo}`, detail: `Вариант ${run.variantId}`, result: runLabel(run), correct: run.grade == null ? null : run.grade >= 3 });
+  }
+  return actions.filter((item) => item.at).sort((a, b) => String(b.at).localeCompare(String(a.at)));
+}
+
+function renderRecentActions(data) {
+  ui.attempts.replaceChildren();
+  recentActions(data).forEach((item) => {
+    const tr = document.createElement("tr");
+    const timeCell = document.createElement("td"); timeCell.textContent = date(item.at);
+    const actionCell = document.createElement("td"); actionCell.textContent = item.action;
+    const activityCell = document.createElement("td"); activityCell.append(activityLink(item.activityId));
+    const detailCell = document.createElement("td");
+    if (item.questionId) detailCell.append(activityLink(item.activityId, item.detail, item.questionId));
+    else if (item.href) {
+      const link = document.createElement("a"); link.className = "teacher-task-link question"; link.href = item.href; link.target = "_blank"; link.rel = "noopener"; link.textContent = item.detail; detailCell.append(link);
+    } else detailCell.textContent = item.detail;
+    const resultCell = document.createElement("td");
+    resultCell.textContent = [item.answer ? `Ответ: ${item.answer}` : "", item.result].filter(Boolean).join(" · ") || "—";
+    if (item.correct != null) resultCell.className = item.correct ? "result-ok" : "result-bad";
+    tr.append(timeCell, actionCell, activityCell, detailCell, resultCell);
+    ui.attempts.append(tr);
+  });
+  if (!ui.attempts.children.length) {
+    const tr = document.createElement("tr"); const td = document.createElement("td"); td.colSpan = 5; td.className = "empty-row"; td.textContent = "Действий пока нет."; tr.append(td); ui.attempts.append(tr);
+  }
 }
 
 function renderPractice(stats) {
@@ -302,6 +349,8 @@ function renderIndependent(rows, attempts, standalone) {
 }
 
 async function loadDashboard() {
+  if (dashboardLoading) return;
+  dashboardLoading = true;
   ui.refresh.disabled = true;
   try {
     const data = await invoke("teacher-summary");
@@ -314,33 +363,26 @@ async function loadDashboard() {
     ui.accessCopy.textContent = studentName ? `${studentName}: откройте или закройте нужные работы. Срок указывается по вашему местному времени; когда он наступит, новые ответы перестанут приниматься.` : "Откройте или закройте работу для ученика. Срок указывается по вашему местному времени; когда он наступит, новые ответы перестанут приниматься.";
     ui.studentTitle.textContent = studentName ? `Ученик: ${studentName}` : "Ученик";
     ui.resultsTitle.textContent = studentName ? `${studentName}: результаты работ` : "Результаты работ";
-    ui.attemptsTitle.textContent = studentName ? `${studentName}: ответы` : "Попытки ответов";
+    ui.attemptsTitle.textContent = studentName ? `${studentName}: последние действия` : "Последние действия";
     ui.noResults.textContent = studentName ? `${studentName} пока не сдавал работы.` : "Результатов пока нет.";
     ui.meta.textContent = `Обновлено ${date(new Date().toISOString())}`;
-    let practice = summarizePractice([]);
-    let standalone = summarizeStandalone([]);
-    ui.practiceStatus.textContent = data.student ? "Загружаем проверки тренажёра…" : "Статистика появится после создания ученика.";
+    const eventRows = (data.visits || []).map((item) => ({ path: item.path, visited_at: item.createdAt }));
+    const practice = summarizePractice(eventRows);
+    const standalone = summarizeStandalone(eventRows);
+    ui.practiceStatus.textContent = data.student
+      ? practice.checks ? "Все проверки синхронизированы с журналом." : "Проверок пока нет. Ученик должен войти в портал перед решением."
+      : "Статистика появится после создания ученика.";
     ui.independentStatus.textContent = "";
-    if (data.student) {
-      try {
-        const events = await loadPracticeEvents(data.student.id);
-        practice = summarizePractice(events);
-        standalone = summarizeStandalone(events);
-        ui.practiceStatus.textContent = practice.checks ? "Учитываются проверки, сделанные после входа ученика в портал." : "Проверок пока нет. Ученик должен войти в портал перед решением.";
-      } catch {
-        ui.practiceStatus.textContent = "Не удалось загрузить проверки тренажёра. Повторите обновление позже.";
-        ui.independentStatus.textContent = "Проверки СР № 14–18 пока не загрузились. Данные по СР № 1–13 доступны ниже.";
-      }
-    }
+    const visitCount = (data.visits || []).filter((item) => parsePracticeEvent({ path: item.path, visited_at: item.createdAt })?.kind !== "check").length;
     ui.summaries.replaceChildren(
       summaryCard("Ученик", studentName || "—"),
-      summaryCard("Посещений", String(Math.max(0, (data.totalVisits || 0) - practice.checks - standalone.checkCount))),
+      summaryCard("Посещений", String(visitCount)),
       summaryCard("Сдано работ", String(data.submittedRuns || 0)),
       summaryCard("Средняя оценка", data.averageGrade ? String(data.averageGrade) : "—"),
     );
     renderPractice(practice); renderIndependent(data.activities || [], data.attempts || [], standalone);
-    renderActivityAccess(data.activitySettings || [], studentName); renderStudent(data.student); renderResults(data.activities || [], data.student); renderAttempts(data.attempts || []);
-  } finally { ui.refresh.disabled = false; }
+    renderActivityAccess(data.activitySettings || [], studentName); renderStudent(data.student); renderResults(data.activities || [], data.student, standalone, practice); renderRecentActions(data);
+  } finally { ui.refresh.disabled = false; dashboardLoading = false; }
 }
 
 ui.loginForm.addEventListener("submit", async (event) => {
@@ -391,5 +433,17 @@ async function init() {
     catch (error) { ui.loginMessage.textContent = error.message; ui.loginMessage.hidden = false; }
   }
 }
+
+function hasUnsavedScheduleChanges() {
+  return [...ui.activityAccess.querySelectorAll("input")].some((input) => input.type === "checkbox"
+    ? input.checked !== input.defaultChecked : input.value !== input.defaultValue);
+}
+
+setInterval(() => {
+  if (!document.hidden && !ui.dashboard.hidden && !hasUnsavedScheduleChanges()) void loadDashboard().catch(() => {});
+}, 30_000);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && !ui.dashboard.hidden && !hasUnsavedScheduleChanges()) void loadDashboard().catch(() => {});
+});
 
 void init();

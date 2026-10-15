@@ -156,6 +156,10 @@ function requireActivityOpen(activity: ActivityAccessSource) {
   return access;
 }
 
+function isPracticeCheck(path: string | null) {
+  return /[?&]practice=check(?:&|$)/.test(path || "");
+}
+
 function bestRun(runs: Array<Record<string, unknown>>) {
   const submitted = runs.filter((run) => run.status === "submitted");
   const graded = submitted.filter((run) => run.grade != null).sort((a, b) => Number(b.percent) - Number(a.percent) || Number(b.score) - Number(a.score));
@@ -254,7 +258,7 @@ async function studentProgress(userId: string, input: Record<string, unknown>) {
   }
   const [{ data: runs, error: runsError }, { data: visits, error: visitsError }, { data: solutionAccess, error: accessError }, { data: activities, error: activitiesError }] = await Promise.all([
     runsQuery.order("started_at"),
-    admin.from("visits").select("activity_id, visited_at").eq("student_id", student.id),
+    admin.from("visits").select("activity_id, path, visited_at").eq("student_id", student.id),
     admin.from("activity_access").select("activity_id, solutions_released_at").eq("student_id", student.id),
     activitiesQuery.order("id"),
   ]);
@@ -262,7 +266,7 @@ async function studentProgress(userId: string, input: Record<string, unknown>) {
   const activityRows = (activities || []).map((activity) => {
     const activityId = activity.id;
     const activityRuns = (runs || []).filter((run) => run.activity_id === activityId).map(publicRun);
-    const activityVisits = (visits || []).filter((visit) => visit.activity_id === activityId);
+    const activityVisits = (visits || []).filter((visit) => visit.activity_id === activityId && !isPracticeCheck(visit.path));
     const release = (solutionAccess || []).find((item) => item.activity_id === activityId);
     return { activityId, ...activityAccess(activity), runs: activityRuns, bestRun: bestRun(activityRuns as unknown as Array<Record<string, unknown>>), visitCount: activityVisits.length, lastVisitAt: activityVisits.sort((a, b) => String(b.visited_at).localeCompare(String(a.visited_at)))[0]?.visited_at || null, solutionsReleasedAt: release?.solutions_released_at || null };
   });
@@ -277,7 +281,7 @@ async function openActivity(userId: string, input: Record<string, unknown>) {
   if (activityId) {
     const { data: activity } = await admin.from("activities").select("id, is_open, available_until").eq("id", activityId).eq("active", true).maybeSingle();
     if (!activity) throw new PortalError("Работа не опубликована.", 404);
-    access = activityAccess(activity);
+    access = requireActivityOpen(activity);
   }
   const { error } = await admin.from("visits").upsert({ student_id: student.id, activity_id: activityId, entry_id: entryId, path: typeof input.path === "string" ? input.path.slice(0, 500) : null }, { onConflict: "entry_id", ignoreDuplicates: true });
   if (error) throw error;
@@ -375,7 +379,7 @@ async function teacherSummary(userId: string, input: Record<string, unknown>) {
   const { data: activities, error: activitiesError } = await admin.from("activities").select("id, is_open, available_until").eq("active", true).order("id");
   if (activitiesError) throw activitiesError;
   const activitySettings = (activities || []).map((activity) => ({ activityId: activity.id, ...activityAccess(activity) }));
-  if (!selected) return { student: null, studentCount: students?.length || 0, totalVisits: 0, submittedRuns: 0, averageGrade: null, activitySettings, activities: [], attempts: [] };
+  if (!selected) return { student: null, studentCount: students?.length || 0, totalVisits: 0, submittedRuns: 0, averageGrade: null, activitySettings, activities: [], attempts: [], visits: [] };
   const [devicesResult, runsResult, accessResult] = await Promise.all([
     admin.from("student_devices").select("id").eq("student_id", selected.id),
     admin.from("activity_runs").select("*").eq("student_id", selected.id).order("started_at"),
@@ -386,9 +390,9 @@ async function teacherSummary(userId: string, input: Record<string, unknown>) {
   const devices = devicesResult.data;
   const runs = runsResult.data;
   const access = accessResult.data;
-  const visits: Array<{ activity_id: string | null; visited_at: string }> = [];
+  const visits: Array<{ activity_id: string | null; path: string | null; visited_at: string }> = [];
   for (let from = 0; ; from += 500) {
-    const { data: page, error: pageError } = await admin.from("visits").select("activity_id, visited_at")
+    const { data: page, error: pageError } = await admin.from("visits").select("activity_id, path, visited_at")
       .eq("student_id", selected.id).order("visited_at", { ascending: false }).range(from, from + 499);
     if (pageError) throw pageError;
     visits.push(...(page || []));
@@ -405,7 +409,7 @@ async function teacherSummary(userId: string, input: Record<string, unknown>) {
   }
   const rows = (activities || []).map((activity) => {
     const activityRuns = (runs || []).filter((run) => run.activity_id === activity.id).map(publicRun);
-    const activityVisits = (visits || []).filter((visit) => visit.activity_id === activity.id);
+    const activityVisits = (visits || []).filter((visit) => visit.activity_id === activity.id && !isPracticeCheck(visit.path));
     const release = (access || []).find((item) => item.activity_id === activity.id);
     return { activityId: activity.id, runs: activityRuns, bestRun: bestRun(activityRuns as unknown as Array<Record<string, unknown>>), visitCount: activityVisits.length, lastVisitAt: activityVisits.sort((a, b) => String(b.visited_at).localeCompare(String(a.visited_at)))[0]?.visited_at || null, solutionsReleasedAt: release?.solutions_released_at || null };
   });
@@ -418,6 +422,7 @@ async function teacherSummary(userId: string, input: Record<string, unknown>) {
     averageGrade: official.length ? Math.round(official.reduce((sum, run) => sum + Number(run.grade), 0) / official.length * 10) / 10 : null,
     activitySettings,
     activities: rows,
+    visits: visits.map((item) => ({ activityId: item.activity_id, path: item.path, createdAt: item.visited_at })),
     attempts: (attempts || []).map((item) => ({ activityId: item.activity_id, questionId: item.question_id, answerPreview: JSON.stringify(item.answer_json).slice(0, 120), graded: item.graded, correct: item.correct, points: Number(item.points), createdAt: item.created_at })),
   };
 }

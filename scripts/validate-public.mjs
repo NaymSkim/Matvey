@@ -21,7 +21,6 @@ if (!formulaBlitz.includes("Формульный блиц") || !formulaBlitz.inc
 }
 const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
 for (let number = 14; number <= 18; number += 1) {
-  if (!index.includes(`href="tasks/gromtseva-sr-${number}.html"`)) throw new Error(`Нет ссылки на СР-${number} на главной странице.`);
   const page = fs.readFileSync(path.join(root, "tasks", `gromtseva-sr-${number}.html`), "utf8");
   if (!page.includes(`const WORK = {"number": ${number},`) || !page.includes("href=\"../\"")) throw new Error(`Неверная автономная страница СР-${number}.`);
 }

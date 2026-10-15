@@ -227,6 +227,81 @@
       "order": 52
     },
     {
+      "id": "gromtseva-sr-14",
+      "title": "Самостоятельная работа № 14",
+      "subject": "Самостоятельные",
+      "description": "Свободное падение тел: скорость, время падения и путь за отдельную секунду.",
+      "url": "tasks/gromtseva-sr-14.html",
+      "questionCount": 3,
+      "maxPoints": 0,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "visit-only",
+      "cardState": "Самопроверка",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 53
+    },
+    {
+      "id": "gromtseva-sr-15",
+      "title": "Самостоятельная работа № 15",
+      "subject": "Самостоятельные",
+      "description": "Движение вертикально вверх: скорость, график движения и максимальная высота.",
+      "url": "tasks/gromtseva-sr-15.html",
+      "questionCount": 3,
+      "maxPoints": 0,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "visit-only",
+      "cardState": "Самопроверка",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 54
+    },
+    {
+      "id": "gromtseva-sr-16",
+      "title": "Самостоятельная работа № 16",
+      "subject": "Самостоятельные",
+      "description": "Закон всемирного тяготения: сила притяжения, массы и расстояние.",
+      "url": "tasks/gromtseva-sr-16.html",
+      "questionCount": 3,
+      "maxPoints": 0,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "visit-only",
+      "cardState": "Самопроверка",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 55
+    },
+    {
+      "id": "gromtseva-sr-17",
+      "title": "Самостоятельная работа № 17",
+      "subject": "Самостоятельные",
+      "description": "Ускорение свободного падения на планетах и на разных высотах над Землёй.",
+      "url": "tasks/gromtseva-sr-17.html",
+      "questionCount": 3,
+      "maxPoints": 0,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "visit-only",
+      "cardState": "Самопроверка",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 56
+    },
+    {
+      "id": "gromtseva-sr-18",
+      "title": "Самостоятельная работа № 18",
+      "subject": "Самостоятельные",
+      "description": "Сила тяжести: направление и расчёты на Земле и орбите.",
+      "url": "tasks/gromtseva-sr-18.html",
+      "questionCount": 4,
+      "maxPoints": 0,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "visit-only",
+      "cardState": "Самопроверка",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 57
+    },
+    {
       "id": "accelerated-motion",
       "title": "Прямолинейное равноускоренное движение",
       "subject": "Тренажёры",
@@ -239,7 +314,7 @@
       "cardState": "Тренажёр",
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
-      "order": 55
+      "order": 70
     },
     {
       "id": "accelerated-motion-oge",
@@ -254,7 +329,7 @@
       "cardState": "Тренажёр",
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
-      "order": 56
+      "order": 71
     },
     {
       "id": "curvilinear-motion",
@@ -269,7 +344,7 @@
       "cardState": "Тренажёр",
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
-      "order": 57
+      "order": 72
     },
     {
       "id": "newton-laws",
@@ -284,7 +359,7 @@
       "cardState": "Практикум",
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
-      "order": 58
+      "order": 73
     },
     {
       "id": "free-fall-gravity",
@@ -299,7 +374,7 @@
       "cardState": "Практикум",
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
-      "order": 59
+      "order": 74
     },
     {
       "id": "olympiad-physics",
@@ -313,7 +388,7 @@
       "verificationMode": "visit-only",
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
-      "order": 60
+      "order": 75
     }
   ]
 }

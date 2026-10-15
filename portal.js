@@ -36,6 +36,9 @@ async function loadCatalog() {
 
 const portalNow = () => Date.now() + state.serverOffsetMs;
 const formatDate = (value) => new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
+const openingPath = (activity) => /^(?:gromtseva-sr-1[4-8]|free-fall-gravity)$/.test(activity.id)
+  ? `${new URL(activity.url, document.baseURI).pathname}?practice=open`
+  : location.pathname + location.search;
 
 function accessFor(activityId) {
   const saved = state.progress.get(activityId);
@@ -101,7 +104,7 @@ function registerWebMcpTools() {
         if (!accessFor(activity.id).isOpen) throw new Error("Эта работа сейчас закрыта.");
         const entryId = crypto.randomUUID();
         sessionStorage.setItem(`physics-entry:${activity.id}`, entryId);
-        await PhysicsTracker.openActivity(activity.id, entryId);
+        await PhysicsTracker.openActivity(activity.id, entryId, openingPath(activity));
         setTimeout(() => { location.href = activity.url; }, 0);
         return { opened: true, activityId: activity.id, title: activity.title };
       },
@@ -193,7 +196,7 @@ function activityCard(activity) {
     event.preventDefault();
     const entryId = crypto.randomUUID();
     sessionStorage.setItem(`physics-entry:${activity.id}`, entryId);
-    try { await PhysicsTracker.openActivity(activity.id, entryId); }
+    try { await PhysicsTracker.openActivity(activity.id, entryId, openingPath(activity)); }
     catch (_) { /* The task page will retry and show a useful error if needed. */ }
     location.href = activity.url;
   });
