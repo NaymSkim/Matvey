@@ -27,7 +27,10 @@ try {
   const progress = await PhysicsTracker.loadProgress(activityId);
   const studentId = progress.student?.id;
   if (!studentId) throw new Error("Ученик не выбран.");
-  const access = progress.activities?.[0];
+  const access = progress.activities?.find((item) => item.activityId === activityId);
+  // A new self-check page can record visits before its catalog row is synced.
+  // The path still identifies the activity for the teacher's practice summary.
+  const trackingActivityId = activityId === "friction" && !access ? null : activityId;
   if (access && !access.isOpen) {
     lockActivity(access.manuallyClosed ? "Работа закрыта преподавателем" : "Время выполнения работы истекло");
     throw new Error("ACTIVITY_CLOSED");
@@ -64,7 +67,7 @@ try {
     try {
       while (queue.length) {
         const event = queue[0];
-        await PhysicsTracker.openActivity(activityId, event.id, event.path);
+        await PhysicsTracker.openActivity(trackingActivityId, event.id, event.path);
         queue.shift();
         saveQueue();
       }
@@ -95,7 +98,7 @@ try {
     if (document.hidden) return;
     try {
       const current = await PhysicsTracker.loadProgress(activityId);
-      const latest = current.activities?.[0];
+      const latest = current.activities?.find((item) => item.activityId === activityId);
       if (latest && !latest.isOpen) lockActivity(latest.manuallyClosed ? "Работа закрыта преподавателем" : "Время выполнения работы истекло");
     } catch { /* Периодическая проверка повторится при следующем обновлении. */ }
   }, 30_000);
