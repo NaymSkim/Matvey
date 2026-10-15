@@ -11,6 +11,8 @@ const ui = {
   attempts: document.querySelector("#attempts-body"), noResults: document.querySelector("#no-results"),
   practiceSummary: document.querySelector("#practice-summary"), practiceBody: document.querySelector("#practice-body"),
   practiceStatus: document.querySelector("#practice-status"), independentSummary: document.querySelector("#independent-summary"),
+  frictionSummary: document.querySelector("#friction-summary"), frictionBody: document.querySelector("#friction-body"),
+  frictionStatus: document.querySelector("#friction-status"),
   independentBody: document.querySelector("#independent-body"), independentStatus: document.querySelector("#independent-status"),
   standaloneBody: document.querySelector("#standalone-body"),
   adminDialog: document.querySelector("#student-admin-dialog"), adminForm: document.querySelector("#student-admin-form"),
@@ -186,7 +188,7 @@ function renderActivityAccess(settings, studentName = "") {
   });
 }
 
-function renderResults(rows, student, standalone, practice) {
+function renderResults(rows, student, standalone, practice, friction) {
   ui.results.replaceChildren();
   const standaloneById = new Map(standalone.works.map((work) => [`gromtseva-sr-${work.number}`, work]));
   [...rows].sort((a, b) => activityOrder(a.activityId) - activityOrder(b.activityId)).forEach((item) => {
@@ -200,6 +202,8 @@ function renderResults(rows, student, standalone, practice) {
       ? [`${selfCheck.visits} · ${date(selfCheck.lastAt || item.lastVisitAt)}`, `Вариант 1: ${selfCheck.solved[0]}/${selfCheck.number === 18 ? 4 : 3}`, `Вариант 2: ${selfCheck.solved[1]}/${selfCheck.number === 18 ? 4 : 3}`, `Без оценки · проверок: ${selfCheck.checks}`]
       : item.activityId === "free-fall-gravity"
         ? [`${practice.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${practice.solved}/30 · проверок: ${practice.checks}`]
+        : item.activityId === "friction"
+          ? [`${friction.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${friction.solved}/30 · проверок: ${friction.checks}`]
         : [`${item.visitCount} · ${date(item.lastVisitAt)}`, activity?.verificationMode === "visit-only" ? "Без оценки" : runsLabel(item.runs, 1), activity?.verificationMode === "visit-only" ? "—" : runsLabel(item.runs, 2), activity?.verificationMode === "visit-only" ? "Без оценки" : item.bestRun ? `${item.bestRun.variantId}: ${runLabel(item.bestRun)}` : "—"];
     values.forEach((value) => { const td = document.createElement("td"); td.textContent = value; tr.append(td); });
     const release = document.createElement("td");
@@ -219,7 +223,7 @@ function renderResults(rows, student, standalone, practice) {
 }
 
 function practiceActivityId(event) {
-  return event.source === "gravity" ? "free-fall-gravity" : `gromtseva-${event.source}`;
+  return event.source === "gravity" ? "free-fall-gravity" : event.source === "friction" ? "friction" : `gromtseva-${event.source}`;
 }
 
 function practiceQuestion(event) {
@@ -227,6 +231,10 @@ function practiceQuestion(event) {
   const parts = event.task.split("-").map(Number);
   if (event.source === "gravity") {
     const topics = ["Свободное падение", "Всемирное тяготение", "Ускорение свободного падения"];
+    return `${topics[parts[0] - 1]} · вариант ${parts[1]} · задание ${parts[2]}`;
+  }
+  if (event.source === "friction") {
+    const topics = ["Покой и скольжение", "Движение и работа", "Олимпиадные задачи"];
     return `${topics[parts[0] - 1]} · вариант ${parts[1]} · задание ${parts[2]}`;
   }
   return `Вариант ${parts[0]} · задание ${parts[1]}`;
@@ -281,26 +289,29 @@ function renderRecentActions(data) {
   }
 }
 
-function renderPractice(stats) {
-  ui.practiceSummary.replaceChildren(
+function renderPractice(stats, source = "gravity") {
+  const summary = source === "friction" ? ui.frictionSummary : ui.practiceSummary;
+  const body = source === "friction" ? ui.frictionBody : ui.practiceBody;
+  const activityId = source === "friction" ? "friction" : "free-fall-gravity";
+  summary.replaceChildren(
     summaryCard("Открытий", String(stats.opens)),
     summaryCard("Решено задач", `${stats.solved} / 30`),
     summaryCard("Проверок", String(stats.checks)),
     summaryCard("Ошибок", String(stats.errors)),
   );
-  ui.practiceBody.replaceChildren();
-  const topics = ["Свободное падение", "Всемирное тяготение", "Ускорение свободного падения"];
+  body.replaceChildren();
+  const topics = source === "friction" ? ["Покой и скольжение", "Движение и работа", "Олимпиадные задачи"] : ["Свободное падение", "Всемирное тяготение", "Ускорение свободного падения"];
   stats.variants.forEach((group) => {
     const tr = document.createElement("tr");
     const topic = document.createElement("td");
-    const link = activityLink("free-fall-gravity", `${topics[group.work - 1]} · вариант ${group.variant}`);
-    link.href = `${activityHref("free-fall-gravity")}#variant-${group.work}-${group.variant}`;
+    const link = activityLink(activityId, `${topics[group.work - 1]} · вариант ${group.variant}`);
+    link.href = `${activityHref(activityId)}#variant-${group.work}-${group.variant}`;
     topic.append(link);
     tr.append(topic);
     [`${group.solved} / 5`, group.checks, group.errors, date(group.lastAt)].forEach((value) => {
       const cell = document.createElement("td"); cell.textContent = String(value); tr.append(cell);
     });
-    ui.practiceBody.append(tr);
+    body.append(tr);
   });
 }
 
@@ -368,9 +379,13 @@ async function loadDashboard() {
     ui.meta.textContent = `Обновлено ${date(new Date().toISOString())}`;
     const eventRows = (data.visits || []).map((item) => ({ path: item.path, visited_at: item.createdAt }));
     const practice = summarizePractice(eventRows);
+    const friction = summarizePractice(eventRows, "friction");
     const standalone = summarizeStandalone(eventRows);
     ui.practiceStatus.textContent = data.student
       ? practice.checks ? "Все проверки синхронизированы с журналом." : "Проверок пока нет. Ученик должен войти в портал перед решением."
+      : "Статистика появится после создания ученика.";
+    ui.frictionStatus.textContent = data.student
+      ? friction.checks ? "Все проверки синхронизированы с журналом." : "Проверок пока нет. Ученик должен войти в портал перед решением."
       : "Статистика появится после создания ученика.";
     ui.independentStatus.textContent = "";
     const visitCount = (data.visits || []).filter((item) => parsePracticeEvent({ path: item.path, visited_at: item.createdAt })?.kind !== "check").length;
@@ -380,8 +395,8 @@ async function loadDashboard() {
       summaryCard("Сдано работ", String(data.submittedRuns || 0)),
       summaryCard("Средняя оценка", data.averageGrade ? String(data.averageGrade) : "—"),
     );
-    renderPractice(practice); renderIndependent(data.activities || [], data.attempts || [], standalone);
-    renderActivityAccess(data.activitySettings || [], studentName); renderStudent(data.student); renderResults(data.activities || [], data.student, standalone, practice); renderRecentActions(data);
+    renderPractice(practice); renderPractice(friction, "friction"); renderIndependent(data.activities || [], data.attempts || [], standalone);
+    renderActivityAccess(data.activitySettings || [], studentName); renderStudent(data.student); renderResults(data.activities || [], data.student, standalone, practice, friction); renderRecentActions(data);
   } finally { ui.refresh.disabled = false; dashboardLoading = false; }
 }
 

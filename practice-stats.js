@@ -4,21 +4,22 @@ export function parsePracticeEvent(row) {
   try { url = new URL(row.path, "https://portal.invalid"); }
   catch { return null; }
   const gravity = url.pathname.endsWith("/tasks/free-fall-gravity.html");
-  const standaloneMatch = /\/tasks\/gromtseva-sr-(1[4-8])\.html$/.exec(url.pathname);
-  if (!gravity && !standaloneMatch) return null;
-  const source = gravity ? "gravity" : `sr-${standaloneMatch[1]}`;
+  const friction = url.pathname.endsWith("/tasks/friction.html");
+  const standaloneMatch = /\/tasks\/gromtseva-sr-(1[4-9]|2[0-3])\.html$/.exec(url.pathname);
+  if (!gravity && !friction && !standaloneMatch) return null;
+  const source = gravity ? "gravity" : friction ? "friction" : `sr-${standaloneMatch[1]}`;
   const kind = url.searchParams.get("practice");
   if (kind === "open") return { source, kind, at: row.visited_at };
   if (kind !== "check") return null;
   const task = url.searchParams.get("task") || "";
-  if (gravity ? !/^[1-3]-[1-2]-[1-5]$/.test(task) : !/^[1-2]-[1-4]$/.test(task)) return null;
+  if (gravity || friction ? !/^[1-3]-[1-2]-[1-5]$/.test(task) : !/^[1-2]-[1-4]$/.test(task)) return null;
   if (standaloneMatch && standaloneMatch[1] !== "18" && task.endsWith("-4")) return null;
   const result = url.searchParams.get("correct");
   if (result !== "0" && result !== "1") return null;
   return { source, kind, task, correct: result === "1", answer: (url.searchParams.get("answer") || "").slice(0, 120), at: row.visited_at };
 }
 
-export function summarizePractice(rows) {
+export function summarizePractice(rows, source = "gravity") {
   const variants = Array.from({ length: 6 }, (_, index) => ({
     work: Math.floor(index / 2) + 1,
     variant: index % 2 + 1,
@@ -31,7 +32,7 @@ export function summarizePractice(rows) {
   let eventCount = 0;
   for (const row of rows) {
     const event = parsePracticeEvent(row);
-    if (!event || event.source !== "gravity") continue;
+    if (!event || event.source !== source) continue;
     eventCount += 1;
     if (event.kind === "open") { opens += 1; continue; }
     const [work, variant] = event.task.split("-").map(Number);
@@ -52,7 +53,7 @@ export function summarizePractice(rows) {
 }
 
 export function summarizeStandalone(rows) {
-  const works = Array.from({ length: 5 }, (_, index) => ({
+  const works = Array.from({ length: 10 }, (_, index) => ({
     number: index + 14,
     visits: 0,
     solved: [new Set(), new Set()],
