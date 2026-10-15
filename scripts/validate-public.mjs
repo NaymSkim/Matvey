@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const forbiddenFiles = ["answers.private.json", ".env", ".env.local"];
 const publicFiles = ["index.html", "guides.html", "games.html", "teacher.html", "task.html", "portal.js", "guides.js", "games.js", "teacher.js", "task-page.js", "tracker.js", "config.js", "styles.css", "guides/fizika-9-klass-oge.pdf", "guides/fizika-9-klass-oge-preview.png", "games/formula-blitz.html", "games/field.html", "games/goldberg.html", "games/alchemy.html", "games/pressure-duel.html", "games/physics-detective.html"];
-for (let number = 14; number <= 18; number += 1) publicFiles.push(`tasks/gromtseva-sr-${number}.html`);
+for (let number = 14; number <= 23; number += 1) publicFiles.push(`tasks/gromtseva-sr-${number}.html`);
 
 for (const file of forbiddenFiles) {
   if (fs.existsSync(path.join(root, "dist", file))) throw new Error(`Приватный файл попал в dist: ${file}`);
@@ -20,15 +20,15 @@ if (!formulaBlitz.includes("Формульный блиц") || !formulaBlitz.inc
   throw new Error("Публичный файл «Формульного блица» собран неверно.");
 }
 const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
-for (let number = 14; number <= 18; number += 1) {
+for (let number = 14; number <= 23; number += 1) {
   const page = fs.readFileSync(path.join(root, "tasks", `gromtseva-sr-${number}.html`), "utf8");
-  if (!page.includes(`const WORK = {"number": ${number},`) || !page.includes("href=\"../\"")) throw new Error(`Неверная автономная страница СР-${number}.`);
+  if (!page.includes(`../task.html?activity=gromtseva-sr-${number}`)) throw new Error(`Неверная переадресация СР-${number}.`);
 }
 
 const catalog = JSON.parse(fs.readFileSync(path.join(root, "data", "activities.json"), "utf8"));
 const ids = new Set();
 const publicQuestionKeys = new Set();
-const supportedDiagrams = new Set(["coord1", "coord2", "speed1", "speed2", "g6v1q2", "g6v1q3", "g6v2q2", "g6v2q3", "g7v1q3", "g7v2q3", "vectors1", "vectors2"]);
+const supportedDiagrams = new Set(["coord1", "coord2", "speed1", "speed2", "g6v1q2", "g6v1q3", "g6v2q2", "g6v2q3", "g7v1q3", "g7v2q3", "vectors1", "vectors2", "sr15v1q2", "sr15v2q2", "spring1", "spring2", "table1", "table2", "friction1", "friction2", "circle1", "circle2"]);
 let diagramCount = 0;
 let visualQuestionCount = 0;
 for (const activity of catalog.activities) {
@@ -62,7 +62,7 @@ for (const activity of catalog.activities) {
   }
 }
 if (diagramCount !== supportedDiagrams.size) throw new Error(`Ожидалось ${supportedDiagrams.size} диаграмм, найдено ${diagramCount}.`);
-if (visualQuestionCount !== 16) throw new Error(`Ожидалось 16 заданий с графикой, найдено ${visualQuestionCount}.`);
+if (visualQuestionCount !== 26) throw new Error(`Ожидалось 26 заданий с графикой, найдено ${visualQuestionCount}.`);
 const olympiad = fs.readFileSync(path.join(root, "tasks", "olympiad-physics.html"), "utf8");
 if (/"answerImage"\s*:/.test(olympiad) || /solutions\.html/.test(olympiad)) throw new Error("Скрытые олимпиадные ответы попали в публичный HTML.");
 if (/"problemImage"\s*:\s*"data:image\//.test(olympiad)) throw new Error("Изображения олимпиадных задач должны загружаться отдельно.");

@@ -198,7 +198,7 @@ function renderResults(rows, student, standalone, practice, friction) {
     const activityCell = document.createElement("td");
     activityCell.append(activityLink(item.activityId));
     tr.append(activityCell);
-    const values = selfCheck
+    const values = activity?.verificationMode === "visit-only" && selfCheck
       ? [`${selfCheck.visits} · ${date(selfCheck.lastAt || item.lastVisitAt)}`, `Вариант 1: ${selfCheck.solved[0]}/${selfCheck.number === 18 ? 4 : 3}`, `Вариант 2: ${selfCheck.solved[1]}/${selfCheck.number === 18 ? 4 : 3}`, `Без оценки · проверок: ${selfCheck.checks}`]
       : item.activityId === "free-fall-gravity"
         ? [`${practice.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${practice.solved}/30 · проверок: ${practice.checks}`]
@@ -326,7 +326,7 @@ function renderIndependent(rows, attempts, standalone) {
     summaryCard("В работе", String(inProgress.length)),
     summaryCard("Средняя оценка", grade),
     summaryCard("Верных ответов", String(works.reduce((sum, work) => sum + work.correct, 0))),
-    summaryCard("СР 14–18: решено", `${standalone.works.reduce((sum, work) => sum + work.solved[0] + work.solved[1], 0)} / 32`),
+    summaryCard("Прежние самопроверки", `${standalone.works.reduce((sum, work) => sum + work.solved[0] + work.solved[1], 0)} / 32`),
   );
   ui.independentBody.replaceChildren();
   works.forEach((work) => {

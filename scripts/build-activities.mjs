@@ -178,6 +178,39 @@ for (const work of newtonWorks) {
   addActivity(activityId, srPublic, srAnswers);
 }
 
+// СР-14–СР-23 берём из локального исходника вне публичного репозитория.
+// Он содержит решения и не должен попадать в GitHub Pages.
+const laterWorks = JSON.parse(fs.readFileSync(path.join(workspace, "9_gromceva_sr14_23_source.json"), "utf8"));
+for (const work of laterWorks) {
+  const activityId = `gromtseva-sr-${work.number}`;
+  const variants = [];
+  const answers = [];
+  for (const [variantIndex, tasks] of work.variants.entries()) {
+    const variantId = `v${variantIndex + 1}`;
+    let maxPoints = 0;
+    const questions = tasks.map((task, index) => {
+      const questionId = `${variantId}-q${index + 1}`;
+      const scored = task.kind !== "text";
+      const question = { id: questionId, title: task.q, prompt: "", kind: scored ? "numeric" : "ungraded-text", points: scored ? 1 : 0, scored };
+      if (task.unit) question.unit = task.unit;
+      if (task.graph) question.diagram = `sr15v${variantIndex + 1}q${index + 1}`;
+      if (task.visual) question.diagram = task.visual;
+      if (scored) maxPoints += 1;
+      answers.push({
+        variantId, questionId,
+        matcherType: scored ? "numeric" : "ungraded",
+        expected: scored ? task.answer : null,
+        tolerance: scored ? Math.max(1e-12, Math.abs(task.answer) * (task.tolerance ?? 0.01)) : 0,
+        points: scored ? 1 : 0,
+        solutionHtml: cleanHtml(task.solution),
+      });
+      return question;
+    });
+    variants.push({ id: variantId, title: `Вариант ${variantIndex + 1}`, maxPoints, questions });
+  }
+  addActivity(activityId, variants, answers);
+}
+
 fs.writeFileSync(privateFile, JSON.stringify(privateAnswers, null, 2) + "\n", { mode: 0o600 });
 fs.chmodSync(privateFile, 0o600);
 
@@ -203,6 +236,7 @@ olympiad = olympiad.replace('"otherPage": "solutions.html", "otherLabel": "От�
 olympiad = olympiad.replace(/if\(CONFIG\.mode==="solutions"\)\{[\s\S]*?el\.append\(az\)\}/, "");
 olympiad = olympiad.replace("Изображения встроены в HTML", "Изображения загружаются по мере просмотра");
 olympiad = olympiad.replace("Все изображения и данные находятся внутри этого HTML-файла. Внешние файлы и PDF не требуются.", "Изображения задач загружаются отдельно по мере просмотра, поэтому страница открывается быстрее.");
+olympiad = olympiad.replace("</head>", '  <link rel="stylesheet" href="drawing-board.css?v=1">\n  <script defer src="drawing-board.js?v=1"></script>\n</head>');
 olympiad = olympiad.replace("  </style>", `    .portal-access{width:min(1160px,calc(100% - 1.5rem));margin:1rem auto 0;padding:.85rem 1rem;border-left:4px solid var(--orange);border-radius:10px;background:var(--orange-soft);color:#9a3412;font-weight:750}
     .portal-access.closed{margin-top:2rem;padding:1.2rem;border-left-color:#dc2626;background:#fef2f2;color:#991b1b}
     .portal-access a{color:#1d4ed8}

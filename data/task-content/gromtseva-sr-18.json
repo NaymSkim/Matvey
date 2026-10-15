@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "activityId": "gromtseva-sr-18",
+  "variants": [
+    {
+      "id": "v1",
+      "title": "Вариант 1",
+      "maxPoints": 2,
+      "questions": [
+        {
+          "id": "v1-q1",
+          "title": "Почему Земля притягивает к себе окружающие тела?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v1-q2",
+          "title": "Куда направлена сила тяжести в любой точке поверхности Земли?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v1-q3",
+          "title": "На планете на тело массой 4 кг действует сила тяжести 80 Н. Найдите ускорение свободного падения.",
+          "prompt": "",
+          "kind": "numeric",
+          "points": 1,
+          "scored": true,
+          "unit": "м/с²"
+        },
+        {
+          "id": "v1-q4",
+          "title": "На поверхности Земли сила тяжести космонавта равна 720 Н. Какова она на круговой орбите на высоте одного земного радиуса?",
+          "prompt": "",
+          "kind": "numeric",
+          "points": 1,
+          "scored": true,
+          "unit": "Н"
+        }
+      ]
+    },
+    {
+      "id": "v2",
+      "title": "Вариант 2",
+      "maxPoints": 2,
+      "questions": [
+        {
+          "id": "v2-q1",
+          "title": "Почему сила тяжести у экватора меньше, чем у полюсов?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v2-q2",
+          "title": "Куда направлена сила тяжести, действующая на облако?",
+          "prompt": "",
+          "kind": "ungraded-text",
+          "points": 0,
+          "scored": false
+        },
+        {
+          "id": "v2-q3",
+          "title": "Найдите силу тяжести для керосина объёмом 18,75 л и плотностью 800 кг/м³.",
+          "prompt": "",
+          "kind": "numeric",
+          "points": 1,
+          "scored": true,
+          "unit": "Н"
+        },
+        {
+          "id": "v2-q4",
+          "title": "На каком расстоянии от земной поверхности сила тяжести на ракету станет в 4 раза меньше? Ответ выразите в радиусах Земли R.",
+          "prompt": "",
+          "kind": "numeric",
+          "points": 1,
+          "scored": true,
+          "unit": "R"
+        }
+      ]
+    }
+  ]
+}

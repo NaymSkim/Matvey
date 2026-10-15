@@ -42,6 +42,11 @@ for (const activity of catalog.activities.filter((item) => item.published)) {
     }
   }
 }
+// Preserve old direct links to the independent works after moving them to task.html.
+for (let number = 14; number <= 23; number += 1) {
+  const name = `gromtseva-sr-${number}.html`;
+  fs.copyFileSync(path.join(root, "tasks", name), path.join(dist, "tasks", name));
+}
 const olympiadAssets = path.join(root, "tasks", "olympiad-assets");
 if (fs.existsSync(olympiadAssets)) fs.cpSync(olympiadAssets, path.join(dist, "tasks", "olympiad-assets"), { recursive: true });
 fs.writeFileSync(path.join(dist, ".nojekyll"), "");

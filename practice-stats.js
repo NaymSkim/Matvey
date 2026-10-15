@@ -5,7 +5,7 @@ export function parsePracticeEvent(row) {
   catch { return null; }
   const gravity = url.pathname.endsWith("/tasks/free-fall-gravity.html");
   const friction = url.pathname.endsWith("/tasks/friction.html");
-  const standaloneMatch = /\/tasks\/gromtseva-sr-(1[4-9]|2[0-3])\.html$/.exec(url.pathname);
+  const standaloneMatch = /\/tasks\/gromtseva-sr-(1[4-8])\.html$/.exec(url.pathname);
   if (!gravity && !friction && !standaloneMatch) return null;
   const source = gravity ? "gravity" : friction ? "friction" : `sr-${standaloneMatch[1]}`;
   const kind = url.searchParams.get("practice");
@@ -53,7 +53,7 @@ export function summarizePractice(rows, source = "gravity") {
 }
 
 export function summarizeStandalone(rows) {
-  const works = Array.from({ length: 10 }, (_, index) => ({
+  const works = Array.from({ length: 5 }, (_, index) => ({
     number: index + 14,
     visits: 0,
     solved: [new Set(), new Set()],

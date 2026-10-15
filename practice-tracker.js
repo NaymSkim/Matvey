@@ -2,7 +2,7 @@ import { PhysicsTracker } from "./tracker.js";
 
 const status = document.querySelector("#teacher-stats-status");
 const earlyChecks = window.practiceChecksBeforeLogin || [];
-const standaloneMatch = /\/tasks\/gromtseva-sr-(1[4-9]|2[0-3])\.html$/.exec(location.pathname);
+const standaloneMatch = /\/tasks\/gromtseva-sr-(1[4-8])\.html$/.exec(location.pathname);
 const standalone = Boolean(standaloneMatch);
 const activityId = standalone ? `gromtseva-sr-${standaloneMatch[1]}`
   : location.pathname.endsWith("/tasks/friction.html") ? "friction" : "free-fall-gravity";

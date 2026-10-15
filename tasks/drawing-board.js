@@ -4,7 +4,7 @@
   const legacyTrigger = document.querySelector("#board-fab, #board-button");
   if (!legacyPanel || !legacyTrigger) return;
 
-  const storageKey = `physics-sketch-v1:${location.pathname}`;
+  const storageKey = `physics-sketch-v1:${location.pathname}:${new URLSearchParams(location.search).get("activity") || ""}`;
   const colors = [
     ["#172033", "Тёмный"], ["#2563eb", "Синий"], ["#c33c3c", "Красный"],
     ["#168653", "Зелёный"], ["#ea580c", "Оранжевый"], ["#7c3aed", "Фиолетовый"],

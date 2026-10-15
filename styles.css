@@ -229,6 +229,10 @@ td { font-size: .88rem; }
 .question-diagram .diagram-arrow { fill: var(--blue); }
 .question-diagram .diagram-point { fill: var(--blue); stroke: white; stroke-width: 2; }
 .question-diagram .diagram-label, .question-diagram .diagram-series-label { font-weight: 800; }
+.question-table { width: 100%; border-collapse: collapse; text-align: center; font-size: .88rem; }
+.question-table caption { padding: 4px 0 9px; font-weight: 800; }
+.question-table th, .question-table td { padding: 8px 6px; border: 1px solid #b9c8d8; }
+.question-table th { background: #eaf1ff; white-space: nowrap; }
 .question-actions { margin-top: 17px; }
 .question-feedback { min-height: 24px; margin: 12px 0 0; font-weight: 700; }
 .question-feedback.ok { color: var(--green); }

@@ -124,6 +124,40 @@ function diagramMarkup(key) {
     const label = negative ? "−10" : "15";
     return `<svg viewBox="0 0 330 190" role="img" aria-label="График проекции скорости: ${label} метров в секунду в течение двух секунд"><line class="diagram-axis" x1="46" y1="100" x2="300" y2="100"/><line class="diagram-axis" x1="46" y1="165" x2="46" y2="18"/><line class="diagram-vector" x1="46" y1="${y}" x2="260" y2="${y}"/><line class="diagram-grid dashed" x1="260" y1="28" x2="260" y2="164"/><text x="292" y="120">t, с</text><text x="8" y="22">vₓ, м/с</text><text x="22" y="${y + 4}">${label}</text><text x="254" y="118">2</text></svg>`;
   }
+  if (key === "table1" || key === "table2") {
+    const values = key === "table1" ? ["0", "1,5", "3", "4,5", "6,0", "7,5"] : ["0", "5", "10", "15", "20", "25"];
+    return `<table class="question-table"><caption>Результаты измерений</caption><tbody><tr><th scope="row">F, Н</th>${values.map((value) => `<td>${value}</td>`).join("")}</tr><tr><th scope="row">x, см</th>${[0, 1, 2, 3, 4, 5].map((value) => `<td>${value}</td>`).join("")}</tr></tbody></table>`;
+  }
+  if (key === "circle1" || key === "circle2") {
+    const marker = `arrow-${key}`;
+    return `<svg viewBox="0 0 340 240" role="img" aria-label="Тело в правой точке окружности; стрелки: 1 вверх, 2 вправо, 3 вниз, 4 к центру"><defs><marker id="${marker}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" class="diagram-arrow"/></marker></defs><circle cx="145" cy="120" r="84" fill="none" stroke="#172033" stroke-width="2"/><circle cx="145" cy="120" r="4" fill="#172033"/><text x="127" y="110">O</text><circle cx="229" cy="120" r="5" fill="#ea580c"/><g class="diagram-vector"><line x1="229" y1="120" x2="229" y2="65" marker-end="url(#${marker})"/><line x1="229" y1="120" x2="290" y2="120" marker-end="url(#${marker})"/><line x1="229" y1="120" x2="229" y2="177" marker-end="url(#${marker})"/><line x1="229" y1="120" x2="171" y2="120" marker-end="url(#${marker})"/></g><g class="diagram-label"><text x="238" y="64">1</text><text x="297" y="125">2</text><text x="238" y="190">3</text><text x="170" y="105">4</text></g></svg>`;
+  }
+  if (key === "sr15v1q2" || key === "sr15v2q2") {
+    const second = key === "sr15v2q2";
+    const maxTime = second ? 12 : 6;
+    const maxSpeed = second ? 60 : 30;
+    const xAt = (time) => 50 + time / maxTime * 250;
+    const yAt = (speed) => 125 - speed / maxSpeed * 75;
+    const ticks = [0, 1, 2, 3, 4, 5, 6].map((index) => {
+      const time = index * maxTime / 6;
+      return `<line class="diagram-grid dashed" x1="${xAt(time)}" y1="40" x2="${xAt(time)}" y2="210"/><text x="${xAt(time) - 4}" y="142">${time}</text>`;
+    }).join("");
+    return `<svg viewBox="0 0 350 240" role="img" aria-label="График скорости брошенного вверх тела"><line class="diagram-axis" x1="50" y1="125" x2="315" y2="125"/><line class="diagram-axis" x1="50" y1="215" x2="50" y2="25"/>${ticks}<line class="diagram-vector" x1="${xAt(0)}" y1="${yAt(maxSpeed)}" x2="${xAt(maxTime)}" y2="${yAt(-maxSpeed)}"/><text x="8" y="26">v, м/с</text><text x="310" y="144">t, с</text><text x="13" y="${yAt(maxSpeed) + 4}">${maxSpeed}</text><text x="6" y="${yAt(-maxSpeed) + 4}">−${maxSpeed}</text></svg>`;
+  }
+  if (["spring1", "spring2", "friction1", "friction2"].includes(key)) {
+    const spring = key.startsWith("spring");
+    const second = key.endsWith("2");
+    const xMax = spring ? second ? 2 : 0.2 : 40;
+    const yMax = spring ? second ? 600 : 20 : second ? 12 : 10;
+    const xLabel = spring ? "Δx, м" : "N, Н";
+    const yLabel = spring ? "Fупр, Н" : "Fтр, Н";
+    const format = (value) => String(Number(value.toFixed(2))).replace(".", ",");
+    const xAt = (value) => 50 + value / xMax * 240;
+    const yAt = (value) => 185 - value / yMax * 130;
+    const grid = [0, 1, 2, 3, 4].map((index) => `<line class="diagram-grid dashed" x1="${xAt(index * xMax / 4)}" y1="55" x2="${xAt(index * xMax / 4)}" y2="185"/><text x="${xAt(index * xMax / 4) - 9}" y="205">${format(index * xMax / 4)}</text>`).join("")
+      + [0, 1, 2].map((index) => `<line class="diagram-grid dashed" x1="50" y1="${yAt(index * yMax / 2)}" x2="290" y2="${yAt(index * yMax / 2)}"/><text x="5" y="${yAt(index * yMax / 2) + 4}">${format(index * yMax / 2)}</text>`).join("");
+    return `<svg viewBox="0 0 350 235" role="img" aria-label="График: ${yLabel} зависит от ${xLabel}; прямая через начало и точку ${format(xMax)}; ${format(yMax)}">${grid}<line class="diagram-axis" x1="50" y1="185" x2="310" y2="185"/><line class="diagram-axis" x1="50" y1="195" x2="50" y2="30"/><line class="diagram-vector" x1="50" y1="185" x2="290" y2="55"/><text x="280" y="228">${xLabel}</text><text x="5" y="25">${yLabel}</text></svg>`;
+  }
   const graph = velocityDiagrams[key];
   if (!graph) return "";
   const mapX = (value) => 50 + value / graph.t * 260;
