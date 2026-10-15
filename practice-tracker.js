@@ -56,7 +56,7 @@ try {
       query.set("correct", correct ? "1" : "0");
       if (answer) query.set("answer", answer.slice(0, 120));
     }
-    queue.push({ id: entryId, path: `${location.pathname}?${query}` });
+    queue.push({ id: entryId, path: `${location.pathname}?${query}`, activityId: trackingActivityId });
     saveQueue();
     void flush();
   }
@@ -67,7 +67,12 @@ try {
     try {
       while (queue.length) {
         const event = queue[0];
-        await PhysicsTracker.openActivity(trackingActivityId, event.id, event.path);
+        const queuedPath = new URL(event.path, location.origin).pathname;
+        const queuedWork = /\/tasks\/gromtseva-sr-(1[4-8])\.html$/.exec(queuedPath);
+        const queuedActivity = event.activityId !== undefined ? event.activityId
+          : queuedWork ? `gromtseva-sr-${queuedWork[1]}`
+          : queuedPath.endsWith("/tasks/friction.html") ? null : "free-fall-gravity";
+        await PhysicsTracker.openActivity(queuedActivity, event.id, event.path);
         queue.shift();
         saveQueue();
       }
