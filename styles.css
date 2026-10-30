@@ -108,6 +108,16 @@ footer a { color: var(--blue); }
 .guide-preview-link { min-height: 720px; display: grid; place-items: center; padding: clamp(28px, 5vw, 64px); border-left: 1px solid var(--line); background: linear-gradient(145deg, #142b63, #496dce 56%, #7c51bd); }
 .guide-preview { display: block; width: min(100%, 460px); height: auto; border-radius: 4px; box-shadow: 0 24px 60px rgba(7, 18, 48, .34); transition: transform .2s ease; }
 .guide-preview-link:hover .guide-preview { transform: translateY(-4px); }
+.guide-card + .guide-card { margin-top: 24px; }
+.formula-guide-card { grid-template-columns: minmax(280px, .85fr) minmax(340px, 1.15fr); }
+.formula-guide-preview-link { min-height: 460px; display: grid; place-items: center; padding: clamp(26px, 5vw, 55px); border-left: 1px solid var(--line); background: linear-gradient(145deg, #e9ecfa, #eaf4f0); text-decoration: none; }
+.formula-guide-preview { width: min(100%, 470px); display: grid; gap: 11px; padding: 28px; border: 1px solid #d6dce8; border-radius: 17px; background: #fbfaf6; box-shadow: 0 25px 60px rgba(28, 46, 66, .15); transform: rotate(-2deg); transition: transform .2s ease; }
+.formula-guide-preview-link:hover .formula-guide-preview { transform: rotate(0deg) translateY(-4px); }
+.formula-guide-preview-top { display: flex; justify-content: space-between; gap: 12px; color: #5265d8; font-size: .62rem; font-weight: 850; letter-spacing: .13em; }
+.formula-guide-preview-top b { color: #9199a7; }
+.formula-guide-preview strong { margin: 5px 0 8px; color: #243039; font: 400 clamp(1.8rem, 3vw, 2.5rem)/1.1 Georgia, serif; letter-spacing: -.04em; }
+.formula-guide-preview-equation { margin-bottom: 7px; padding: 20px 17px; border-radius: 10px; background: #243039; color: white; font: italic 1.7rem Georgia, serif; }
+.formula-guide-preview-step { padding: 8px 11px; border: 1px solid #e4e6e3; border-radius: 7px; color: #5b6870; font-size: .76rem; font-weight: 680; }
 
 .games-main { padding-bottom: 92px; }
 .games-hero { max-width: 850px; padding: 76px 0 54px; }
@@ -302,6 +312,8 @@ td { font-size: .88rem; }
   .guide-hero { padding: 54px 0 42px; }
   .guide-card { grid-template-columns: 1fr; }
   .guide-preview-link { min-height: 0; padding: 28px; border-top: 1px solid var(--line); border-left: 0; }
+  .formula-guide-card { grid-template-columns: 1fr; }
+  .formula-guide-preview-link { min-height: 0; padding: 35px 26px; border-top: 1px solid var(--line); border-left: 0; }
   .guide-actions { display: grid; }
   .games-hero { padding: 54px 0 42px; }
   .game-grid { grid-template-columns: 1fr; }

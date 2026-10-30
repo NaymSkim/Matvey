@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5ef">
+  <meta name="description" content="75 формул физики для 9 класса: физический смысл, пошаговый вывод, условия применения и примеры, включая космические скорости.">
+  <title>Физика по шагам — вывод 75 формул</title>
+  <link rel="stylesheet" href="./assets/katex-inline.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./assets/katex.min.js"></script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к объяснению</a>
+  <header class="site-header">
+    <a class="brand" href="#f01" aria-label="Физика по шагам, к первой формуле"><span class="brand-mark">∑</span><span>Физика <b>по шагам</b></span></a>
+    <span class="header-caption">Физика · 9 класс</span>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-controls="sidebar" aria-expanded="false">☰ <span>Формулы</span></button>
+  </header>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar" aria-label="Каталог формул">
+      <div class="sidebar-top">
+        <div class="eyebrow">АТЛАС ФОРМУЛ</div>
+        <h1>Откуда это<br><em>берётся?</em></h1>
+        <p>75 формул физики: от физической идеи до последнего знака.</p>
+        <label class="search-label" for="search">Поиск формулы</label>
+        <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Название или символ…" autocomplete="off"></div>
+      </div>
+      <nav id="formulaNav" class="formula-nav" aria-label="Темы и формулы"></nav>
+      <div class="sidebar-foot">Определение · Закон · Вывод<br><small>Учимся понимать, а не заучивать.</small></div>
+    </aside>
+    <main id="main" class="main-content" tabindex="-1">
+      <div id="detail"></div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
