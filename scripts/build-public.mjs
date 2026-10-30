@@ -22,6 +22,7 @@ fs.mkdirSync(path.join(dist, "guides"), { recursive: true });
 fs.mkdirSync(path.join(dist, "games"), { recursive: true });
 fs.copyFileSync(path.join(root, "guides", "fizika-9-klass-oge.pdf"), path.join(dist, "guides", "fizika-9-klass-oge.pdf"));
 fs.copyFileSync(path.join(root, "guides", "fizika-9-klass-oge-preview.png"), path.join(dist, "guides", "fizika-9-klass-oge-preview.png"));
+fs.cpSync(path.join(root, "guides", "formulas"), path.join(dist, "guides", "formulas"), { recursive: true });
 for (const game of ["formula-blitz.html", "field.html", "goldberg.html", "alchemy.html", "pressure-duel.html", "physics-detective.html"]) {
   fs.copyFileSync(path.join(root, "games", game), path.join(dist, "games", game));
 }
@@ -43,7 +44,7 @@ for (const activity of catalog.activities.filter((item) => item.published)) {
   }
 }
 // Preserve old direct links to the independent works after moving them to task.html.
-for (let number = 14; number <= 23; number += 1) {
+for (let number = 14; number <= 26; number += 1) {
   const name = `gromtseva-sr-${number}.html`;
   fs.copyFileSync(path.join(root, "tasks", name), path.join(dist, "tasks", name));
 }

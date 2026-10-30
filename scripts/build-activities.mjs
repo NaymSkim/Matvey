@@ -178,9 +178,10 @@ for (const work of newtonWorks) {
   addActivity(activityId, srPublic, srAnswers);
 }
 
-// СР-14–СР-23 берём из локального исходника вне публичного репозитория.
+// СР-14–СР-26 берём из локальных исходников вне публичного репозитория.
 // Он содержит решения и не должен попадать в GitHub Pages.
-const laterWorks = JSON.parse(fs.readFileSync(path.join(workspace, "9_gromceva_sr14_23_source.json"), "utf8"));
+const laterWorks = ["9_gromceva_sr14_23_source.json", "9_gromceva_sr24_26_source.json"]
+  .flatMap((file) => JSON.parse(fs.readFileSync(path.join(workspace, file), "utf8")));
 for (const work of laterWorks) {
   const activityId = `gromtseva-sr-${work.number}`;
   const variants = [];

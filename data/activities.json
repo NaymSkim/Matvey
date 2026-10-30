@@ -367,6 +367,48 @@
       "order": 62
     },
     {
+      "id": "gromtseva-sr-24",
+      "title": "Самостоятельная работа № 24",
+      "subject": "Самостоятельные",
+      "description": "Импульс тела: направление, модуль и сравнение.",
+      "url": "task.html?activity=gromtseva-sr-24",
+      "questionCount": 3,
+      "maxPoints": 3,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "server-graded",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 63
+    },
+    {
+      "id": "gromtseva-sr-25",
+      "title": "Самостоятельная работа № 25",
+      "subject": "Самостоятельные",
+      "description": "Сохранение импульса при столкновении и сцеплении тел.",
+      "url": "task.html?activity=gromtseva-sr-25",
+      "questionCount": 3,
+      "maxPoints": 3,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "server-graded",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 64
+    },
+    {
+      "id": "gromtseva-sr-26",
+      "title": "Самостоятельная работа № 26",
+      "subject": "Самостоятельные",
+      "description": "Реактивное движение, ступени ракеты и разлёт тележек.",
+      "url": "task.html?activity=gromtseva-sr-26",
+      "questionCount": 4,
+      "maxPoints": 2,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "server-graded",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 65
+    },
+    {
       "id": "accelerated-motion",
       "title": "Прямолинейное равноускоренное движение",
       "subject": "Тренажёры",
