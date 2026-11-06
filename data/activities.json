@@ -45,6 +45,20 @@
       "order": 30
     },
     {
+      "id": "gromtseva-kr2",
+      "title": "Контрольная работа № 2",
+      "subject": "Контрольная",
+      "description": "Четыре варианта по девять заданий: законы Ньютона, тяготение и импульс.",
+      "url": "task.html?activity=gromtseva-kr2",
+      "questionCount": 9,
+      "maxPoints": 9,
+      "difficulty": "Контроль знаний",
+      "verificationMode": "server-graded",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 31
+    },
+    {
       "id": "gromtseva-sr-1",
       "title": "Самостоятельная работа № 1",
       "subject": "Самостоятельные",
@@ -407,6 +421,34 @@
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
       "order": 65
+    },
+    {
+      "id": "gromtseva-sr-27",
+      "title": "Самостоятельная работа № 27",
+      "subject": "Самостоятельные",
+      "description": "Потенциальная, кинетическая и полная механическая энергия.",
+      "url": "task.html?activity=gromtseva-sr-27",
+      "questionCount": 3,
+      "maxPoints": 3,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "server-graded",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 66
+    },
+    {
+      "id": "gromtseva-sr-28",
+      "title": "Самостоятельная работа № 28",
+      "subject": "Самостоятельные",
+      "description": "Сохранение механической энергии при падении и броске вверх.",
+      "url": "task.html?activity=gromtseva-sr-28",
+      "questionCount": 3,
+      "maxPoints": 3,
+      "difficulty": "Базовый уровень",
+      "verificationMode": "server-graded",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 67
     },
     {
       "id": "accelerated-motion",

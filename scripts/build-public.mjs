@@ -44,7 +44,7 @@ for (const activity of catalog.activities.filter((item) => item.published)) {
   }
 }
 // Preserve old direct links to the independent works after moving them to task.html.
-for (let number = 14; number <= 26; number += 1) {
+for (let number = 14; number <= 28; number += 1) {
   const name = `gromtseva-sr-${number}.html`;
   fs.copyFileSync(path.join(root, "tasks", name), path.join(dist, "tasks", name));
 }

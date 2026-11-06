@@ -108,6 +108,28 @@ for (const variant of krVariants) {
 }
 addActivity("gromtseva-kr1", krPublic, krAnswers);
 
+const kr2Source = JSON.parse(fs.readFileSync(path.join(workspace, "9_gromceva_kr2_source.json"), "utf8"));
+const kr2Public = [], kr2Answers = [];
+for (const variant of kr2Source) {
+  const variantId = `v${variant.number}`;
+  const questions = variant.tasks.map((item, index) => {
+    const questionId = `${variantId}-q${index + 1}`;
+    const kind = item.rows ? "match" : item.options ? "choice" : "numeric";
+    const question = { id: questionId, title: item.q, prompt: "", kind, points: 1, scored: true };
+    if (item.options) question.options = item.options;
+    if (item.rows) question.rows = item.rows;
+    if (item.unit) question.unit = item.unit;
+    if (item.visual) question.diagram = item.visual;
+    kr2Answers.push({
+      variantId, questionId, matcherType: kind, expected: item.answer,
+      tolerance: item.tolerance || 0, points: 1, solutionHtml: cleanHtml(item.solution),
+    });
+    return question;
+  });
+  kr2Public.push({ id: variantId, title: `Вариант ${variant.number}`, maxPoints: questions.length, questions });
+}
+addActivity("gromtseva-kr2", kr2Public, kr2Answers);
+
 const works = extractArray(path.join(workspace, "9_gromceva_sr1_10_all_variants.html"), "WORKS");
 fs.rmSync(path.join(publicData, "gromtseva-sr.json"), { force: true });
 for (const work of works) {
@@ -178,9 +200,9 @@ for (const work of newtonWorks) {
   addActivity(activityId, srPublic, srAnswers);
 }
 
-// СР-14–СР-26 берём из локальных исходников вне публичного репозитория.
+// СР-14–СР-28 берём из локальных исходников вне публичного репозитория.
 // Он содержит решения и не должен попадать в GitHub Pages.
-const laterWorks = ["9_gromceva_sr14_23_source.json", "9_gromceva_sr24_26_source.json"]
+const laterWorks = ["9_gromceva_sr14_23_source.json", "9_gromceva_sr24_26_source.json", "9_gromceva_sr27_28_source.json"]
   .flatMap((file) => JSON.parse(fs.readFileSync(path.join(workspace, file), "utf8")));
 for (const work of laterWorks) {
   const activityId = `gromtseva-sr-${work.number}`;
