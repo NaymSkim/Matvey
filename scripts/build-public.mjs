@@ -36,9 +36,11 @@ for (const activity of catalog.activities.filter((item) => item.published)) {
     const parsed = new URL(activity.url, "https://portal.local/");
     const taskPath = parsed.pathname.replace(/^\//, "");
     const safeQuery = [...parsed.searchParams].every(([key, value]) => key === "work" && /^\d+$/.test(value));
-    if (!/^tasks\/[a-z0-9-]+\.html$/.test(taskPath) || parsed.hash || !safeQuery) throw new Error(`Небезопасный путь работы: ${activity.url}`);
+    const impulseWorkPage = taskPath === "tasks/impulse-work/index.html";
+    if ((!/^tasks\/[a-z0-9-]+\.html$/.test(taskPath) && !impulseWorkPage) || parsed.hash || !safeQuery) throw new Error(`Небезопасный путь работы: ${activity.url}`);
     if (!copiedTaskPages.has(taskPath)) {
-      fs.copyFileSync(path.join(root, taskPath), path.join(dist, taskPath));
+      if (impulseWorkPage) fs.cpSync(path.join(root, "tasks", "impulse-work"), path.join(dist, "tasks", "impulse-work"), { recursive: true });
+      else fs.copyFileSync(path.join(root, taskPath), path.join(dist, taskPath));
       copiedTaskPages.add(taskPath);
     }
   }

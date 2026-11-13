@@ -1,5 +1,5 @@
 import { APP_CONFIG, getSupabaseClient, invokeFunction } from "./supabase-client.js";
-import { parsePracticeEvent, summarizeIndependent, summarizePractice, summarizeStandalone } from "./practice-stats.js";
+import { impulseWorkTasks, parsePracticeEvent, summarizeImpulseWork, summarizeIndependent, summarizePractice, summarizeStandalone } from "./practice-stats.js";
 
 const ui = {
   login: document.querySelector("#teacher-login"), dashboard: document.querySelector("#teacher-dashboard"),
@@ -13,6 +13,8 @@ const ui = {
   practiceStatus: document.querySelector("#practice-status"), independentSummary: document.querySelector("#independent-summary"),
   frictionSummary: document.querySelector("#friction-summary"), frictionBody: document.querySelector("#friction-body"),
   frictionStatus: document.querySelector("#friction-status"),
+  impulseWorkSummary: document.querySelector("#impulse-work-summary"), impulseWorkBody: document.querySelector("#impulse-work-body"),
+  impulseWorkStatus: document.querySelector("#impulse-work-status"),
   independentBody: document.querySelector("#independent-body"), independentStatus: document.querySelector("#independent-status"),
   standaloneBody: document.querySelector("#standalone-body"),
   adminDialog: document.querySelector("#student-admin-dialog"), adminForm: document.querySelector("#student-admin-form"),
@@ -188,7 +190,7 @@ function renderActivityAccess(settings, studentName = "") {
   });
 }
 
-function renderResults(rows, student, standalone, practice, friction) {
+function renderResults(rows, student, standalone, practice, friction, impulseWork) {
   ui.results.replaceChildren();
   const standaloneById = new Map(standalone.works.map((work) => [`gromtseva-sr-${work.number}`, work]));
   [...rows].sort((a, b) => activityOrder(a.activityId) - activityOrder(b.activityId)).forEach((item) => {
@@ -204,6 +206,8 @@ function renderResults(rows, student, standalone, practice, friction) {
         ? [`${practice.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${practice.solved}/30 · проверок: ${practice.checks}`]
         : item.activityId === "friction"
           ? [`${friction.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${friction.solved}/30 · проверок: ${friction.checks}`]
+        : item.activityId === "impulse-work"
+          ? [`${impulseWork.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${impulseWork.solved}/10 · проверок: ${impulseWork.checks}`]
         : [`${item.visitCount} · ${date(item.lastVisitAt)}`, activity?.verificationMode === "visit-only" ? "Без оценки" : runsLabel(item.runs, 1), activity?.verificationMode === "visit-only" ? "—" : runsLabel(item.runs, 2), activity?.verificationMode === "visit-only" ? "Без оценки" : item.bestRun ? `${item.bestRun.variantId}: ${runLabel(item.bestRun)}` : "—"];
     values.forEach((value) => { const td = document.createElement("td"); td.textContent = value; tr.append(td); });
     const release = document.createElement("td");
@@ -223,11 +227,16 @@ function renderResults(rows, student, standalone, practice, friction) {
 }
 
 function practiceActivityId(event) {
-  return event.source === "gravity" ? "free-fall-gravity" : event.source === "friction" ? "friction" : `gromtseva-${event.source}`;
+  return event.source === "gravity" ? "free-fall-gravity" : event.source === "friction" ? "friction" : event.source === "impulse-work" ? "impulse-work" : `gromtseva-${event.source}`;
 }
 
 function practiceQuestion(event) {
   if (event.kind !== "check") return "";
+  if (event.source === "impulse-work") {
+    const task = impulseWorkTasks.find((item) => item.id === event.task);
+    const stage = { analysis: "анализ", conversion: "перевод в СИ", formula: "формула", result: "ответ" }[event.stage];
+    return `${task?.title || event.task} · ${stage}`;
+  }
   const parts = event.task.split("-").map(Number);
   if (event.source === "gravity") {
     const topics = ["Свободное падение", "Всемирное тяготение", "Ускорение свободного падения"];
@@ -315,6 +324,27 @@ function renderPractice(stats, source = "gravity") {
   });
 }
 
+function renderImpulseWork(stats) {
+  ui.impulseWorkSummary.replaceChildren(
+    summaryCard("Открытий", String(stats.opens)),
+    summaryCard("Решено задач", `${stats.solved} / 10`),
+    summaryCard("Проверок", String(stats.checks)),
+    summaryCard("Ошибок", String(stats.errors)),
+  );
+  ui.impulseWorkBody.replaceChildren();
+  stats.tasks.forEach((task) => {
+    const tr = document.createElement("tr");
+    const title = document.createElement("td");
+    const link = activityLink("impulse-work", `${task.topic} · ${task.title}`);
+    link.href = `${activityHref("impulse-work")}#task-${task.id}`;
+    title.append(link); tr.append(title);
+    [task.solved ? "Да" : "—", task.checks, task.errors, date(task.lastAt)].forEach((value) => {
+      const cell = document.createElement("td"); cell.textContent = String(value); tr.append(cell);
+    });
+    ui.impulseWorkBody.append(tr);
+  });
+}
+
 function renderIndependent(rows, attempts, standalone) {
   const works = summarizeIndependent(catalog, rows, attempts);
   const completed = works.filter((work) => work.status === "Сдана");
@@ -380,12 +410,16 @@ async function loadDashboard() {
     const eventRows = (data.visits || []).map((item) => ({ path: item.path, visited_at: item.createdAt }));
     const practice = summarizePractice(eventRows);
     const friction = summarizePractice(eventRows, "friction");
+    const impulseWork = summarizeImpulseWork(eventRows);
     const standalone = summarizeStandalone(eventRows);
     ui.practiceStatus.textContent = data.student
       ? practice.checks ? "Все проверки синхронизированы с журналом." : "Проверок пока нет. Ученик должен войти в портал перед решением."
       : "Статистика появится после создания ученика.";
     ui.frictionStatus.textContent = data.student
       ? friction.checks ? "Все проверки синхронизированы с журналом." : "Проверок пока нет. Ученик должен войти в портал перед решением."
+      : "Статистика появится после создания ученика.";
+    ui.impulseWorkStatus.textContent = data.student
+      ? impulseWork.checks ? "Попытки по этапам записаны в журнал." : "Проверок пока нет. Ученик должен войти в портал перед решением."
       : "Статистика появится после создания ученика.";
     ui.independentStatus.textContent = "";
     const visitCount = (data.visits || []).filter((item) => parsePracticeEvent({ path: item.path, visited_at: item.createdAt })?.kind !== "check").length;
@@ -395,8 +429,8 @@ async function loadDashboard() {
       summaryCard("Сдано работ", String(data.submittedRuns || 0)),
       summaryCard("Средняя оценка", data.averageGrade ? String(data.averageGrade) : "—"),
     );
-    renderPractice(practice); renderPractice(friction, "friction"); renderIndependent(data.activities || [], data.attempts || [], standalone);
-    renderActivityAccess(data.activitySettings || [], studentName); renderStudent(data.student); renderResults(data.activities || [], data.student, standalone, practice, friction); renderRecentActions(data);
+    renderPractice(practice); renderPractice(friction, "friction"); renderImpulseWork(impulseWork); renderIndependent(data.activities || [], data.attempts || [], standalone);
+    renderActivityAccess(data.activitySettings || [], studentName); renderStudent(data.student); renderResults(data.activities || [], data.student, standalone, practice, friction, impulseWork); renderRecentActions(data);
   } finally { ui.refresh.disabled = false; dashboardLoading = false; }
 }
 

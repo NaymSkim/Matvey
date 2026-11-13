@@ -541,6 +541,21 @@
       "order": 74.5
     },
     {
+      "id": "impulse-work",
+      "title": "Импульс и работа · по шагам",
+      "subject": "Тренажёры",
+      "description": "10 задач для 9 класса: анализ условия, перевод в СИ, выбор формулы, самопроверка и олимпиадные разборы.",
+      "url": "tasks/impulse-work/index.html",
+      "questionCount": 10,
+      "maxPoints": 0,
+      "difficulty": "9 класс",
+      "verificationMode": "visit-only",
+      "cardState": "Практикум",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 74.7
+    },
+    {
       "id": "olympiad-physics",
       "title": "Олимпиадная физика",
       "subject": "Олимпиада",

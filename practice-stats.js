@@ -5,18 +5,58 @@ export function parsePracticeEvent(row) {
   catch { return null; }
   const gravity = url.pathname.endsWith("/tasks/free-fall-gravity.html");
   const friction = url.pathname.endsWith("/tasks/friction.html");
+  const impulseWork = url.pathname.endsWith("/tasks/impulse-work/index.html");
   const standaloneMatch = /\/tasks\/gromtseva-sr-(1[4-8])\.html$/.exec(url.pathname);
-  if (!gravity && !friction && !standaloneMatch) return null;
-  const source = gravity ? "gravity" : friction ? "friction" : `sr-${standaloneMatch[1]}`;
+  if (!gravity && !friction && !impulseWork && !standaloneMatch) return null;
+  const source = gravity ? "gravity" : friction ? "friction" : impulseWork ? "impulse-work" : `sr-${standaloneMatch[1]}`;
   const kind = url.searchParams.get("practice");
   if (kind === "open") return { source, kind, at: row.visited_at };
   if (kind !== "check") return null;
   const task = url.searchParams.get("task") || "";
-  if (gravity || friction ? !/^[1-3]-[1-2]-[1-5]$/.test(task) : !/^[1-2]-[1-4]$/.test(task)) return null;
+  const impulseWorkTasks = new Set(["direction", "car", "balls", "train", "cart", "olymp-impulse", "work-zero", "work-right", "work-obtuse", "olymp-work"]);
+  if (impulseWork ? !impulseWorkTasks.has(task) : gravity || friction ? !/^[1-3]-[1-2]-[1-5]$/.test(task) : !/^[1-2]-[1-4]$/.test(task)) return null;
   if (standaloneMatch && standaloneMatch[1] !== "18" && task.endsWith("-4")) return null;
+  const stage = impulseWork ? url.searchParams.get("stage") || "" : "";
+  if (impulseWork && !["analysis", "conversion", "formula", "result"].includes(stage)) return null;
   const result = url.searchParams.get("correct");
   if (result !== "0" && result !== "1") return null;
-  return { source, kind, task, correct: result === "1", answer: (url.searchParams.get("answer") || "").slice(0, 120), at: row.visited_at };
+  return { source, kind, task, stage, correct: result === "1", answer: (url.searchParams.get("answer") || "").slice(0, 120), at: row.visited_at };
+}
+
+export const impulseWorkTasks = [
+  { id: "direction", title: "Куда направлен импульс?", topic: "Импульс" },
+  { id: "car", title: "Легковой автомобиль", topic: "Импульс" },
+  { id: "balls", title: "Два пластилиновых шарика", topic: "Импульс" },
+  { id: "train", title: "Электровоз и вагон", topic: "Импульс" },
+  { id: "cart", title: "Тележка и встречный шар", topic: "Импульс" },
+  { id: "olymp-impulse", title: "Сила на графике и трение", topic: "Импульс" },
+  { id: "work-zero", title: "Сила вдоль движения", topic: "Работа" },
+  { id: "work-right", title: "Сила поперёк движения", topic: "Работа" },
+  { id: "work-obtuse", title: "Сила мешает движению", topic: "Работа" },
+  { id: "olymp-work", title: "Канат на наклонной плоскости", topic: "Работа" },
+];
+
+export function summarizeImpulseWork(rows) {
+  const tasks = impulseWorkTasks.map((task) => ({ ...task, solved: false, checks: 0, errors: 0, lastAt: null }));
+  const byId = new Map(tasks.map((task) => [task.id, task]));
+  let opens = 0;
+  for (const row of rows) {
+    const event = parsePracticeEvent(row);
+    if (!event || event.source !== "impulse-work") continue;
+    if (event.kind === "open") { opens += 1; continue; }
+    const task = byId.get(event.task);
+    task.checks += 1;
+    if (!event.correct) task.errors += 1;
+    if (event.stage === "result" && event.correct) task.solved = true;
+    if (!task.lastAt || event.at > task.lastAt) task.lastAt = event.at;
+  }
+  return {
+    opens,
+    solved: tasks.filter((task) => task.solved).length,
+    checks: tasks.reduce((sum, task) => sum + task.checks, 0),
+    errors: tasks.reduce((sum, task) => sum + task.errors, 0),
+    tasks,
+  };
 }
 
 export function summarizePractice(rows, source = "gravity") {

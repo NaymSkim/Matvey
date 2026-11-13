@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102a39">
+  <meta name="description" content="Импульс и механическая работа для 9 класса: понятный алгоритм решения, задачи из школьных подборок, олимпиадные разборы и самопроверка.">
+  <title>Импульс и работа — решаем по шагам</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23102a39'/%3E%3Cpath d='M13 39h28m-9-9 10 9-10 9' fill='none' stroke='%23ffc66d' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='19' cy='23' r='5' fill='%2367d7c7'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="../../config.js?v=2"></script>
+  <script src="app.js" defer></script>
+  <script type="module" src="portal-tracker.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">К содержанию</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="На главную"><span class="brand-icon">↗</span><span>Физика<span class="brand-dot">.</span>по шагам</span></a>
+      <nav aria-label="Разделы сайта">
+        <a href="../../index.html">В Matvey</a>
+        <a href="#method">Алгоритм</a>
+        <a href="#impulse">Импульс</a>
+        <a href="#work">Работа</a>
+      </nav>
+      <div class="header-progress" aria-live="polite"><span id="progress-count">0/10</span><span class="progress-track"><span id="progress-bar"></span></span></div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow light"><span class="eyebrow-line"></span> ПРАКТИКУМ · 9 КЛАСС</p>
+          <h1>Импульс<br>и <em>работа.</em><br><span>Решаем по шагам.</span></h1>
+          <p class="hero-lead">Разберись, что дано, приведи величины к СИ, выбери формулу и проверь ответ. Каждая задача ведёт тебя через эти четыре шага.</p>
+          <div class="hero-actions"><a class="button primary" href="#method">Начать с алгоритма <span aria-hidden="true">↗</span></a><a class="text-link" href="#impulse">Перейти к задачам <span aria-hidden="true">↓</span></a></div>
+          <div class="hero-meta"><span><b>02</b> темы</span><span><b>10</b> задач</span><span><b>04</b> шага в каждой</span></div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="visual-top"><span>КАРТА РЕШЕНИЯ</span><span>01 / 04</span></div>
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="visual-core"><span class="core-label">ИЗ УСЛОВИЯ</span><strong>Дано → СИ<br>→ формула<br>→ ответ</strong></div>
+          <div class="float-card float-a"><small>ИМПУЛЬС</small><strong>p = mv</strong></div>
+          <div class="float-card float-b"><small>РАБОТА СИЛЫ</small><strong>A = Fs cos α</strong></div>
+          <div class="visual-bottom">ПОНИМАЙ ХОД РЕШЕНИЯ, А НЕ ЗАПОМИНАЙ ОТВЕТ</div>
+        </div>
+      </div>
+    </section>
+
+    <p class="tracker-status" id="teacher-stats-status" role="status" aria-live="polite">Проверяем связь с кабинетом преподавателя…</p>
+
+    <section class="section method-section" id="method">
+      <div class="section-head"><div><p class="eyebrow">ЕДИНЫЙ АЛГОРИТМ</p><h2>Четыре шага к ответу</h2></div><p class="section-intro">Один и тот же порядок работает и для короткого вычисления, и для сложной олимпиадной задачи.</p></div>
+      <div class="method-grid">
+        <article class="method-card"><span class="step-no">01</span><div class="step-symbol">⌕</div><h3>Разбери условие</h3><p>Выпиши, что известно и что найти. Отметь направления движения, силы и перемещения. При необходимости выбери положительное направление оси.</p><span class="step-foot">Дано · Найти · Схема</span></article>
+        <article class="method-card"><span class="step-no">02</span><div class="step-symbol">⇄</div><h3>Переведи в СИ</h3><p>Массу запиши в килограммах, путь — в метрах, скорость — в м/с. Запиши перевод отдельно, чтобы не потерять множитель.</p><span class="step-foot">1 т = 1000 кг · 36 км/ч = 10 м/с</span></article>
+        <article class="method-card"><span class="step-no">03</span><div class="step-symbol">ƒ</div><h3>Выбери формулу</h3><p>Посмотри, какие величины связывает закон. Для столкновения учти знаки скоростей; для работы найди угол между силой и перемещением.</p><span class="step-foot">Закон → Уравнение → Искомое</span></article>
+        <article class="method-card"><span class="step-no">04</span><div class="step-symbol">✓</div><h3>Вычисли и проверь</h3><p>Подставь числа, укажи единицу и оцени смысл результата: направление, знак работы и реалистичность величины.</p><span class="step-foot">Число · Единица · Смысл</span></article>
+      </div>
+      <div class="method-note"><span class="note-icon">✦</span><p><strong>Как пользоваться:</strong> прочитай разбор образца, затем открой задачу. На каждом этапе можно проверить себя и получить подсказку. Полное решение доступно после попытки.</p></div>
+    </section>
+
+    <section class="chapter chapter-impulse" id="impulse">
+      <div class="chapter-band"><div class="chapter-band-inner"><span class="chapter-index">ГЛАВА 01 / 02</span><h2>Импульс тела</h2><p>Скорость важна вместе с массой. А направление — не менее важно, чем число.</p><span class="chapter-glyph" aria-hidden="true">p⃗</span></div></div>
+      <div class="section chapter-content">
+        <div class="concept-layout">
+          <div><p class="eyebrow">СНАЧАЛА ПОЙМИ</p><h3 class="concept-title">Импульс показывает, сколько движения несёт тело</h3><p class="concept-text">Импульс <b>p⃗</b> направлен так же, как скорость <b>v⃗</b>. При изменении скорости меняется и импульс. Если внешними силами можно пренебречь, суммарный импульс системы до взаимодействия равен суммарному импульсу после него.</p></div>
+          <div class="formula-board"><span>ОСНОВНЫЕ СВЯЗИ</span><div><strong>p⃗ = m v⃗</strong><small>импульс тела</small></div><div><strong>Δp⃗ = F⃗ Δt</strong><small>при постоянной результирующей силе</small></div><div><strong>Σp⃗<sub>до</sub> = Σp⃗<sub>после</sub></strong><small>замкнутая система</small></div></div>
+        </div>
+        <div class="mini-rule"><span class="rule-icon">→</span><p>Для движения по прямой выбери ось: вправо — «+», влево — «−». Тогда скорости и импульсы подставляй <strong>со знаками</strong>.</p></div>
+
+        <div class="worked-head"><div><p class="eyebrow">РАЗОБРАННЫЙ ПРИМЕР</p><h3>Грузовик и перевод единиц</h3></div><span class="source-tag">Из вашей СР №24 · вариант 1, задача 2</span></div>
+        <div class="worked-problem"><p>Грузовой автомобиль массой <b>10 т</b> движется со скоростью <b>36 км/ч</b>. Найди модуль его импульса.</p><div class="worked-result">p = <strong>100 000</strong> кг·м/с</div></div>
+        <div class="worked-steps">
+          <article><span>01 · АНАЛИЗ</span><p>Дано: m = 10 т, v = 36 км/ч. Найти модуль p. Направление здесь не требуется.</p></article>
+          <article><span>02 · СИ</span><p>m = 10 000 кг; v = 36 : 3,6 = 10 м/с.</p></article>
+          <article><span>03 · ФОРМУЛА</span><p>Для модуля импульса используем p = mv.</p></article>
+          <article><span>04 · РЕШЕНИЕ</span><p>p = 10 000 · 10 = 100 000 кг·м/с. Единица получается из кг · м/с.</p></article>
+        </div>
+        <div class="tasks-heading"><div><p class="eyebrow">ТЕПЕРЬ ТВОЯ ОЧЕРЕДЬ</p><h3>Практика: от простого к сложному</h3></div><p>Раскрывай задачи по порядку. Олимпиадная задача — часть маршрута, после базовых приёмов.</p></div>
+        <div id="impulse-tasks" class="task-list"></div>
+      </div>
+    </section>
+
+    <section class="chapter chapter-work" id="work">
+      <div class="chapter-band"><div class="chapter-band-inner"><span class="chapter-index">ГЛАВА 02 / 02</span><h2>Механическая работа</h2><p>Сила может помогать движению, мешать ему или вовсе не совершать работу.</p><span class="chapter-glyph" aria-hidden="true">A</span></div></div>
+      <div class="section chapter-content">
+        <div class="concept-layout work-concept">
+          <div><p class="eyebrow">СНАЧАЛА ПОЙМИ</p><h3 class="concept-title">Считай только ту часть силы, что действует вдоль перемещения</h3><p class="concept-text">Угол <b>α</b> измеряют <strong>между направлением силы и направлением перемещения</strong>. Множитель cos α выделяет продольную составляющую силы. Если тело не переместилось, работа этой силы равна нулю.</p><div class="angle-pills"><span>0° → помогает</span><span>90° → не работает</span><span>120° → мешает</span></div></div>
+          <div class="angle-board"><span>ГЕОМЕТРИЯ РАБОТЫ</span><svg viewBox="0 0 400 210" role="img" aria-label="Перемещение направлено вправо, сила направлена вверх и вправо под углом альфа"><defs><marker id="arrow-coral" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#f37b63"/></marker><marker id="arrow-teal" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#68d8c8"/></marker></defs><circle cx="94" cy="155" r="12" fill="#fff"/><line x1="94" y1="155" x2="343" y2="155" stroke="#68d8c8" stroke-width="6" marker-end="url(#arrow-teal)"/><line x1="94" y1="155" x2="244" y2="45" stroke="#f37b63" stroke-width="6" marker-end="url(#arrow-coral)"/><path d="M145 155 A51 51 0 0 0 135 125" fill="none" stroke="#ffc66d" stroke-width="3"/><text x="155" y="137" fill="#ffc66d" font-size="23">α</text><text x="285" y="184" fill="#68d8c8" font-size="20">s⃗</text><text x="248" y="45" fill="#f37b63" font-size="20">F⃗</text></svg><div class="angle-formula">A = F · s · cos α</div><small>Н · м = Дж</small></div>
+        </div>
+        <div class="sign-grid"><div><strong>cos 0° = 1</strong><span>Работа положительна: A = Fs</span></div><div><strong>cos 90° = 0</strong><span>Работа равна нулю</span></div><div><strong>cos 120° = −½</strong><span>Работа отрицательна</span></div></div>
+        <div class="worked-head"><div><p class="eyebrow">РАЗОБРАННЫЙ ПРИМЕР</p><h3>Сила под углом 60°</h3></div><span class="source-tag">Учебный пример для этого сайта</span></div>
+        <div class="worked-problem"><p>На тело действует сила <b>40 Н</b> под углом <b>60°</b> к направлению перемещения. Тело сместилось на <b>50 см</b>. Найди работу силы.</p><div class="worked-result">A = <strong>10</strong> Дж</div></div>
+        <div class="worked-steps">
+          <article><span>01 · АНАЛИЗ</span><p>Дано: F = 40 Н, s = 50 см, α = 60°. Найти A. Угол острый, значит работа положительна.</p></article>
+          <article><span>02 · СИ</span><p>s = 50 см = 0,50 м. Сила уже дана в ньютонах.</p></article>
+          <article><span>03 · ФОРМУЛА</span><p>A = Fs cos α; для 60° косинус равен ½.</p></article>
+          <article><span>04 · РЕШЕНИЕ</span><p>A = 40 · 0,50 · ½ = 10 Дж. Проверка: это меньше Fs = 20 Дж, как и должно быть при угле 60°.</p></article>
+        </div>
+        <div class="tasks-heading"><div><p class="eyebrow">ТЕПЕРЬ ТВОЯ ОЧЕРЕДЬ</p><h3>Практика: угол меняет ответ</h3></div><p>Сначала определи знак работы по направлению силы, затем считай.</p></div>
+        <div id="work-tasks" class="task-list"></div>
+      </div>
+    </section>
+
+    <section class="finish-section"><div class="finish-inner"><div><p class="eyebrow light">ПАМЯТКА ПЕРЕД ОТВЕТОМ</p><h2>Число — это ещё не всё.</h2><p>Проверь единицу, направление импульса и знак работы. Если результат не согласуется с рисунком или смыслом задачи, вернись к этапу анализа.</p></div><a class="button primary" href="#top">Вернуться к началу ↑</a></div></section>
+  </main>
+  <footer><div class="footer-inner"><a href="../../index.html">← В каталог Matvey</a><span>Физика.по шагам · 9 класс</span><span>Задачи из материалов владельца и олимпиадной подборки; источники указаны в карточках.</span><button type="button" id="reset-progress">Сбросить прогресс</button></div></footer>
+</body>
+</html>
