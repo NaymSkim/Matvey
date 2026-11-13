@@ -21,7 +21,12 @@ let studentName = "";
 let taskAccess = { isOpen: true, manuallyClosed: false, deadlineExpired: false, deadlineAt: null };
 let serverOffsetMs = 0;
 let autoSubmitting = false;
+let completedVariantCounts = new Map();
 const answered = new Map();
+
+function isFourVariantControl() {
+  return activity?.id === "gromtseva-kr1" || activity?.id === "gromtseva-kr2";
+}
 const teacherAnswers = new Map();
 const teacherAttempts = new Map();
 
@@ -424,6 +429,12 @@ function selectVariant(variantId) {
   const text = document.createElement("div");
   const title = document.createElement("strong"); title.textContent = selectedVariant.title;
   const note = document.createElement("span"); note.textContent = `${studentName ? `${studentName}, ` : ""}попытка начнётся только после нажатия кнопки. После старта вариант изменить нельзя.`;
+  if (isFourVariantControl() && (completedVariantCounts.get(variantId) || 0) >= 2) {
+    note.textContent = "Обе сдачи этого варианта завершены. Выберите другой вариант.";
+    text.append(title, note);
+    ui.banner.append(text);
+    return;
+  }
   text.append(title, note);
   const start = document.createElement("button"); start.type = "button"; start.className = "primary-button compact"; start.textContent = "Начать работу";
   start.addEventListener("click", () => void beginRun(start));
@@ -444,7 +455,7 @@ async function beginRun(startButton = null) {
     ui.banner.hidden = false;
     const pointsWord = selectedVariant.maxPoints % 10 === 1 && selectedVariant.maxPoints % 100 !== 11 ? "балл" : selectedVariant.maxPoints % 10 >= 2 && selectedVariant.maxPoints % 10 <= 4 && !(selectedVariant.maxPoints % 100 >= 12 && selectedVariant.maxPoints % 100 <= 14) ? "балла" : "баллов";
     const heading = document.createElement("strong");
-    heading.textContent = `${studentName ? `${studentName} · ` : ""}${currentRun.runNo === 1 ? "Первая сдача" : "Пересдача"}${selectedVariant.maxPoints === 0 ? " · без оценки" : ""}`;
+    heading.textContent = `${studentName ? `${studentName} · ` : ""}${isFourVariantControl() ? `${selectedVariant.title} · ${completedVariantCounts.get(selectedVariant.id) ? "пересдача" : "первая сдача"}` : currentRun.runNo === 1 ? "Первая сдача" : "Пересдача"}${selectedVariant.maxPoints === 0 ? " · без оценки" : ""}`;
     const description = document.createElement("span");
     description.textContent = selectedVariant.maxPoints === 0 ? "Одна попытка на каждый вопрос. Ответы увидит преподаватель." : `Одна попытка на каждый вопрос · ${selectedVariant.maxPoints} ${pointsWord}`;
     ui.banner.replaceChildren(heading, description);
@@ -477,7 +488,8 @@ function renderVariants() {
   ui.variants.hidden = false;
   ui.variants.innerHTML = `<p>Выберите вариант или работу:</p>`;
   content.variants.forEach((variant) => {
-    const button = document.createElement("button"); button.type = "button"; button.className = "variant-button"; button.dataset.variant = variant.id; button.textContent = variant.title;
+    const button = document.createElement("button"); button.type = "button"; button.className = "variant-button"; button.dataset.variant = variant.id;
+    button.textContent = `${variant.title}${isFourVariantControl() ? ` · ${completedVariantCounts.get(variant.id) || 0}/2` : ""}`;
     button.addEventListener("click", () => selectVariant(variant.id)); ui.variants.append(button);
   });
 }
@@ -521,6 +533,18 @@ function renderResult(result, automatic = false) {
   ui.result.hidden = false;
   const safeName = escapeHtml(studentName);
   const automaticNote = automatic ? `${safeName ? `${safeName}, ` : ""}время закончилось, поэтому работа была сдана автоматически. ` : "";
+  if (isFourVariantControl()) {
+    const variantCount = (completedVariantCounts.get(result.variantId) || 0) + 1;
+    completedVariantCounts.set(result.variantId, variantCount);
+    const submittedCount = [...completedVariantCounts.values()].reduce((sum, count) => sum + count, 0);
+    const remaining = Math.max(0, content.variants.length * 2 - submittedCount);
+    const next = remaining ? `Осталось доступных сдач: ${remaining}.` : "Все четыре варианта и их пересдачи завершены.";
+    const variantNote = variantCount === 1 ? "Для этого варианта доступна пересдача." : "Обе сдачи этого варианта завершены.";
+    ui.result.innerHTML = result.grade == null
+      ? `<p class="eyebrow">Готово</p><h2>Ответы по ${escapeHtml(selectedVariant.title.toLowerCase())} сохранены</h2><p>${automaticNote}${variantNote} ${next}</p><a class="activity-link" href="./">Вернуться к каталогу <span>→</span></a>`
+      : `<p class="eyebrow">Результат${safeName ? ` · ${safeName}` : ""}</p><div class="grade-circle">${result.grade}</div><h2>${safeName ? `${safeName}, ` : ""}${result.score} из ${result.maxPoints} · ${result.percent}%</h2><p>${automaticNote}${escapeHtml(selectedVariant.title)} сдан. ${variantNote} ${next} В журнале сохранены все результаты.</p><a class="activity-link" href="./">Вернуться к каталогу <span>→</span></a>`;
+    return;
+  }
   ui.result.innerHTML = result.grade == null
     ? `<p class="eyebrow">Готово</p><h2>${safeName ? `${safeName}, ответы` : "Ответы"} сохранены без оценки</h2><p>${automaticNote}Преподаватель увидит их в журнале. ${result.runNo === 1 ? "При необходимости доступна ещё одна полная сдача." : "Обе сдачи сохранены."}</p><a class="activity-link" href="./">Вернуться к каталогу <span>→</span></a>`
     : `<p class="eyebrow">Результат${safeName ? ` · ${safeName}` : ""}</p><div class="grade-circle">${result.grade}</div><h2>${safeName ? `${safeName}, ` : ""}${result.score} из ${result.maxPoints} · ${result.percent}%</h2><p>${automaticNote}${result.runNo === 1 ? "Теперь доступна одна пересдача. В журнал пойдёт лучший результат." : "Пересдача завершена. В журнале сохранены оба результата."}</p><a class="activity-link" href="./">Вернуться к каталогу <span>→</span></a>`;
@@ -603,6 +627,10 @@ async function init() {
   }
   if (progress.serverTime) serverOffsetMs = Date.parse(progress.serverTime) - Date.now();
   const activityProgress = progress.activities?.find((item) => item.activityId === activity.id);
+  completedVariantCounts = new Map();
+  for (const run of activityProgress?.runs || []) {
+    if (run.status === "submitted") completedVariantCounts.set(run.variantId, (completedVariantCounts.get(run.variantId) || 0) + 1);
+  }
   taskAccess = activityProgress || opened.access || taskAccess;
   const active = activityProgress?.runs?.find((run) => run.status === "in_progress");
   if (active) {

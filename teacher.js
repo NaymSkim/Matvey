@@ -71,10 +71,9 @@ function activityLink(id, label = activityName(id), questionId = "") {
   return link;
 }
 const runLabel = (run) => run ? (run.grade == null ? "Ответы сохранены · без оценки" : `${run.score}/${run.maxPoints} · ${run.percent}% · ${run.grade}`) : "—";
-const runsLabel = (runs, runNo) => {
-  const selected = runs.filter((run) => run.runNo === runNo);
-  return selected.length ? selected.map((run) => `${run.variantId}: ${runLabel(run)}`).join("; ") : "—";
-};
+const runsLabel = (runs) => runs.length
+  ? [...runs].sort((a, b) => a.runNo - b.runNo).map((run) => `${run.variantId}: ${runLabel(run)}`).join("; ")
+  : "—";
 
 function summaryCard(label, value) {
   const article = document.createElement("article");
@@ -201,14 +200,14 @@ function renderResults(rows, student, standalone, practice, friction, impulseWor
     activityCell.append(activityLink(item.activityId));
     tr.append(activityCell);
     const values = activity?.verificationMode === "visit-only" && selfCheck
-      ? [`${selfCheck.visits} · ${date(selfCheck.lastAt || item.lastVisitAt)}`, `Вариант 1: ${selfCheck.solved[0]}/${selfCheck.number === 18 ? 4 : 3}`, `Вариант 2: ${selfCheck.solved[1]}/${selfCheck.number === 18 ? 4 : 3}`, `Без оценки · проверок: ${selfCheck.checks}`]
+      ? [`${selfCheck.visits} · ${date(selfCheck.lastAt || item.lastVisitAt)}`, `Вариант 1: ${selfCheck.solved[0]}/${selfCheck.number === 18 ? 4 : 3}; Вариант 2: ${selfCheck.solved[1]}/${selfCheck.number === 18 ? 4 : 3}`, `Без оценки · проверок: ${selfCheck.checks}`]
       : item.activityId === "free-fall-gravity"
-        ? [`${practice.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${practice.solved}/30 · проверок: ${practice.checks}`]
+        ? [`${practice.opens} · ${date(item.lastVisitAt)}`, "Без оценки", `Решено: ${practice.solved}/30 · проверок: ${practice.checks}`]
         : item.activityId === "friction"
-          ? [`${friction.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${friction.solved}/30 · проверок: ${friction.checks}`]
+          ? [`${friction.opens} · ${date(item.lastVisitAt)}`, "Без оценки", `Решено: ${friction.solved}/30 · проверок: ${friction.checks}`]
         : item.activityId === "impulse-work"
-          ? [`${impulseWork.opens} · ${date(item.lastVisitAt)}`, "Без оценки", "—", `Решено: ${impulseWork.solved}/10 · проверок: ${impulseWork.checks}`]
-        : [`${item.visitCount} · ${date(item.lastVisitAt)}`, activity?.verificationMode === "visit-only" ? "Без оценки" : runsLabel(item.runs, 1), activity?.verificationMode === "visit-only" ? "—" : runsLabel(item.runs, 2), activity?.verificationMode === "visit-only" ? "Без оценки" : item.bestRun ? `${item.bestRun.variantId}: ${runLabel(item.bestRun)}` : "—"];
+          ? [`${impulseWork.opens} · ${date(item.lastVisitAt)}`, "Без оценки", `Решено: ${impulseWork.solved}/10 · проверок: ${impulseWork.checks}`]
+        : [`${item.visitCount} · ${date(item.lastVisitAt)}`, activity?.verificationMode === "visit-only" ? "Без оценки" : runsLabel(item.runs), activity?.verificationMode === "visit-only" ? "Без оценки" : item.bestRun ? `${item.bestRun.variantId}: ${runLabel(item.bestRun)}` : "—"];
     values.forEach((value) => { const td = document.createElement("td"); td.textContent = value; tr.append(td); });
     const release = document.createElement("td");
     if (activity?.verificationMode === "visit-only") release.textContent = "—";

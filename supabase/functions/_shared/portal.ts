@@ -296,13 +296,20 @@ async function startRun(userId: string, input: Record<string, unknown>) {
   if (!activity || activity.verification_mode !== "server-graded") throw new PortalError("Для этой работы автоматическая сдача не включена.");
   const { data: existing, error: existingError } = await admin.from("activity_runs").select("*").eq("student_id", student.id).eq("activity_id", activityId).order("run_no");
   if (existingError) throw existingError;
+  const isControl = activityId === "gromtseva-kr1" || activityId === "gromtseva-kr2";
+  const maxRuns = isControl ? 8 : 2;
   const active = (existing || []).find((run) => run.status === "in_progress");
   if (active) {
     const { data: attempts } = await admin.from("answer_attempts").select("question_id, graded, correct, points").eq("run_id", active.id);
     return { ...publicRun(active), access: activityAccess(activity), attempts: (attempts || []).map((item) => ({ questionId: item.question_id, graded: item.graded, correct: item.correct, points: Number(item.points) })) };
   }
   const access = requireActivityOpen(activity);
-  if ((existing || []).length >= 2) throw new PortalError("Обе доступные сдачи уже завершены.", 409);
+  if (isControl && (existing || []).filter((run) => run.variant_id === variantId).length >= 2) {
+    throw new PortalError("Обе сдачи этого варианта уже завершены. Выберите другой вариант.", 409);
+  }
+  if ((existing || []).length >= maxRuns) {
+    throw new PortalError(isControl ? "Все четыре варианта и их пересдачи уже завершены." : "Обе доступные сдачи уже завершены.", 409);
+  }
   const { data: keys, error: keyError } = await admin.from("answer_keys").select("points").eq("activity_id", activityId).eq("variant_id", variantId);
   if (keyError) throw keyError;
   const maxPoints = (keys || []).reduce((sum, item) => sum + Number(item.points), 0);
@@ -311,7 +318,7 @@ async function startRun(userId: string, input: Record<string, unknown>) {
   if (error?.code === "23505") {
     const { data: concurrent } = await admin.from("activity_runs").select("*").eq("student_id", student.id).eq("activity_id", activityId).eq("status", "in_progress").maybeSingle();
     if (concurrent) return { ...publicRun(concurrent), access, attempts: [] };
-    throw new PortalError("Обе доступные сдачи уже завершены.", 409);
+    throw new PortalError(isControl ? "Сдача уже начата в другой вкладке. Обновите страницу." : "Обе доступные сдачи уже завершены.", 409);
   }
   if (error) throw error;
   return { ...publicRun(created), access, attempts: [] };
