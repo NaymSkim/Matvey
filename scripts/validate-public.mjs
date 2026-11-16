@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const forbiddenFiles = ["answers.private.json", ".env", ".env.local"];
 const publicFiles = ["index.html", "guides.html", "games.html", "teacher.html", "task.html", "portal.js", "guides.js", "games.js", "teacher.js", "task-page.js", "tracker.js", "config.js", "styles.css", "guides/fizika-9-klass-oge.pdf", "guides/fizika-9-klass-oge-preview.png", "games/formula-blitz.html", "games/field.html", "games/goldberg.html", "games/alchemy.html", "games/pressure-duel.html", "games/physics-detective.html"];
+publicFiles.push("tasks/olympiad-impulse-work.html", "tasks/olympiad-impulse-work.js", "tasks/drawing-board.css", "tasks/drawing-board.js");
 publicFiles.push("tasks/impulse-work/index.html", "tasks/impulse-work/styles.css", "tasks/impulse-work/app.js", "tasks/impulse-work/portal-tracker.js", "tasks/impulse-work/assets/olympiad-1-21-1.jpg", "tasks/impulse-work/assets/olympiad-1-23-1.jpg");
 for (let number = 14; number <= 28; number += 1) publicFiles.push(`tasks/gromtseva-sr-${number}.html`);
 

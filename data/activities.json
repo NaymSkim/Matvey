@@ -556,6 +556,21 @@
       "order": 74.7
     },
     {
+      "id": "olympiad-impulse-work",
+      "title": "Олимпиадные задачи: импульс и работа",
+      "subject": "Олимпиада",
+      "description": "Две задачи из олимпиадных подборок: по 14 проверяемых этапов и черновик для рисунков.",
+      "url": "tasks/olympiad-impulse-work.html",
+      "questionCount": 2,
+      "maxPoints": 0,
+      "difficulty": "Повышенный уровень",
+      "verificationMode": "visit-only",
+      "cardState": "Практикум",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 74.8
+    },
+    {
       "id": "olympiad-physics",
       "title": "Олимпиадная физика",
       "subject": "Олимпиада",
