@@ -1,0 +1,378 @@
+"use strict";
+
+const STORAGE_KEY = "physics-lever-equilibrium-v1";
+const choice = (label, prompt, options, answer, hint, explain, lead = "") => ({ label, prompt, options, answer, hint, explain, lead, kind: "choice" });
+const number = (label, prompt, answer, unit, hint, explain, lead = "", tolerance = 0.01) => ({ label, prompt, answer, unit, hint, explain, lead, tolerance, kind: "number" });
+const section = (phase, steps) => steps.map((step) => ({ ...step, phase }));
+
+const diagrams = {
+  simple: `<svg viewBox="0 0 760 300" role="img" aria-label="Горизонтальный рычаг: слева вниз действует 20 ньютонов на плече 0,30 метра; справа вниз неизвестная сила на плече 0,50 метра; опора в точке O">
+    <defs><marker id="arr-simple" markerWidth="9" markerHeight="9" refX="5" refY="4.5" orient="auto"><path d="M0 0L9 4.5 0 9Z" fill="#335fd6"/></marker></defs>
+    <line x1="130" y1="130" x2="710" y2="130" stroke="#142c4a" stroke-width="13" stroke-linecap="round"/>
+    <path d="M390 140L367 180H413Z" fill="#dce6f9" stroke="#142c4a" stroke-width="3"/><path d="M352 183H428" stroke="#142c4a" stroke-width="4"/><text x="380" y="212" font-size="22" font-weight="800" fill="#142c4a">O</text>
+    <line x1="210" y1="54" x2="210" y2="112" stroke="#335fd6" stroke-width="5" marker-end="url(#arr-simple)"/><text x="162" y="41" font-size="20" font-weight="700" fill="#335fd6">20 Н</text>
+    <line x1="690" y1="54" x2="690" y2="112" stroke="#335fd6" stroke-width="5" marker-end="url(#arr-simple)"/><text x="638" y="41" font-size="20" font-weight="700" fill="#335fd6">F = ?</text>
+    <line x1="210" y1="235" x2="390" y2="235" stroke="#a57430" stroke-width="2"/><path d="M210 224V245M390 224V245" stroke="#a57430" stroke-width="2"/><text x="260" y="267" font-size="18" fill="#80521b">0,30 м</text>
+    <line x1="390" y1="235" x2="690" y2="235" stroke="#a57430" stroke-width="2"/><path d="M690 224V245" stroke="#a57430" stroke-width="2"/><text x="500" y="267" font-size="18" fill="#80521b">0,50 м</text>
+  </svg>`,
+  weighted: `<svg viewBox="0 0 760 330" role="img" aria-label="Рычаг длиной один метр: опора в 0,40 метра от левого конца; слева наклонная сила F направлена вправо и вниз под углом 30 градусов; вес рычага 10 ньютонов приложен в середине; на правом конце вниз действует сила 10 ньютонов">
+    <defs><marker id="arr-weighted" markerWidth="9" markerHeight="9" refX="5" refY="4.5" orient="auto"><path d="M0 0L9 4.5 0 9Z" fill="#335fd6"/></marker><marker id="arr-weight" markerWidth="9" markerHeight="9" refX="5" refY="4.5" orient="auto"><path d="M0 0L9 4.5 0 9Z" fill="#a8544b"/></marker></defs>
+    <line x1="100" y1="145" x2="700" y2="145" stroke="#142c4a" stroke-width="13" stroke-linecap="round"/>
+    <path d="M340 155L316 197H364Z" fill="#dce6f9" stroke="#142c4a" stroke-width="3"/><path d="M300 200H380" stroke="#142c4a" stroke-width="4"/><text x="326" y="230" font-size="21" font-weight="800" fill="#142c4a">O</text>
+    <line x1="100" y1="145" x2="194" y2="198" stroke="#335fd6" stroke-width="5" marker-end="url(#arr-weighted)"/><text x="106" y="109" font-size="20" font-weight="800" fill="#335fd6">F</text><text x="168" y="137" font-size="16" fill="#335fd6">30°</text>
+    <line x1="400" y1="66" x2="400" y2="125" stroke="#a8544b" stroke-width="4" marker-end="url(#arr-weight)"/><text x="362" y="49" font-size="18" fill="#a8544b">10 Н</text>
+    <line x1="700" y1="66" x2="700" y2="125" stroke="#a8544b" stroke-width="4" marker-end="url(#arr-weight)"/><text x="651" y="49" font-size="18" fill="#a8544b">10 Н</text>
+    <line x1="100" y1="260" x2="340" y2="260" stroke="#a57430" stroke-width="2"/><path d="M100 249V271M340 249V271" stroke="#a57430" stroke-width="2"/><text x="194" y="290" font-size="18" fill="#80521b">0,40 м</text>
+    <line x1="340" y1="260" x2="700" y2="260" stroke="#a57430" stroke-width="2"/><path d="M700 249V271" stroke="#a57430" stroke-width="2"/><text x="466" y="290" font-size="18" fill="#80521b">0,60 м</text>
+    <circle cx="400" cy="145" r="5" fill="#a8544b"/><text x="392" y="317" font-size="15" fill="#61738b">середина рычага: 0,50 м от левого конца</text>
+  </svg>`,
+  vessels: `<svg viewBox="0 0 760 315" role="img" aria-label="Уравновешенный рычаг с двумя сосудами: левый ближе к опоре O, правый дальше; в каждом сосуде у правой стенки плавает одинаковый шарик">
+    <defs><marker id="arr-vessel" markerWidth="9" markerHeight="9" refX="5" refY="4.5" orient="auto"><path d="M0 0L9 4.5 0 9Z" fill="#335fd6"/></marker></defs>
+    <line x1="50" y1="236" x2="710" y2="236" stroke="#142c4a" stroke-width="12" stroke-linecap="round"/><path d="M370 246L346 286H394Z" fill="#dce6f9" stroke="#142c4a" stroke-width="3"/><path d="M330 289H410" stroke="#142c4a" stroke-width="4"/><text x="363" y="311" font-size="18" font-weight="800" fill="#142c4a">O</text>
+    <path d="M135 77V228H265V77" fill="none" stroke="#142c4a" stroke-width="5"/><path d="M138 125H262V226H138Z" fill="#b8dcf3" opacity=".85"/><circle cx="248" cy="123" r="15" fill="#d88955" stroke="#8a4d28" stroke-width="2"/>
+    <path d="M540 77V228H660V77" fill="none" stroke="#142c4a" stroke-width="5"/><path d="M543 145H657V226H543Z" fill="#c8d9e8" opacity=".85"/><circle cx="645" cy="143" r="15" fill="#d88955" stroke="#8a4d28" stroke-width="2"/>
+    <line x1="200" y1="27" x2="200" y2="66" stroke="#335fd6" stroke-width="3" marker-end="url(#arr-vessel)"/><line x1="600" y1="27" x2="600" y2="66" stroke="#335fd6" stroke-width="3" marker-end="url(#arr-vessel)"/><text x="161" y="22" font-size="17" fill="#335fd6">+mg</text><text x="561" y="22" font-size="17" fill="#335fd6">+mg</text>
+    <path d="M200 255V274M370 255V274M600 255V274" stroke="#a57430" stroke-width="2"/><text x="252" y="272" font-size="17" fill="#80521b">ℓ₁</text><text x="475" y="272" font-size="17" fill="#80521b">ℓ₂ &gt; ℓ₁</text>
+  </svg>`
+};
+
+const problems = [
+  {
+    id: "simple", short: "Простой рычаг", category: "Основы", title: "Два плеча и реакция опоры",
+    subtitle: "Учимся отличать силу от момента и проверяем оба условия равновесия.",
+    source: "Учебная задача · 16 этапов",
+    prompt: "Невесомый горизонтальный рычаг опирается в точке O. Слева на расстоянии 0,30 м действует сила 20 Н вниз. Справа на расстоянии 0,50 м действует неизвестная сила F вниз. Найди F и вертикальную реакцию опоры.",
+    modelNote: "Рычаг считаем жёстким и невесомым, опору — неподвижной, трением в оси пренебрегаем.",
+    takeaways: ["Плечо силы — кратчайшее расстояние от оси до линии действия силы.", "Для покоя нужны одновременно ΣMₒ = 0 и ΣFᵧ = 0.", "Меньшая сила уравновешивает большую при большем плече."],
+    steps: [
+      ...section("Схема сил", [
+        choice("Ось вращения", "Относительно какой точки удобно считать моменты?", ["Относительно правого конца", "Относительно O, где стоит опора", "Относительно любой точки слева от рычага"], 1, "Сила реакции опоры проходит через O.", "Берём моменты относительно O: плечо реакции опоры равно нулю, поэтому её момент сразу исчезает."),
+        choice("Направления сил", "Какие силы действуют на невесомый рычаг?", ["20 Н вниз слева, F вниз справа, реакция опоры вверх", "20 Н и F вниз, реакции нет", "Вес рычага и F вверх"], 0, "Не забудь действие опоры.", "В схеме три силы: две направлены вниз, реакция опоры направлена вверх. Собственный вес рычага здесь не учитываем."),
+        choice("Что такое плечо", "Что называется плечом силы относительно оси?", ["Длина всей балки", "Расстояние от оси до точки приложения вдоль балки всегда", "Перпендикуляр от оси до линии действия силы"], 2, "Момент зависит от линии действия силы.", "Плечо — кратчайшее расстояние от O до линии действия силы. Здесь обе силы перпендикулярны рычагу, поэтому плечи равны отмеченным отрезкам."),
+        choice("Левое вращение", "Куда стремится повернуть рычаг сила 20 Н слева?", ["Против часовой стрелки", "По часовой стрелке", "Она не создаёт момента"], 0, "Представь, что левый конец опускается.", "Если левый конец идёт вниз, правый поднимается: это поворот против часовой стрелки."),
+        choice("Правое вращение", "Куда стремится повернуть рычаг сила F справа?", ["Против часовой стрелки", "По часовой стрелке", "Не поворачивает"], 1, "Правый конец опускается.", "Сила справа создаёт момент по часовой стрелке. Два момента должны компенсировать друг друга.")
+      ]),
+      ...section("Моменты", [
+        choice("Формула момента", "Как записать модуль момента силы, перпендикулярной рычагу?", ["M = F/ℓ", "M = Fℓ", "M = F + ℓ"], 1, "Сила умножается на плечо.", "Для перпендикулярной силы M = Fℓ, единица измерения — ньютон·метр."),
+        number("Левый момент", "Чему равен момент левой силы относительно O?", 6, "Н·м", "Умножь 20 Н на 0,30 м.", "Mₗ = 20 · 0,30 = 6 Н·м, против часовой стрелки."),
+        choice("Уравнение равновесия", "Какое равенство задаёт отсутствие вращения?", ["20 · 0,50 = F · 0,30", "20 + F = 0", "20 · 0,30 = F · 0,50"], 2, "Моменты с противоположными направлениями равны по модулю.", "ΣMₒ = 0, поэтому 20 · 0,30 = F · 0,50."),
+        number("Искомая сила", "Найди силу F.", 12, "Н", "Раздели 6 Н·м на 0,50 м.", "F = 6/0,50 = 12 Н."),
+        choice("Смысл ответа", "Почему F меньше 20 Н?", ["Потому что справа плечо длиннее", "Потому что сила справа направлена вниз", "Потому что опора забирает часть момента"], 0, "Сравни 0,50 м и 0,30 м.", "При равных моментах сила обратно пропорциональна плечу. Справа плечо больше, поэтому сила меньше.")
+      ]),
+      ...section("Проверка равновесия", [
+        choice("Вторая проверка", "Достаточно ли равенства моментов, чтобы рычаг оставался неподвижным?", ["Да, сумма сил не важна", "Нет, нужна ещё нулевая сумма сил", "Нет, нужна равная длина плеч"], 1, "Тело может не вращаться, но двигаться целиком.", "Для статического равновесия должны быть нулевыми и суммарный момент, и равнодействующая сил."),
+        choice("Вертикальные силы", "Какое уравнение даёт реакцию опоры R?", ["R = 20 + F", "R = 20 − F", "R = F − 20"], 0, "Вверх действует только реакция опоры.", "ΣFᵧ = 0: R − 20 − F = 0, значит R = 20 + F."),
+        number("Реакция опоры", "Найди R.", 32, "Н", "Подставь найденные 12 Н.", "R = 20 + 12 = 32 Н вверх."),
+        number("Проверка справа", "Каков момент силы F справа при найденном F?", 6, "Н·м", "Умножь 12 Н на 0,50 м.", "Правый момент равен 12 · 0,50 = 6 Н·м, по часовой стрелке; он гасит левый момент."),
+        choice("Проверка сил", "Какой итог для вертикальной равнодействующей?", ["32 − 20 − 12 = 0 Н", "32 + 20 + 12 = 64 Н", "20 − 12 = 8 Н"], 0, "Учти знаки сил по вертикали.", "Равнодействующая равна нулю: 32 − 20 − 12 = 0 Н."),
+        choice("Ошибка с плечом", "Что случится, если поменять плечи местами в уравнении моментов?", ["Ответ станет 12 Н — ничего не изменится", "Получится неверная сила 33,3 Н", "Реакция опоры исчезнет"], 1, "Проверь 20 · 0,50 / 0,30.", "Ошибочная перестановка даст F ≈ 33,3 Н. Схема и проверка моментов помогают заметить такую ошибку.")
+      ])
+    ]
+  },
+  {
+    id: "weighted", short: "Вес и наклонная сила", category: "Условия равновесия", title: "Рычаг весит сам, а сила наклонена",
+    subtitle: "Находим плечо собственного веса, вертикальную часть наклонной силы и реакцию опоры.",
+    source: "Учебная задача повышенного уровня · 19 этапов",
+    prompt: "Однородный рычаг длиной 1,0 м и массой 1,0 кг горизонтален. Опора расположена в 0,40 м от левого конца. На правом конце действует сила 10 Н вниз. На левом конце приложена сила F вправо и вниз под углом 30° к рычагу. Найди F и составляющие реакции опоры. Прими g = 10 м/с².",
+    modelNote: "Рычаг жёсткий, опора даёт вертикальную и горизонтальную реакцию, в оси нет момента трения. На схеме угол 30° отложен от горизонтали.",
+    takeaways: ["Вес однородного рычага приложен в его середине.", "Наклонную силу раскладываем: момент даёт только перпендикулярная составляющая.", "После ΣMₒ = 0 проверяем ΣFₓ = 0 и ΣFᵧ = 0."],
+    steps: [
+      ...section("Схема и плечи", [
+        choice("Точка опоры", "Какую точку выбираем осью для моментов?", ["Левый конец", "Середину балки", "Точку O на расстоянии 0,40 м от левого конца"], 2, "Там действует неизвестная реакция.", "Выбираем O: обе составляющие реакции опоры проходят через O и не дают момента."),
+        choice("Вес балки", "Где приложена сила тяжести однородного рычага?", ["В середине, в 0,50 м от левого конца", "В точке O", "На правом конце"], 0, "Однородная масса распределена равномерно.", "Центр масс однородного рычага — его середина, 0,50 м от левого конца."),
+        number("Модуль веса", "Чему равен вес рычага mg?", 10, "Н", "m = 1,0 кг, g = 10 м/с².", "mg = 1,0 · 10 = 10 Н вниз."),
+        number("Плечо веса", "Каково плечо собственного веса относительно O?", 0.1, "м", "Вычти 0,40 м из 0,50 м.", "Центр масс правее опоры на 0,50 − 0,40 = 0,10 м."),
+        number("Плечо правой силы", "Каково плечо силы 10 Н на правом конце?", 0.6, "м", "Общая длина 1,0 м; опора на 0,40 м от левого конца.", "Правое плечо равно 1,0 − 0,40 = 0,60 м."),
+        number("Плечо левой силы", "На каком расстоянии вдоль рычага от O приложена сила F?", 0.4, "м", "Опора находится в 0,40 м от левого края.", "От левого конца до O — 0,40 м. Для наклонной силы это ещё не перпендикулярное плечо: удобнее разложить F.")
+      ]),
+      ...section("Направления и моменты", [
+        choice("Части силы F", "Какая составляющая силы F создаёт момент относительно O?", ["Горизонтальная F cos 30°", "Вертикальная F sin 30°", "Обе создают одинаковые моменты"], 1, "Горизонтальная часть направлена вдоль рычага.", "Линия действия F cos 30° проходит через O, поэтому её момент ноль. Вращает только F sin 30° вниз слева."),
+        choice("Направление F", "Как вращает рычаг вертикальная часть силы F слева?", ["Против часовой стрелки", "По часовой стрелке", "Не вращает"], 0, "Левый конец опускается.", "Сила вниз слева создаёт положительный, против часовой стрелки, момент."),
+        number("Момент груза", "Чему равен момент правой силы 10 Н?", 6, "Н·м", "Умножь 10 Н на 0,60 м.", "M₁ = 10 · 0,60 = 6 Н·м по часовой стрелке."),
+        number("Момент веса", "Чему равен момент веса рычага?", 1, "Н·м", "Вес 10 Н действует на плече 0,10 м.", "M₂ = 10 · 0,10 = 1 Н·м по часовой стрелке."),
+        number("Сумма правых моментов", "Сколько всего ньютон·метров надо уравновесить силой F?", 7, "Н·м", "Сложи два момента по часовой стрелке.", "Оба момента вращают одинаково: 6 + 1 = 7 Н·м."),
+        choice("Уравнение моментов", "Как записать равновесие относительно O?", ["0,40F sin 30° = 7", "0,40F cos 30° = 7", "0,60F = 7"], 0, "Используй вертикальную составляющую F.", "Момент слева равен 0,40 · F sin 30°. Он должен быть равен 7 Н·м."),
+        number("Синус угла", "Чему равен sin 30°?", 0.5, "", "Это половина.", "sin 30° = 0,5, поэтому момент F равен 0,20F Н·м, если F выражена в ньютонах."),
+        number("Наклонная сила", "Найди модуль силы F.", 35, "Н", "Реши 0,20F = 7.", "F = 7/0,20 = 35 Н."),
+        number("Вертикальная часть F", "Чему равна F sin 30°?", 17.5, "Н", "Умножь 35 на 0,5.", "Вертикальная часть F равна 17,5 Н вниз."),
+        number("Горизонтальная часть F", "Чему примерно равна F cos 30°?", 30.31, "Н", "cos 30° = √3/2 ≈ 0,866.", "Fₓ = 35 · √3/2 ≈ 30,31 Н вправо.", "", 0.05)
+      ]),
+      ...section("Проверка сил", [
+        choice("Реакция по вертикали", "Как найти вертикальную составляющую реакции Rᵧ?", ["Rᵧ = 10 + 10 + 17,5", "Rᵧ = 10 − 10 − 17,5", "Rᵧ = 7/0,40"], 0, "Она уравновешивает три силы вниз.", "ΣFᵧ = 0: Rᵧ − 10 − 10 − 17,5 = 0."),
+        number("Значение Rᵧ", "Найди Rᵧ.", 37.5, "Н", "Сложи 10 + 10 + 17,5.", "Вертикальная реакция опоры равна 37,5 Н вверх."),
+        choice("Реакция по горизонтали", "Куда направлена горизонтальная реакция Rₓ и каков её модуль?", ["Вправо, 30,31 Н", "Влево, 30,31 Н", "Горизонтальной реакции нет"], 1, "Она должна погасить Fₓ вправо.", "ΣFₓ = 0: реакция направлена влево и по модулю равна 35 cos 30° ≈ 30,31 Н.")
+      ])
+    ]
+  },
+  {
+    id: "vessels", short: "Олимпиада: сосуды", category: "Олимпиадный разбор", title: "Плавающие шарики на рычаге",
+    subtitle: "Разбираем гидростатику и моменты, чтобы понять, почему положение шариков обманывает глаз.",
+    source: "ВсОШ · муниципальный этап 2020–2021 · 9 класс · задача 2",
+    sourceUrl: "https://vos.olimpiada.ru/upload/files/Arhive_tasks/2020-21/mun/phys/tasks-phys-9-mun-msk-20-21.pdf",
+    answerUrl: "https://vos.olimpiada.ru/upload/files/Arhive_tasks/2020-21/mun/phys/krit-phys-9-mun-msk-20-21.pdf",
+    scan: "olympiad-assets/158.jpg",
+    prompt: "На рычаге уравновесили два сосуда с разными жидкостями. Потом в каждый сосуд аккуратно поместили по маленькому шарику одинаковой массы; жидкость не вылилась. Оба шарика плавают у правой стенки своих сосудов. Как изменится равновесие? По рисунку центр правого сосуда дальше от опоры, чем центр левого.",
+    modelNote: "Сосуды на рисунке прямоугольные. Считаем, что шарики свободно плавают, стенки не поддерживают их по вертикали, а рычаг и опора остаются жёсткими. На схеме +mg обозначает добавочную нагрузку каждого сосуда после погружения шарика.",
+    takeaways: ["Плавающий шарик вытесняет жидкость массой, равной собственной массе.", "Добавочная нагрузка на дно прямоугольного сосуда распределена равномерно и равнодействующая проходит через его середину.", "Равные добавочные силы дают разные моменты, если плечи сосудов различны."],
+    steps: [
+      ...section("Чтение условия", [
+        choice("Начальное состояние", "Что известно о рычаге до добавления шариков?", ["Правый сосуд уже перевешивает", "Левый сосуд уже перевешивает", "Рычаг находится в равновесии"], 2, "В условии сказано «уравновесили».", "До опыта суммарный момент относительно опоры равен нулю."),
+        choice("Ось", "Относительно какой точки удобнее сравнивать моменты?", ["Относительно точки O под рычагом", "Относительно правой стенки левого сосуда", "Относительно любого шарика"], 0, "Сила опоры проходит через эту точку.", "Берём ось O, чтобы момент реакции опоры был нулевым."),
+        choice("Какие плечи", "Что на рисунке важно для ответа?", ["Только высоты жидкостей", "Центры сосудов и их расстояния до O", "Расстояния от шариков до ближайших стенок"], 1, "Сравни места, где расположены сосуды.", "Для добавочных сил на дно нужны плечи центров сосудов относительно O."),
+        choice("Сравнение плеч", "Какое плечо на рисунке больше?", ["Левое ℓ₁", "Они равны", "Правое ℓ₂"], 2, "Правый сосуд стоит дальше от опоры.", "По рисунку ℓ₂ > ℓ₁. Это ключевое геометрическое неравенство."),
+        choice("Почему не сравниваем массы сосудов", "Нужно ли сначала узнать массы жидкостей и сосудов?", ["Да, иначе сравнить моменты нельзя", "Нет, их прежние моменты уже уравновешены", "Нужна лишь плотность левой жидкости"], 1, "Отдели исходное равновесие от изменения.", "Старые моменты компенсировали друг друга. Достаточно найти новые добавочные моменты после помещения шариков."),
+        choice("Что одинаково", "Какая величина шариков гарантированно одинакова?", ["Масса m", "Объём", "Плотность материала"], 0, "Так прямо сказано в условии.", "У шариков равны массы m, поэтому одинаковы и их веса mg. Объёмы могут различаться.")
+      ]),
+      ...section("Как плавающий шарик нагружает сосуд", [
+        choice("Условие плавания", "Как соотносятся вес плавающего шарика и выталкивающая сила?", ["Fₐ = mg", "Fₐ > mg всегда", "Fₐ = 0 у поверхности"], 0, "Шарик не ускоряется по вертикали.", "При свободном плавании выталкивающая сила равна весу шарика: Fₐ = mg."),
+        choice("Закон Архимеда", "Как выражается выталкивающая сила через плотность жидкости ρ и вытесненный объём V?", ["Fₐ = ρV/g", "Fₐ = ρgV", "Fₐ = mgV"], 1, "Вес вытесненной жидкости.", "Fₐ = ρgV. Вместе с Fₐ = mg это даёт ρV = m."),
+        choice("Вытесненная масса", "Какова масса жидкости, вытесненной каждым шариком?", ["Меньше m", "Равна m", "Зависит от положения у стенки"], 1, "Приравняй ρgV и mg.", "Вытесненная жидкость имеет массу ρV = m, независимо от её плотности."),
+        choice("Что зависит от плотности", "Какая величина в двух сосудах может быть разной?", ["Вытесненный объём V", "Масса вытесненной жидкости", "Вес каждого шарика"], 0, "V = m/ρ.", "В более плотной жидкости шарик вытесняет меньший объём. Но вытесненная масса и добавочный вес остаются m и mg."),
+        choice("Подъём уровня", "Если площадь дна сосуда A, на сколько поднимется уровень жидкости при плавании шарика?", ["Δh = m/(ρA)", "Δh = ρA/m", "Δh = mρ/A"], 0, "Вытесненный объём V = AΔh = m/ρ.", "Для прямоугольного сосуда AΔh = m/ρ, значит Δh = m/(ρA)."),
+        choice("Прирост давления", "На сколько увеличится гидростатическое давление на дно?", ["Δp = mg/A", "Δp = ρmg", "Δp = mgA"], 0, "Δp = ρgΔh; подставь найденное Δh.", "Δp = ρg · m/(ρA) = mg/A. Плотность сокращается."),
+        choice("Равномерность", "Как меняется добавочное давление на горизонтальном дне прямоугольного сосуда?", ["Больше у правой стенки с шариком", "Одинаково по всему дну", "Только под шариком"], 1, "В покоящейся жидкости давление на одной глубине одинаково.", "Добавочное давление mg/A одинаково на всём горизонтальном дне: положение шарика у стенки не создаёт местную «точку веса» на рычаге."),
+        choice("Добавочная сила", "Какова полная добавочная вертикальная сила жидкости на дно?", ["mg", "mg/A", "ρmg"], 0, "Сила равна Δp · A.", "ΔF = (mg/A)A = mg. Это столько же, сколько вес добавленного шарика."),
+        choice("Линия действия", "Где приложена равнодействующая равномерной добавочной нагрузки на дно?", ["У правой стенки рядом с шариком", "В геометрическом центре дна", "В точке опоры O"], 1, "Равномерную нагрузку заменяем одной силой в центре площади.", "Поскольку приращение давления равномерно, его равнодействующая mg проходит через середину дна сосуда."),
+        choice("Роль боковой стенки", "Меняет ли близость шарика к правой стенке вертикальную добавочную нагрузку на дно в этой модели?", ["Да, вся нагрузка смещается к стенке", "Нет, боковые силы горизонтальны", "Да, нагрузка исчезает"], 1, "Стенки считаем вертикальными, без трения с шариком.", "Боковая стенка может дать горизонтальное действие, но не поддерживает шарик вертикально. Для момента относительно O важна добавочная вертикальная нагрузка в центре дна.")
+      ]),
+      ...section("Моменты и ответ", [
+        choice("Начальные моменты", "Как записать исходное равновесие, если прежние равнодействующие сосудов равны W₁ и W₂?", ["W₁ℓ₁ = W₂ℓ₂", "W₁ = W₂ обязательно", "W₁ℓ₂ = W₂ℓ₁"], 0, "Моменты по разные стороны равны.", "До шариков W₁ℓ₁ = W₂ℓ₂. Сами W₁ и W₂ могут быть разными."),
+        choice("Добавочный левый момент", "Каков модуль нового момента слева?", ["mgℓ₁", "mgℓ₂", "mℓ₁/g"], 0, "Добавочная сила mg действует в центре левого дна.", "Слева добавляется момент mgℓ₁ против часовой стрелки."),
+        choice("Добавочный правый момент", "Каков модуль нового момента справа?", ["mgℓ₁", "mgℓ₂", "mℓ₂/g"], 1, "У правого центра плечо ℓ₂.", "Справа добавляется момент mgℓ₂ по часовой стрелке."),
+        choice("Сравнение", "Как сравнить новые моменты, если ℓ₂ > ℓ₁?", ["mgℓ₂ > mgℓ₁", "mgℓ₂ = mgℓ₁", "mgℓ₂ < mgℓ₁"], 0, "mg положительно и одинаково.", "Правый добавочный момент больше левого."),
+        choice("Итог вращения", "В какую сторону повернётся рычаг?", ["Опустится левый сосуд", "Опустится правый сосуд", "Останется горизонтальным"], 1, "Новый правый момент больше.", "Правый сосуд перевесит. Это ответ Б в официальном ключе ВсОШ."),
+        choice("Проверка плотности", "Что изменится, если жидкости поменять местами, но шарики по-прежнему свободно плавают?", ["Ответ останется тем же", "Обязательно перевесит левый сосуд", "Равновесие всегда сохранится"], 0, "В формуле Δp = mg/A плотность сократилась.", "При заданной геометрии и плавании шариков плотность влияет на вытесненный объём, но добавочный момент каждого сосуда остаётся mgℓ."),
+        choice("Ловушка про шарики", "Почему нельзя просто взять плечо от O до центра каждого шарика?", ["Потому что шарики не имеют веса", "Потому что вертикальное действие передаётся через жидкость и распределяется по дну", "Потому что моменты шариков равны при равных массах"], 1, "Шарик плавает, а не лежит на рычаге отдельно.", "Вес шарика передаётся жидкости; рост гидростатического давления распределяет добавочную нагрузку по дну. Поэтому берём плечо центра сосуда."),
+        choice("Условие о выливании", "Зачем сказано, что жидкость не вылилась?", ["Чтобы масса системы действительно увеличилась на m в каждом сосуде", "Чтобы шарики не плавали", "Чтобы плечи стали равны"], 0, "Если бы жидкость вылилась, часть исходной массы исчезла бы.", "Без выливания каждый сосуд получает одинаковую добавочную массу m. При потере жидкости надо было бы учитывать и её массу, и положение."),
+        choice("Граница модели", "Какой случай потребовал бы отдельного анализа?", ["Шарик удерживается за сосуд вертикальной нитью", "Плотности жидкостей различны", "Шарики у правых стенок"], 0, "Это уже другой путь передачи силы.", "Если шарик закреплён нитью или подпирается стенкой с трением, вертикальные силы могут передаваться иначе. В задаче шарики свободно плавают."),
+        choice("Финальное объяснение", "Какая цепочка рассуждений полна?", ["Шарики одинаковой массы → одинаковое добавочное давление на дно → равные силы в центрах дна → больше момент справа", "Шарики справа в сосудах → оба момента одинаковы → равновесие", "Разные жидкости → без плотностей ответить нельзя"], 0, "Объедини плавание, гидростатику и плечи.", "Каждый шарик добавляет силу mg в центре своего сосуда. У правого сосуда плечо больше, значит его новый момент больше и он опускается.")
+      ])
+    ]
+  }
+];
+const totalSteps = problems.reduce((sum, problem) => sum + problem.steps.length, 0);
+const workspace = document.getElementById("workspace");
+const nav = document.getElementById("module-nav");
+
+function emptyState() {
+  return { version: 1, selected: problems[0].id, progress: Object.fromEntries(problems.map((problem) => [problem.id, { index: 0, statuses: [] }])) };
+}
+
+function loadState() {
+  const fallback = emptyState();
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    if (saved?.version !== 1) return fallback;
+    if (problems.some((problem) => problem.id === saved.selected)) fallback.selected = saved.selected;
+    for (const problem of problems) {
+      const raw = saved.progress?.[problem.id];
+      if (!Array.isArray(raw?.statuses)) continue;
+      const statuses = raw.statuses.slice(0, problem.steps.length).filter((status) => status === "self" || status === "assisted");
+      fallback.progress[problem.id] = { statuses, index: Math.min(Math.max(0, Number(raw.index) || 0), statuses.length) };
+    }
+  } catch { /* A damaged saved state starts a fresh route. */ }
+  return fallback;
+}
+
+let state = loadState();
+let wrongAttempts = 0;
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch { /* The route remains usable without storage. */ }
+}
+
+function currentProblem() { return problems.find((problem) => problem.id === state.selected) || problems[0]; }
+function currentRun() { return state.progress[currentProblem().id]; }
+function completedCount() { return problems.reduce((sum, problem) => sum + state.progress[problem.id].statuses.length, 0); }
+
+function renderNav() {
+  nav.replaceChildren();
+  problems.forEach((problem, index) => {
+    const done = state.progress[problem.id].statuses.length;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `module-link${problem.id === state.selected ? " active" : ""}`;
+    button.dataset.problem = problem.id;
+    button.setAttribute("aria-current", problem.id === state.selected ? "step" : "false");
+    button.innerHTML = `<span class="module-num">${index + 1}</span><span>${problem.short}</span><span class="module-count">${done}/${problem.steps.length}</span>`;
+    nav.append(button);
+  });
+}
+
+function renderProgress() {
+  const done = completedCount();
+  const percent = Math.round(done / totalSteps * 100);
+  document.getElementById("progress-text").textContent = `${done} из ${totalSteps} этапов`;
+  document.getElementById("progress-percent").textContent = `${percent}%`;
+  document.getElementById("progress-fill").style.width = `${percent}%`;
+}
+
+function renderProblemCard(problem) {
+  return `<article class="problem-card"><span class="source">${problem.source}</span><p>${problem.prompt}</p><div class="diagram">${diagrams[problem.id]}<p class="diagram-caption">Схема к задаче; чертёж условный, величины указаны в тексте.</p></div>${problem.modelNote ? `<p class="model-note">${problem.modelNote}</p>` : ""}${problem.scan ? `<details><summary>Посмотреть исходное условие ВсОШ</summary><figure><img src="${problem.scan}" alt="Оригинальное условие олимпиады с рисунком и вариантами ответа"><figcaption><a href="${problem.sourceUrl}" target="_blank" rel="noopener noreferrer">Официальное условие ↗</a> · <a href="${problem.answerUrl}" target="_blank" rel="noopener noreferrer">Официальный ответ ↗</a></figcaption></figure></details>` : ""}</article>`;
+}
+
+function renderOptions(problem, run, step) {
+  const shift = (run.index * 2 + problems.indexOf(problem)) % step.options.length;
+  return step.options.map((_, position) => {
+    const index = (position + shift) % step.options.length;
+    return `<button class="option" type="button" data-option="${index}" aria-pressed="false">${step.options[index]}</button>`;
+  }).join("");
+}
+
+function renderStep(problem, run) {
+  const step = problem.steps[run.index];
+  const solved = run.statuses[run.index];
+  const backButton = run.index > 0 ? `<button class="secondary-button" type="button" data-action="back">← Предыдущий этап</button>` : "";
+  const content = solved
+    ? `<div class="feedback good"><p><strong>${solved === "assisted" ? "Этап пройден с разбором." : "Верно."}</strong></p><p>${step.explain}</p></div><div class="step-actions">${backButton}<button class="primary-button" type="button" data-action="next">${run.index === problem.steps.length - 1 ? "Завершить задачу" : "Следующий этап →"}</button></div>`
+    : `${step.lead ? `<p class="step-support">${step.lead}</p>` : ""}<p class="step-prompt">${step.prompt}</p>${step.kind === "choice" ? `<div class="options" role="group" aria-label="Варианты ответа">${renderOptions(problem, run, step)}</div>` : `<label class="number-field"><input id="number-answer" type="text" inputmode="decimal" autocomplete="off" aria-label="Числовой ответ" placeholder="Введи число"><span>${step.unit}</span></label>`}<div class="step-actions">${backButton}<button class="primary-button" type="button" data-action="check">Проверить шаг</button><span class="subtle" id="attempt-note">Объяснение откроется после проверки.</span></div><div id="step-feedback" aria-live="polite"></div>`;
+  return `<article class="step-card"><div class="step-header"><div><p class="eyebrow">${step.phase} · этап ${run.index + 1} из ${problem.steps.length}</p><h3>${step.label}</h3></div><span class="step-number">${solved ? "✓ Выполнено" : "Твой ход"}</span></div><div class="step-track" aria-hidden="true"><span style="width:${(run.index + (solved ? 1 : 0)) / problem.steps.length * 100}%"></span></div><div class="step-body">${content}</div></article>`;
+}
+
+function renderDone(problem) {
+  return `<article class="done-card"><p class="eyebrow">Маршрут задачи завершён</p><h3>${problem.title}</h3><p>Ты прошёл все ${problem.steps.length} этапов. Оставь в черновике схему и проверь ключевые идеи ещё раз.</p><ul class="recap">${problem.takeaways.map((item) => `<li>${item}</li>`).join("")}</ul><div class="step-actions"><button class="secondary-button" type="button" data-action="review">Просмотреть этапы с начала</button><button class="secondary-button" type="button" data-action="other">${problems.every((item) => state.progress[item.id].statuses.length === item.steps.length) ? "Посмотреть другую задачу" : "Перейти к другой задаче →"}</button></div></article>`;
+}
+
+function render() {
+  const problem = currentProblem();
+  const run = currentRun();
+  renderNav();
+  renderProgress();
+  workspace.innerHTML = `<div class="workspace-head"><p class="eyebrow">${problem.category} · рычаг</p><h2>${problem.title}</h2><p>${problem.subtitle}</p></div>${renderProblemCard(problem)}${run.index < problem.steps.length ? renderStep(problem, run) : renderDone(problem)}`;
+}
+
+function showFeedback(message, kind, reveal = false) {
+  const box = document.getElementById("step-feedback");
+  if (!box) return;
+  box.className = `feedback ${kind}`;
+  box.replaceChildren();
+  const paragraph = document.createElement("p");
+  paragraph.textContent = message;
+  box.append(paragraph);
+  if (reveal) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary-button";
+    button.dataset.action = "reveal";
+    button.textContent = "Открыть разбор и продолжить";
+    button.style.marginTop = "10px";
+    box.append(button);
+  }
+}
+
+function checkStep() {
+  const problem = currentProblem();
+  const run = currentRun();
+  const step = problem.steps[run.index];
+  if (!step || run.statuses[run.index]) return;
+  let correct = false;
+  if (step.kind === "choice") {
+    const selected = workspace.querySelector('.option[aria-pressed="true"]');
+    if (!selected) { showFeedback("Сначала выбери ответ.", "hint"); return; }
+    correct = Number(selected.dataset.option) === step.answer;
+  } else {
+    const raw = document.getElementById("number-answer")?.value.trim().replace(",", ".") || "";
+    if (!raw) { showFeedback("Сначала введи число.", "hint"); return; }
+    const value = Number(raw);
+    if (!Number.isFinite(value)) { showFeedback("Введи число, например 0,5.", "hint"); return; }
+    correct = Math.abs(value - step.answer) <= step.tolerance;
+  }
+  if (correct) {
+    run.statuses[run.index] = "self";
+    wrongAttempts = 0;
+    saveState();
+    render();
+    return;
+  }
+  wrongAttempts += 1;
+  document.getElementById("attempt-note").textContent = `Ошибок на этом этапе: ${wrongAttempts}`;
+  showFeedback(wrongAttempts >= 3 ? `Пока не получилось. ${step.hint}` : `Проверь ещё раз. ${step.hint}`, wrongAttempts >= 3 ? "bad" : "hint", wrongAttempts >= 3);
+}
+
+workspace.addEventListener("click", (event) => {
+  const option = event.target.closest(".option");
+  if (option) {
+    workspace.querySelectorAll(".option").forEach((button) => button.setAttribute("aria-pressed", String(button === option)));
+    return;
+  }
+  const action = event.target.closest("[data-action]")?.dataset.action;
+  if (action === "check") checkStep();
+  if (action === "back") {
+    currentRun().index = Math.max(0, currentRun().index - 1);
+    wrongAttempts = 0;
+    saveState();
+    render();
+    workspace.querySelector(".step-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if (action === "reveal") {
+    const run = currentRun();
+    run.statuses[run.index] = "assisted";
+    wrongAttempts = 0;
+    saveState();
+    render();
+  }
+  if (action === "next") {
+    currentRun().index += 1;
+    wrongAttempts = 0;
+    saveState();
+    render();
+    workspace.querySelector(".step-card, .done-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if (action === "other") {
+    const current = problems.findIndex((problem) => problem.id === state.selected);
+    const next = [...problems.slice(current + 1), ...problems.slice(0, current)].find((problem) => state.progress[problem.id].statuses.length < problem.steps.length);
+    state.selected = (next || problems[(current + 1) % problems.length]).id;
+    wrongAttempts = 0;
+    saveState();
+    render();
+    workspace.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  if (action === "review") {
+    currentRun().index = 0;
+    saveState();
+    render();
+    workspace.querySelector(".step-card")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
+
+workspace.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && event.target.id === "number-answer") checkStep();
+});
+
+nav.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-problem]");
+  if (!target) return;
+  state.selected = target.dataset.problem;
+  wrongAttempts = 0;
+  saveState();
+  render();
+  workspace.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+const resetButton = document.getElementById("reset-progress");
+let resetPending = false;
+resetButton.addEventListener("click", () => {
+  if (!resetPending) {
+    resetPending = true;
+    resetButton.textContent = "Подтвердить сброс";
+    resetButton.classList.add("confirm-reset");
+    return;
+  }
+  state = emptyState();
+  wrongAttempts = 0;
+  saveState();
+  render();
+  resetPending = false;
+  resetButton.textContent = "Начать заново";
+  resetButton.classList.remove("confirm-reset");
+});
+
+document.addEventListener("click", (event) => {
+  if (!resetPending || event.target === resetButton) return;
+  resetPending = false;
+  resetButton.textContent = "Начать заново";
+  resetButton.classList.remove("confirm-reset");
+});
+
+render();

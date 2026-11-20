@@ -51,6 +51,7 @@ for (let number = 14; number <= 28; number += 1) {
   fs.copyFileSync(path.join(root, "tasks", name), path.join(dist, "tasks", name));
 }
 fs.copyFileSync(path.join(root, "tasks", "olympiad-impulse-work.js"), path.join(dist, "tasks", "olympiad-impulse-work.js"));
+fs.copyFileSync(path.join(root, "tasks", "lever-equilibrium.js"), path.join(dist, "tasks", "lever-equilibrium.js"));
 const olympiadAssets = path.join(root, "tasks", "olympiad-assets");
 if (fs.existsSync(olympiadAssets)) fs.cpSync(olympiadAssets, path.join(dist, "tasks", "olympiad-assets"), { recursive: true });
 fs.writeFileSync(path.join(dist, ".nojekyll"), "");
