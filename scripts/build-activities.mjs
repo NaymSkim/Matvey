@@ -234,6 +234,29 @@ for (const work of laterWorks) {
   addActivity(activityId, variants, answers);
 }
 
+// Условия домашней работы публикуются, ключи остаются в локальном исходнике вне репозитория.
+const leverHomework = JSON.parse(fs.readFileSync(path.join(workspace, "lever_homework_source.json"), "utf8"));
+const homeworkQuestions = leverHomework.tasks.map((task, index) => {
+  const id = `q${index + 1}`;
+  const question = {
+    id, title: task.title, prompt: task.prompt, kind: task.kind,
+    points: task.points, scored: true,
+  };
+  if (task.unit) question.unit = task.unit;
+  if (task.options) question.options = task.options;
+  return question;
+});
+const homeworkAnswers = leverHomework.tasks.map((task, index) => ({
+  variantId: leverHomework.variantId, questionId: `q${index + 1}`,
+  matcherType: task.kind, expected: task.answer, tolerance: task.tolerance,
+  points: task.points, solutionHtml: cleanHtml(task.solution),
+}));
+addActivity(leverHomework.activityId, [{
+  id: leverHomework.variantId, title: leverHomework.variantTitle,
+  maxPoints: homeworkQuestions.reduce((sum, question) => sum + question.points, 0),
+  questions: homeworkQuestions,
+}], homeworkAnswers);
+
 fs.writeFileSync(privateFile, JSON.stringify(privateAnswers, null, 2) + "\n", { mode: 0o600 });
 fs.chmodSync(privateFile, 0o600);
 

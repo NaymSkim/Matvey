@@ -574,9 +574,9 @@
       "id": "lever-equilibrium",
       "title": "Рычаг и условия равновесия · по шагам",
       "subject": "Тренажёры",
-      "description": "Три разбора за 61 этап: правило моментов, собственный вес рычага, наклонная сила и олимпиадная задача ВсОШ.",
+      "description": "Семь задач за 113 этапов: от простого рычага и качелей до собственного веса, наклонной силы и олимпиады ВсОШ.",
       "url": "tasks/lever-equilibrium.html",
-      "questionCount": 3,
+      "questionCount": 7,
       "maxPoints": 0,
       "difficulty": "9 класс · повышенный уровень",
       "verificationMode": "visit-only",
@@ -584,6 +584,20 @@
       "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
       "published": true,
       "order": 74.9
+    },
+    {
+      "id": "lever-homework",
+      "title": "Домашняя работа · рычаг и равновесие",
+      "subject": "Домашнее задание",
+      "description": "9 заданий по возрастанию сложности: момент силы, положение опоры, несколько нагрузок, вес рычага и наклонная сила. Одна пересдача.",
+      "url": "task.html?activity=lever-homework",
+      "questionCount": 9,
+      "maxPoints": 16,
+      "difficulty": "От простого к сложному",
+      "verificationMode": "server-graded",
+      "gradeThresholds": { "5": 85, "4": 65, "3": 40, "2": 0 },
+      "published": true,
+      "order": 75
     },
     {
       "id": "olympiad-physics",
